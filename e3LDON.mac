@@ -1184,6 +1184,7 @@ Sub SelectAdventureZone_TC
 		/message \ayCamp ${CampThemeArray[5,1]}: \ag${CampThemeArray[5,2]}\ay: \ag(\am${Tak_Wins}\ay/\am${Tak_Wins_Max}\ay) --- (\at${Tak_WinsToGo} Remaining\ay)
 	}  else {
 		/message \ayCamp ${CampThemeArray[5,1]}: \ag${CampThemeArray[5,2]}\ay: \ag(\am${Tak_Wins}\ay/\am${Tak_Wins_Max}\ay) --- (\arCOMPLETED\ay)
+	}
 	/message ==================================================================
 		
 	|-----------------------------------
