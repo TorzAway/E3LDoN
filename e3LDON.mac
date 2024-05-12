@@ -241,6 +241,8 @@ created dynamicly for each dungeon now.
 E3LDON.mac v6.2 
 Reworked ThemeSelect to properly detect camp teme completionand switch to Round RObin if done with LDON themes.
 Cleaned up code for window state opens
+---  Reworked the SPawnSteps for many of the dungeons to not pull deadly trains !!! 
+---  ( a few more steps won't kill ya, buyt a few less WILL !)
 ****************************************************************************************************************|
 #event Magical_Presence "strange magical presence"
 #event Sealed_Off "sealed off to you"											   
