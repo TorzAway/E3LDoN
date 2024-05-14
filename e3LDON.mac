@@ -1,6 +1,6 @@
 |****************************************************************************************************************
-E3LDON.mac v6.2 by Kroaking
-May 12th, 2024
+E3LDON.mac v6.3 by Kroaking
+May 14th, 2024
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -57,9 +57,6 @@ Must be in the same zone when you start the macro, if you enable UseKissAssist y
 
 Signal an annoying Beep sound when the group leader gets stuck
 /E3LDON UseBeep on (or) /E3LDON UseBeep off
-
-Medding: HealAt, HealTo, MedEndAt, MedEndTo, MedAt, MedTill
-Can all be set at PCT /E3LDON HealAt 50
 
 Pull Ability and Pull Ability Range - Make sure you are not trying to pull from 150 with an ability range of 100
 /E3LDON PullAbility Throw Stone (and) /E3LDON PullAbilityRange 70 (and) /E3LDON RequiresLineOfSight on
@@ -243,6 +240,18 @@ Reworked ThemeSelect to properly detect camp teme completionand switch to Round 
 Cleaned up code for window state opens
 ---  Reworked the SPawnSteps for many of the dungeons to not pull deadly trains !!! 
 ---  ( a few more steps won't kill ya, buyt a few less WILL !)
+
+E3LDON.mac v6.3
+Revisited and updated Group End/Mana/Death check routines..   removed GroupHealth and its ini settings.
+
+[Mana] MedAt=??  Should be set to what you currently have in your E3 INI file as: 
+	[Misc] AutoMedBreak PctMana=30 ( if you have AutoMedBreak (On/Off)=On )
+
+[Endurance] MedEndAt=?? Should be set to what you currently have in your E3 INI file as: 
+	[Misc] AutoMedBreak PctMana=30 ( if you have AutoMedBreak (On/Off)=On )
+	
+This will be updated after Rekka pushes Exposed E3 ini settings to E3Bots to be captured via mono queries.
+
 ****************************************************************************************************************|
 #event Magical_Presence "strange magical presence"
 #event Sealed_Off "sealed off to you"											   
@@ -557,9 +566,6 @@ Sub Declares
 	/call CheckINI ${Settings} Pull PullAbilityRange int 30
 	/call CheckINI ${Settings} Pull PullRequiresLineOfSight bool TRUE
 	/call CheckINI ${Settings} Pull UseCastSpells bool FALSE
-	
-	/call CheckINI ${Settings} Health HealAt int  70
-	/call CheckINI ${Settings} Health HealTill int 100
 	
 	/call CheckINI ${Settings} Endurance MedEndAt int 8
 	/call CheckINI ${Settings} Endurance MedEndTill int 100
@@ -903,9 +909,12 @@ Sub GoPoKMagus
 		|--------------------------------
 		/delay 2s
 		
-		|-------------------------
-		|/call ForeceSpawnStepReset
-		|-------------------------
+		|--------------------------------------------------------------
+		| Forece reset of LastSwarmed_Step and LastSwarmed_Dungeon
+		|--------------------------------------------------------------
+		/call IniChange "Theme" "LastSwarmed_Dungeon" ${Zone.ShortName}
+		/call IniChange "Theme" "LastSwarmed_Step" 1
+		|--------------------------------------------------------------
 		
 		/echo \ayHeaded to: \ar[\at${NextCamp_Bark}\ar]\ax
 		|--------------------------
@@ -2158,6 +2167,15 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
     /for x ${SpawnPull_Step} to ${LocalStepArray.Size}
 		/varset TempSpawnPull_Loc ${LocalStepArray[1,${x}]}
 		
+		|------------------------------------------
+		/if (!${Me.XTarget[1].ID} && ${CheckBots}) {
+			/call GroupDeathChk
+			/call GroupManaChk
+			/call GroupEndChk
+			/if (${UseMerc}) /call CheckMerc
+		}		
+		|------------------------------------------
+
 		|-----------------------------------------------
 		|/echo \arSwarmPullStepMove: \ayTempSpawnPull_Loc=(${TempSpawnPull_Loc})
 		|-----------------------------------------------
@@ -2166,16 +2184,13 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 			|--------------------------------------------------------------
 			|/echo \agARRAY RETURNED DATA for step \ay[${x}]\ag: TempSpawnPull_Loc=(\am${TempSpawnPull_Loc})
 			|--------------------------------------------------------------
-			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Target.ID}) {
-				
+			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Target.ID}) {				
 				|----------------------------------------------
 				|-- Just nav to loc, using NavToLoc function will cause you to engage mobs along the path !
 				/nav loc ${TempSpawnPull_Loc}
-				|----------------------------------------------				
-				
+				|----------------------------------------------
 				/if (${UseE3BC}) /squelch /e3bca /nav loc ${TempSpawnPull_Loc}
 				/if (${UseDanNet}) /squelch /dgex /nav loc ${TempSpawnPull_Loc}
-				|/call GroupWait
 			}
 			|--------------------------------------------------------------
 			/if (${UseE3BC}) /squelch /e3bca /nav loc ${TempSpawnPull_Loc}
@@ -2769,9 +2784,8 @@ Sub DoSinglePull(string Enemy)
 		/squelch /target clear
 	}
 	/if (${Window[RespawnWnd].Open}) /call GroupDeathChk
-	/if (!${Me.XTarget[1].ID}) {
+	/if (!${Me.XTarget[1].ID} && ${CheckBots}) {
 		/call GroupDeathChk
-		/call GroupHealthChk
 		/call GroupManaChk
 		/call GroupEndChk
 		/if (${UseMerc}) /call CheckMerc
@@ -3621,67 +3635,56 @@ Sub GMMode
 | --------------------------------------------------------------------------------------------
 Sub GroupDeathChk
 	/if (${Debugging}) /echo Sub GroupDeathChk Entry
-	
+	|--- If ImDead
 	/if (${Me.State.Equal[DEAD]}) {
 		/echo \arYOU~ have died! Waiting for YOU to get off your face.
-		|/setchattitle "You died, waiting for rez!"
+		|----------
 		/while (${Me.State.Equal[DEAD]} ) {
 			/call GMCheck
-			/delay 10
+			/beep
+			/beep
+			/beep
+			/delay 30			
 		}
+		|----------
 	}
+	|--- If ImDead
 	/if (${Me.XTarget[1].ID}) /return
+	|--- If Group --
 	/if (${Group}) {
 		/declare i int local
+		|----------------------------------
 		/for i 1 to ${Group}
+			| -- If GroupMember IsDead
 			/if (${Group.Member[${i}].State.Equal[DEAD]} ) {
 				/echo ${Group.Member[${i}].Name} has died. Waiting for them to get off their face.
-				|/setchattitle "${Group.Member[${i}].Name} has died. Waiting for Rez"
+				|------   If No Target ID
 				/if (!${Me.XTarget[1].ID}) {
-					/if (${UseE3BC}) {
-						/bccmd names
-					}
+					|----------------------------------
 					/while (${Group.Member[${i}].State.Equal[DEAD]} && !${Me.XTarget[1].ID}) {
 						/call GMCheck
 						/if ((${Me.Standing}) && (!${Me.Casting.ID}) && (!${Me.Mount.ID})) /sit
-						/if (${UseE3BC}) {
-							/if (!${Defined[j]}) /declare j int local
-							/for j 0 to ${Group}
-								/if (${j} != ${i}) {
-									/if (${Debugging}) /echo \ayConnected to the server? : ${EQBC.Names.Find[${Group.Member[${j}].Name}]}
-									/if (${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]}) {
-										/echo ${Group.Member[${j}].Name} was connected to EQBC and not sitting. So I'm going to get them to sit. 
-										/call Refresh
-										/e3bct ${Group.Member[${j}].Name} /sit
-									}
-								}
-							/next j
-						}
-						/if (${UseDanNet}) {
-							/if (!${Defined[j]}) /declare j int local
-							/for j 0 to ${Group}
-								/if (${j} != ${i}) {
-									/if (${Debugging}) /echo \ayConnected to the server? : ${DanNet.Peers.Find[${Group.Member[${j}].Name}]}
-									/if (${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]}) {
-										/echo ${Group.Member[${j}].Name} was connected to DanNet and not sitting. So I'm going to get them to sit. 
-										/call Refresh
-										/dex ${Group.Member[${j}].Name} /sit
-									}
-								}
-							/next j
-						}
-						/delay 10
+						/beep
+						/delay 30
 					}
+					|----------------------------------
+					|--
 					/if (${UseE3BC}) {
 						/squelch /e3bcg /stand
 					}
 					/if (${UseDanNet}) {
                         /squelch /dgga /stand
                     }
+					|--
 				}
+				|------   If No Target ID
 			}
+			| -- If GroupMember IsDead
 		/next i
+		|----------------------------------
 	}
+	|--- If Group --
+	
 	/if (${Debugging}) /echo Sub GroupDeathChk Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -3692,203 +3695,74 @@ Sub GroupDeathChk
 Sub GroupManaChk
 	/if (${Debugging}) /echo Sub GroupManaChk Entry
 	/if (${Me.XTarget[1].ID}) /return
-	 
+	
+	|------------------- If NoCombat	
 	/if (!${Me.Combat}) {
-		|/setchattitle "Group Mana Check"
+		|---
+		|--- If Me LowMana	
 		/if ((${Me.PctMana} < ${MedAt} && !${Me.State.Equal[DEAD]} && !${Select[${Me.Class.ShortName},WAR,BER,ROG,MNK,BRD]}) || (${BardMed} && ${Me.PctMana} < ${MedAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 			/echo \arYOU are low on mana!
-			|/setchattitle "Waiting on YOUR mana to reach ${MedTill}%"
+			|------   If No Target ID
 			/if (!${Me.XTarget[1].ID}) {
-				/if (${UseE3BC}) {
-					/bccmd names
-				}
+				|--------------------------------------
 				/while ((${Me.PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]} && !${Select[${Me.Class.ShortName},WAR,BER,ROG,MNK,BRD]}) || (${BardMed} && ${Me.PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 					/call GMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-					/if (${UseE3BC}) {
-						/if (!${Defined[j]}) /declare j int local
-						/for j 1 to ${Group}
-							/if ((${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Class.ShortName.Equal[BRD]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]}) || (${BardMed} && ${Group.Member[${j}].State.Equal[Stand]} && ${Group.Member[${j}].Class.ShortName.Equal[BRD]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]})) {
-								/echo ${Group.Member[${j}].Name} was connected to EQBC and not sitting. So I'm going to get them to sit.
-								/call Refresh
-								/e3bct ${Group.Member[${j}].Name} /sit
-							}
-						/next j
-					}
-					/if (${UseDanNet}) {
-						/if (!${Defined[j]}) /declare j int local
-						/for j 1 to ${Group}
-						/if ((${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Class.ShortName.Equal[BRD]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]}) || (${BardMed} && ${Group.Member[${j}].State.Equal[Stand]} && ${Group.Member[${j}].Class.ShortName.Equal[BRD]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]})) {
-							/echo ${Group.Member[${j}].Name} was connected to DanNet and not sitting. So I'm going to get them to sit. 
-							/call Refresh
-							/dex ${Group.Member[${j}].Name} /sit
-							}
-							/next j
-					}	
 					/delay 10
-
 				}
+				|--------------------------------------
+				|----
 				/if (${UseE3BC}) {
                     /squelch /e3bcg /stand
                 }
 				/if (${UseDanNet}) {
                     /squelch /dgge /stand
                 }
+				|----
 			}
+			|------   If No Target ID
 		}
+		|--- If Me LowMana
+		|--- If Group --		
 		/if (${Group}) {
 			/declare i int local
+			|--------------------------------------
 			/for i 1 to ${Group}
+				|------   If Valid GroupMemeber
 				/if ((${Group.Member[${i}].PctMana} < ${MedAt} && ${Group.Member[${i}].Class.CanCast} && !${Group.Member[${i}].State.Equal[DEAD]} && !${Select[${Group.Member[${i}].Class.ShortName},BRD,WAR,MNK,BER,ROG]}) || (${BardMed} && (${Group.Member[${i}].PctMana} < ${MedAt}) && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 					/echo \ar${Group.Member[${i}].Name} is low on mana!
 					/call Refresh
-					|/setchattitle "Waiting on ${Group.Member[${i}].Name}'s mana to reach ${MedTill}%"
+					|------   If No Target ID
 					/if (!${Me.XTarget[1].ID}) {
 						/if (${UseE3BC}) {
 							/bccmd names
 						}
+						|--------------------------------------
 						/while ((${Group.Member[${i}].PctMana} < ${MedTill} && ${Group.Member[${i}].Class.CanCast} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && !${Select[${Group.Member[${i}].Class.ShortName},BRD,WAR,MNK,BER,ROG]}) || (${BardMed} && ${Group.Member[${i}].PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 							/call GMCheck
 							/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-							/if (${UseE3BC}) {
-								/if (!${Defined[j]}) /declare j int local
-								/for j 1 to ${Group}
-								/if ((${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]} && ${Group.Member[${j}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]} && ${Group.Member[${j}].Class.ShortName.Equal[BRD]})) {
-									/echo ${Group.Member[${j}].Name} was connected to EQBC and not sitting. So I'm going to get them to sit.
-								/call Refresh
-									/e3bct ${Group.Member[${j}].Name} /sit
-								}
-							/next j
-							}
-							/if (${UseDanNet}) {
-							/if (!${Defined[j]}) /declare j int local
-							/for j 1 to ${Group}
-									/if ((${Group.Member[${j}].State.Equal[Stand]} && ${Group.Member[${j}].Class.ShortName.NotEqual[BRD]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]}) || (${BardMed} && ${Group.Member[${j}].State.Equal[Stand]} && ${Group.Member[${j}].Class.ShortName.Equal[BRD]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]})) {
-										/echo ${Group.Member[${j}].Name} was connected to DanNet and not sitting. So I'm going to get them to sit. 
-										/call Refresh
-										/dex ${Group.Member[${j}].Name} /sit
-									}
-							/next j
-						}
 							/delay 10
 						}
+						|---------------------------------------
+						|----
 						/if (${UseE3BC}) {
 							/squelch /e3bcg /stand
 						}
 						/if (${UseDanNet}) {
 							/squelch /dgge /stand
 						}
+						|----
 					}
+					|------   If No Target ID
 				}
+				|------   If Valid GroupMemeber
 			/next i
+			|--------------------------------------
 		}
+		|--- If Group --
 	}
+	|------------------- If NoCombat
 	/if (${Debugging}) /echo Sub GroupManaChk Exit
-/return
-| --------------------------------------------------------------------------------------------
-
-| --------------------------------------------------------------------------------------------
-| SUB: GroupHealthChk
-| --------------------------------------------------------------------------------------------
-Sub GroupHealthChk
-	/if (${Debugging}) /echo Sub GroupHealthChk Entry
-	/if (${Me.XTarget[1].ID}) /return
-	 
-	|/setchattitle "GroupHealthCheck"
-	/if (!${Me.Combat}) {
-		/if (${Me.PctHPs} < ${HealAt} && !${Me.State.Equal[DEAD]}) {
-			/echo \arYOU are low on Health!
-			|/setchattitle "Waiting on YOUR health to reach ${HealTill}%"
-			/if (!${Me.XTarget[1].ID}) {
-				/if (${UseE3BC}) {
-					/bccmd names
-				}
-				/while (${Me.PctHPs} < ${HealTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]}) {
-					/call GMCheck
-					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-					/if (${UseE3BC}) {
-						/if (!${Defined[j]}) /declare j int local
-						/for j 1 to ${Group}
-							/if (${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]}) {
-								/echo ${Group.Member[${j}].Name} was connected to EQBC and not sitting. So I'm going to get them to sit. 
-								/call Refresh
-								/if (${UseE3BC}) /e3bct ${Group.Member[${j}].Name} /sit
-								/if (${UseDannet}) /dex ${Group.Member[${j}].Name} /sit
-							}
-						/next j
-					}
-					/if (${UseDanNet}) {
-							/if (!${Defined[j]}) /declare j int local
-							/for j 1 to ${Group}
-									/if (${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]}) {
-										/echo ${Group.Member[${j}].Name} was connected to DanNet and not sitting. So I'm going to get them to sit. 
-										/call Refresh
-										/dex ${Group.Member[${j}].Name} /sit
-									}
-							/next j
-						}
-					/delay 10
-				}
-				/if (${UseE3BC}) {
-                    /squelch /e3bcg /stand
-                } 
-				/if (${UseDanNet}) {
-                    /squelch /dgge /stand
-                }
-			}
-		}
-		/if (${Group}) {
-			/declare i int local
-			/for i 1 to ${Group}
-				/if (${Group.Member[${i}].ID}) {
-					/if (${Group.Member[${i}].PctHPs} < ${HealAt} && !${Group.Member[${i}].State.Equal[DEAD]}) {
-						/echo ${Group.Member[${i}].Name} is low on Health!
-								/call Refresh
-						|/setchattitle "Waiting on ${Group.Member[${i}].Name} health to reach ${HealTill}%"
-						/if (!${Me.XTarget[1].ID}) {
-							/if (${UseE3BC}) {
-								/bccmd names
-							}
-							/while (${Group.Member[${i}].PctHPs} < ${HealTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]}) {
-								/call GMCheck
-								/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-								/if (${UseE3BC}) {
-									/if (!${Defined[j]}) /declare j int local
-									/for j 0 to ${Group}
-									/if (${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]}) {
-										/echo ${Group.Member[${j}].Name} was connected to EQBC and not sitting. So I'm going to get them to sit. 
-										/call Refresh
-										/if (${UseE3BC}) /e3bct ${Group.Member[${j}].Name} /sit
-										/if (${UseDannet}) /dex ${Group.Member[${j}].Name} /sit
-									}
-									/next j
-								}
-								/if (${UseDanNet}) {
-									/if (!${Defined[j]}) /declare j int local
-									/for j 0 to ${Group}
-									/if (${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]}) {
-										/echo ${Group.Member[${j}].Name} was connected to DanNet and not sitting. So I'm going to get them to sit. 
-										/call Refresh
-										/dex ${Group.Member[${j}].Name} /sit
-									}
-							/next j
-						}
-								/delay 10
-
-							}
-							/if (${UseE3BC}) {
-								/squelch /e3bcg /stand
-							}
-							/if (${UseDanNet}) {
-								/squelch /dgge /stand
-							}
-						}
-					}
-				}
-			/next i
-		}
-	}
-	/if (${Debugging}) /echo Sub GroupHealthChk Exit
 /return
 | --------------------------------------------------------------------------------------------
 
@@ -3898,99 +3772,74 @@ Sub GroupHealthChk
 Sub GroupEndChk
 	/if (${Debugging}) /echo Sub GroupEndChk Entry
 	/if (${Me.XTarget[1].ID}) /return
-	 
-	|/setchattitle "GroupEnduranceCheck"
+	
+	|------------------- If NoCombat
 	/if (!${Me.Combat}) {
+		|---
+		|--- If Me LowEnd
 		/if ((${Me.PctEndurance} < ${MedEndAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Me.PctEndurance} < ${MedEndAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 			/echo \arYOU are low on Endurance!
-			|/setchattitle "Waiting on YOUR Endurance to reach ${MedEndTill}%"
+			|------   If No Target ID
 			/if (!${Me.XTarget[1].ID}) {
-				/if (${UseE3BC}) {
-					/bccmd names
-				}
+				|--------------------------------------
 				/while ((${Me.PctEndurance} < ${MedEndTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Me.PctEndurance} < ${MedEndAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 					/call GMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-					/if (${UseE3BC}) {
-								/if (!${Defined[j]}) /declare j int local
-								/for j 1 to ${Group}
-								/if ((${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]} && !${Group.Member[${j}].Class.ShortName.Equal[BRD]}) || (${BardMed} && ${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]} && ${Group.Member[${j}].Class.ShortName.Equal[BRD]})) {
-									/echo ${Group.Member[${j}].Name} was connected to EQBC and not sitting. So I'm going to get them to sit.
-								/call Refresh
-									/e3bct ${Group.Member[${j}].Name} /sit
-								}
-							/next j
-							}
-							/if (${UseDanNet}) {
-							/if (!${Defined[j]}) /declare j int local
-							/for j 1 to ${Group}
-									/if ((${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Class.ShortName.Equal[BRD]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]}) || (${BardMed} && ${Group.Member[${j}].State.Equal[Stand]} && ${Group.Member[${j}].Class.ShortName.Equal[BRD]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]})) {
-										/echo ${Group.Member[${j}].Name} was connected to DanNet and not sitting. So I'm going to get them to sit. 
-										/call Refresh
-										/dex ${Group.Member[${j}].Name} /sit
-									}
-							/next j
-						}
-						/delay 10
+					/delay 10
 				}
+				|--------------------------------------
+				|----
 				/if (${UseE3BC}) {
                     /squelch /e3bcg /stand
                 }
 				/if (${UseDanNet}) {
                     /squelch /dgge /stand
                 }
+				|----
 			}
+			|------   If No Target ID
 		}
+		|--- If Me LowEnd
+		|--- If Group --
 		/if (${Group}) {
 			/declare i int local
+			|--------------------------------------
 			/for i 1 to ${Group}
+				|------   If Valid GroupMemeber
 				/if (${Group.Member[${i}].ID}) {
+					|------   If GroupMember LowEnd
 					/if ((${Group.Member[${i}].PctEndurance} < ${MedEndAt} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${i}].PctEndurance} < ${MedEndAt} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 						/echo \ar${Group.Member[${i}].Name} is low on Endurance!
-								/call Refresh
-						|/setchattitle "Waiting on ${Group.Member[${i}].Name} Endurance to reach ${MedEndTill}%"
+						/call Refresh
+						|------   If No Target ID
 						/if (!${Me.XTarget[1].ID}) {
-							/if (${UseE3BC}) {
-								/bccmd names
-							}
+							|---------------------------------------
 							/while ((${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 								/call GMCheck
 								/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-								/if (${UseE3BC}) {
-									/if (!${Defined[j]}) /declare j int local
-									/for j 0 to ${Group}
-									/if ((${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]} && ${Group.Member[${j}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${EQBC.Names.Find[${Group.Member[${j}].Name}]} && ${Group.Member[${j}].Class.ShortName.Equal[BRD]})) {
-										/echo ${Group.Member[${j}].Name} was connected to EQBC and not sitting. So I'm going to get them to sit. 
-										/call Refresh
-										/if (${UseE3BC}) /e3bct ${Group.Member[${j}].Name} /sit
-										/if (${UseDannet}) /dex ${Group.Member[${j}].Name} /sit
-									}
-									/next j
-								}
-								/if (${UseDanNet}) {
-							/if (!${Defined[j]}) /declare j int local
-							/for j 0 to ${Group}
-									/if ((${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]} && ${Group.Member[${j}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${j}].State.Equal[Stand]} && !${Group.Member[${j}].Type.Equal[Mercenary]} && !${Group.Member[${j}].State.Equal[DEAD]} && ${DanNet.Peers.Find[${Group.Member[${j}].Name}]} && ${Group.Member[${j}].Class.ShortName.Equal[BRD]})) {
-										/echo ${Group.Member[${j}].Name} was connected to EQBC and not sitting. So I'm going to get them to sit. 
-										/call Refresh
-										/dex ${Group.Member[${j}].Name} /sit
-									}
-									/next j
-								}
 								/delay 10
 							}
+							|---------------------------------------
+							|----
 							/if (${UseE3BC}) {
 								/squelch /e3bcg /stand
 							}
 							/if (${UseDanNet}) {
 								/squelch /dgge /stand
 							}
+							|----
 						}
+						|------   If No Target ID
 					}
+					|------   If GroupMember LowEnd
 				}
+				|------   If Valid GroupMemeber
 			/next i
+			|--------------------------------------
 		}
+		|--- If Group --
 	}
+	|------------------- If NoCombat
 	/if (${Debugging}) /echo Sub GroupEndChk Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -4037,7 +3886,6 @@ Sub NavToLoc(int Y,int X,int Z)
 	/while (${Math.Distance[${Me.Y}, ${Me.X}, ${Me.Z}: ${Y}, ${X}, ${Z}]} > 30) {
 		/if (${Navigation.Active}) {
 			/if (${CheckBots}) /call GroupDeathChk
-			/if (${CheckBots}) /call GroupHealthChk
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
 			/if (${CheckBots} && ${UseMerc}) /call CheckMerc
@@ -4048,7 +3896,6 @@ Sub NavToLoc(int Y,int X,int Z)
 				/call DoSinglePull
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
-				/if (${CheckBots}) /call GroupHealthChk
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
 				/if (${CheckBots} && ${UseMerc}) /call CheckMerc
@@ -4084,8 +3931,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 	/while (${Math.Distance[${Me.Y}, ${Me.X}, ${Me.Z}: ${Y}, ${X}, ${Z}]} > 20) {
 		/if (${Navigation.Active}) {
 			/if (${Debugging}) /echo WaitNav Moving ELSE
-			/if (${CheckBots}) /call GroupDeathChk
-			/if (${CheckBots}) /call GroupHealthChk
+			/if (${CheckBots}) /call GroupDeathChk			
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
 			/if (${CheckBots} && ${UseMerc}) /call CheckMerc		
@@ -4104,8 +3950,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 			}
 			} else {
 				/if (${Debugging}) /echo WaitNav Moving ELSE
-				/if (${CheckBots}) /call GroupDeathChk
-				/if (${CheckBots}) /call GroupHealthChk
+				/if (${CheckBots}) /call GroupDeathChk				
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
 				/if (${CheckBots} && ${UseMerc}) /call CheckMerc
@@ -4168,8 +4013,7 @@ Sub WaitNav(NavTargetID)
 				/call DoSinglePull
 			} else {
 				/if (${Debugging}) /echo \ayWaitNav Moving
-				/if (${CheckBots}) /call GroupDeathChk
-				/if (${CheckBots}) /call GroupHealthChk
+				/if (${CheckBots}) /call GroupDeathChk				
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
 				/if (${CheckBots} && ${UseMerc}) /call CheckMerc
@@ -4212,8 +4056,7 @@ Sub WaitNav(NavTargetID)
 					}
 				}
 				/if (${Debugging}) /echo WaitNav Moving ELSE
-				/if (${CheckBots}) /call GroupDeathChk
-				/if (${CheckBots}) /call GroupHealthChk
+				/if (${CheckBots}) /call GroupDeathChk				
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
 				/if (${CheckBots} && ${UseMerc}) /call CheckMerc
