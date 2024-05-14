@@ -3348,7 +3348,7 @@ Sub CheckInvis
 					/squelch /e3bct ${Group.Member[${x}].CleanName} /playmelody stop
 					:CheckBrdInvisNowE3BCT
 					/if (!${Me.Invis}) {				
-						/squelch /dex ${Group.Member[${x}].CleanName} /cast 11 ${BRDTravelSong}
+						/squelch /e3bct ${Group.Member[${x}].CleanName} /cast 11 ${BRDTravelSong}
 						/delay 3s
 						/delay 5s
 						/echo \agWaiting for invis to kick in .....
@@ -3731,12 +3731,19 @@ Sub GroupManaChk
 				|------   If Valid GroupMemeber
 				/if ((${Group.Member[${i}].PctMana} < ${MedAt} && ${Group.Member[${i}].Class.CanCast} && !${Group.Member[${i}].State.Equal[DEAD]} && !${Select[${Group.Member[${i}].Class.ShortName},BRD,WAR,MNK,BER,ROG]}) || (${BardMed} && (${Group.Member[${i}].PctMana} < ${MedAt}) && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 					/echo \ar${Group.Member[${i}].Name} is low on mana!
+					|--------------
+					| Make Them Sit
+					|--------------
+					/if (${UseE3BC}) {
+						/squelch /e3bct ${Group.Member[${i}].CleanName} /sit
+					}
+					/if (${UseDanNet}) {
+						/squelch /dex ${Group.Member[${i}].CleanName} /sit
+					}
+					|----					
 					/call Refresh
 					|------   If No Target ID
 					/if (!${Me.XTarget[1].ID}) {
-						/if (${UseE3BC}) {
-							/bccmd names
-						}
 						|--------------------------------------
 						/while ((${Group.Member[${i}].PctMana} < ${MedTill} && ${Group.Member[${i}].Class.CanCast} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && !${Select[${Group.Member[${i}].Class.ShortName},BRD,WAR,MNK,BER,ROG]}) || (${BardMed} && ${Group.Member[${i}].PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 							/call GMCheck
@@ -3810,6 +3817,16 @@ Sub GroupEndChk
 					|------   If GroupMember LowEnd
 					/if ((${Group.Member[${i}].PctEndurance} < ${MedEndAt} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${i}].PctEndurance} < ${MedEndAt} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 						/echo \ar${Group.Member[${i}].Name} is low on Endurance!
+						|--------------
+						| Make Them Sit
+						|--------------
+						/if (${UseE3BC}) {
+							/squelch /e3bct ${Group.Member[${i}].CleanName} /sit
+						}
+						/if (${UseDanNet}) {
+							/squelch /dex ${Group.Member[${i}].CleanName} /sit
+						}
+						|----						
 						/call Refresh
 						|------   If No Target ID
 						/if (!${Me.XTarget[1].ID}) {
