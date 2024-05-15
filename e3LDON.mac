@@ -2570,29 +2570,6 @@ Sub DoSwarmPull
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
-| SUB: CheckAndNullifyArray  Subroutine to check and nullify excess elements in LocalStepArray
-| --------------------------------------------------------------------------------------------
-Sub CheckAndNullifyArray(int MaxIndex)
-/if (${Debugging}) /echo Sub CheckAndNullifyArray Entry
-
-| Check if LocalStepArray is defined
-/if (${Defined[LocalStepArray]}) {
-	| Loop through elements in the second dimension of LocalStepArray
-	/declare j int local 2
-	/for j 2 to 9
-		| Check if the current element index is beyond the maximum allowed index for the zone
-		/if (${j} >= ${MaxIndex}) {
-			| Nullify the element if it's beyond the maximum allowed index
-			/varset LocalStepArray_${Zone.ShortName}[1, ${j}] ""
-		}
-	/next j
-}
-
-/if (${Debugging}) /echo Sub CheckAndNullifyArray Exit
-/return
-| --------------------------------------------------------------------------------------------
-
-| --------------------------------------------------------------------------------------------
 | SUB: DoClearTargets  ( Called by DoSwarmPull )
 | --------------------------------------------------------------------------------------------
 Sub DoClearTargets
