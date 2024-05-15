@@ -3710,8 +3710,6 @@ Sub GroupDeathChk
 	}
 	|--- If Group --
 	
-	/echo \atExiting death check routine!\ax
-	
 	/if (${Debugging}) /echo Sub GroupDeathChk Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -3796,8 +3794,6 @@ Sub GroupManaChk
 		|--- If Group --
 	}
 	|------------------- If NoCombat
-	
-	/echo \atExiting mana meditation routine!\ax
 	
 	/if (${Debugging}) /echo Sub GroupManaChk Exit
 /return
@@ -3887,8 +3883,6 @@ Sub GroupEndChk
 		|--- If Group --
 	}
 	|------------------- If NoCombat
-	
-	/echo \atExiting endurance meditation routine!\ax
 	
 	/if (${Debugging}) /echo Sub GroupEndChk Exit
 /return
