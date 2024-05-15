@@ -282,7 +282,7 @@ Sub Main
 	/declare notkillable			int 	outer	0
 	/declare Announce				bool	outer	FALSE
 	/declare startTask 				int 	outer 	${Zone.ID}
-	/declare version				string	outer 	6.2
+	/declare version				string	outer 	6.3
 
 	/message ==================================================================
  	/call Declares
@@ -307,8 +307,8 @@ Sub Main
 
 	|------------
 	/if (${UsingE3BC} && ${UsingMQ2DanNet}) {
-		/echo UsingMQ2DanNet=(${UsingMQ2DanNet})
-		/echo UsingE3BC=(${UsingE3BC})
+		|/echo UsingMQ2DanNet=(${UsingMQ2DanNet})
+		|/echo UsingE3BC=(${UsingE3BC})
 		/message ==================================================================
 		/echo \arYou can only use \atONE\ax communication system, please select \at(one or the other)\ax to use !\ax
 		/echo \arCorrect this in ytour INI and restart the macro. . . .  \agExiting!
@@ -319,8 +319,8 @@ Sub Main
 
 	|------------
 	/if (!${UsingE3BC} && !${UsingMQ2DanNet}) {
-		/echo UsingMQ2DanNet=(${UsingMQ2DanNet})
-		/echo UsingE3BC=(${UsingE3BC})
+		|/echo UsingMQ2DanNet=(${UsingMQ2DanNet})
+		|/echo UsingE3BC=(${UsingE3BC})
 		/message ==================================================================
 		/echo \arYou are \atNOT\ax using a supported ommunication system, please select \at(one or the other)\ax to use !\ax
 		/echo \arCorrect this in ytour INI and restart the macro. . . .  \agExiting!
