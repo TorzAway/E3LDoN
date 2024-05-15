@@ -12,7 +12,7 @@ Credits: TreeHuginDruid, CWTN, earthsnemesis, Kaen01 and others on the forums at
 LDON Aventures Available at Commonlands, South Ro, North Ro, Butcherblock & Everfrost
 You need at least 3 group members. One can be a mercenary
 
-Take your group to a starting zone and run /mac LDON to start the macro
+Take your group to a starting zone and run /mac E3LDON to start the macro
 
 After the first run two ini files will be created.
 LDoN_YOURTOOONNAME.ini and LDoNMobIgnore.ini
