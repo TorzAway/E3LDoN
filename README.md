@@ -71,8 +71,6 @@ Use Cast Spells if Caster / Group Leader / Puller
 Foraging - If you want to forage after a task ends. Set in 10ths of a second 18000 max is 30 minutes. Off is 0
 /E3LDON ForageTime 18000 (or) LDON ForageTime 0
 
-Use custom navmesh files for all LDoN zones
-
 Tips: Set MQ2Nav window, Debug Tools, Door Handler Debug to 25.000 if you have issues with doors in takish
 
 -----------------------------------------------------------------
