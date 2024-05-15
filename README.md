@@ -16,7 +16,6 @@ Use custom navmesh files provided for all LDoN zones.
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
-
 Credits: TreeHuginDruid, CWTN, earthsnemesis, Kaen01 and others on the forums at Redguides
 -----------------------------------------------------------------
 
