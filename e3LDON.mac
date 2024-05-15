@@ -302,17 +302,33 @@ Sub Main
 	
 	/if (${ForageTime}>0) /call CheckPlugin MQ2AutoForage
 	/call CheckPlugin MQ2Melee
-	
-	/if (${UseE3BC}) /call CheckPlugin MQ2EQBC
+	/if (${UseE3BC}) /call CheckPlugin E3BCS
 	/if (${UseDanNet}) /call CheckPlugin MQ2DanNet
-		
-	/if (!${UseE3BC} && !${UseDanNet}) {
-	/message ==================================================================
-	/message \arYOU HAVE NEITHER THE \ao[\agMQ2EQBC\ao]\ar OR \ao[\agMQ2DanNet\ao]\ar PLUGIN LOADED ! 
-	/message \ar--- \atYOU MUST LOAD ONE, \ayUPDATE \am${Settings}\ay, AND RESTART \ar---
-	/message ==================================================================
+
+	|------------
+	/if (${UsingE3BC} && ${UsingMQ2DanNet}) {
+		/echo UsingMQ2DanNet=(${UsingMQ2DanNet})
+		/echo UsingE3BC=(${UsingE3BC})
+		/message ==================================================================
+		/echo \arYou can only use \atONE\ax communication system, please select \at(one or the other)\ax to use !\ax
+		/echo \arCorrect this in ytour INI and restart the macro. . . .  \agExiting!
+		/message ==================================================================
+		/end
 	}
-	
+	|------------
+
+	|------------
+	/if (!${UsingE3BC} && !${UsingMQ2DanNet}) {
+		/echo UsingMQ2DanNet=(${UsingMQ2DanNet})
+		/echo UsingE3BC=(${UsingE3BC})
+		/message ==================================================================
+		/echo \arYou are \atNOT\ax using a supported ommunication system, please select \at(one or the other)\ax to use !\ax
+		/echo \arCorrect this in ytour INI and restart the macro. . . .  \agExiting!
+		/message ==================================================================
+		/end
+	}
+	|------------
+		
 	/if (${Bool[${Plugin[MQ2Bucles]}]}) {
         /squelch /plugin MQ2Bucles unload noauto
         /echo MQ2Bucles detected! This macro doesn't like it! Unloading temporarily ...
@@ -507,7 +523,9 @@ Sub Declares
 	/declare Adventure_Progress		string	outer	NULL
 	/declare CurrentDC				int		outer	0
 	/declare CurrentDCAC			int		outer	0
-	/declare BRDTravelSong			string	local	"Selo's Song of Travel"
+	/declare BRDTravelSong			string	outer	"Selo's Song of Travel"
+	/declare UsingE3BC 				bool 	outer 	FALSE
+	/declare UsingMQ2DanNet			bool 	outer 	FALSE
 	|----------------------------------------------------------		
 	|** SPECIFIC of E3LDON.mac/SwarmPull & Theme type declares **|
 	
@@ -3441,27 +3459,49 @@ Sub CheckInvis
 | --------------------------------------------------------------------------------------------
   Sub CheckPlugin(string pluginname)
   /if (${Debugging}) /echo Sub CheckPlugin Entry
-  /if (!${Bool[${Plugin[${pluginname}]}]}) {
-    /echo \ag${pluginname}\ax \arNOT\ax detected! This macro requires it! Loading ...
-	/squelch /plugin ${pluginname}
+  	
+	|------------
+	/if (!${Bool[${Plugin[${pluginname}]}]} && !${pluginname.Equal[E3BCS]}) {
+		/echo \ag${pluginname}\ax \arNOT\ax detected! This macro requires it! Loading ...
+		/squelch /plugin ${pluginname}
 		/if (!${Bool[${Plugin[${pluginname}]}]}) {
 			/echo \ag${pluginname}\ax \arSTILL NOT\ax detected! This macro requires it! EXITING ...
 			/endmacro
 		} else {
 		    /echo \ag${pluginname}\ax \atNOW\ax detected !
 		}
-  } else {
-			/echo \ag${pluginname}\ax detected!
-  }  
-    
-  /if (${Bool[${Plugin[${pluginname}]}]} && ${pluginname.Equal[MQ2EQBC]}) { 
-		/echo \agYou are connected using MQ2EQBC !
-		|/bccmd connect
-  }
-  /if (${Bool[${Plugin[${pluginname}]}]} && ${pluginname.Equal[MQ2DanNet]}) {
-		/echo \agYou are connected using MQ2DanNet !
-  }
-  /if (${Debugging}) /echo Sub CheckPlugin Exit
+	} else {
+		/echo \ag${pluginname}\ax detected!
+	}
+	|------------
+		
+	|------------
+	|-- Test if we are using E3.
+	/if (${pluginname.Equal[E3BCS]}) {
+		/if (!${MQ2Mono.Query[e3,InCombat].Equal[NULL]}) {
+			/varset UsingE3BC TRUE
+			/echo \agYou \ayARE connected\ax using \atE3's\ax native \atE3BCS\ax communication system !		
+		} else {
+			/varset UsingE3BC FALSE
+			/echo \agYou \arare NOT connected\ax using \atE3's\ax native \atE3BCS\ax communication system !		
+		}
+	}
+	|------------	
+
+	|------------
+	|-- Test if we are using MQ2DanNet.
+	/if (${pluginname.Equal[MQ2DanNet]}) {
+		/if (${Bool[${Plugin[${pluginname}]}]} && ${pluginname.Equal[MQ2DanNet]}) {
+			/varset UsingMQ2DanNet TRUE
+			/echo \agYou \ayARE connected\ax using \atMQ2DanNet\ax communication system !
+		} else {
+			/varset UsingMQ2DanNet FALSE
+			/echo \agYou \arare NOT connected\ax using \atMQ2DanNet\ax communication system !
+		}
+	}
+	|------------
+	
+	/if (${Debugging}) /echo Sub CheckPlugin Exit
   /return
 | --------------------------------------------------------------------------------------------
 
