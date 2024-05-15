@@ -1,4 +1,5 @@
-# E3LDoN
+# E3LDoN based on LDoN.mac by TreeHuginDruid
+
 Use /E3LDON HELP or /E3LDON while the macro is running for a list of commands.
 
 Use custom navmesh files provided for all LDoN zones.
