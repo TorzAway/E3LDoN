@@ -45,9 +45,6 @@ Switch camp selection method in game:
 /E3LDON ThemeCheck on (to use SMarrT Theme Check method)
 /E3LDON ThemeCheck off (to use SMarrT RoundRobin method)
 
-Log out after completing the task
-/E3LDON UseLogOut on
-
 Use a mercenary
 /E3LDON UseMerc on
 
@@ -242,6 +239,7 @@ Cleaned up code for window state opens
 ---  ( a few more steps won't kill ya, buyt a few less WILL !)
 
 E3LDON.mac v6.3
+Removed UseLogOut functionality and declares.
 Revisited and updated Group End/Mana/Death check routines..   removed GroupHealth and its ini settings.
 
 [Mana] MedAt=??  Should be set to what you currently have in your E3 INI file as: 
@@ -360,7 +358,6 @@ Sub Main
 	|/echo \at/E3LDoN \agUseCWTNHunterTankMode \ayis set to \at[\ag${UseCWTNHunterTankMode}\at]
 	|/echo \at/E3LDoN \agUseKissAssist \ayis set to \at[\ag${UseKissAssist}\at]
 	|/echo \at/E3LDoN \agUseRGMercs \ayis set to \at[\ag${UseRGMercs}\at]
-	|/echo \at/E3LDoN \agUseLogOut \atAfter Task \ayis set to \at[\ag${UseLogOut}\at]
 	|/echo \at/E3LDoN \agUseBeep \atWhen Stuck \ayis set to \at[\ag${UseBeep}\at]
 	|/echo \at/E3LDoN \agUseE3BC \ayis set to \at[\ag${UseE3BC}\at]
 	|/echo \at/E3LDoN \agUseDanNet \ayis set to \at[\ag${UseDanNet}\at]
@@ -559,8 +556,7 @@ Sub Declares
 	/call CheckINI ${Settings} Camp CampRadius int 2500
 	/call CheckINI ${Settings} Pull ZRadius int 500
 	|** SPECIFIC of E3LDON.mac/PullFarm.mac type declares **|
-		
-	/call CheckINI ${Settings} General UseLogOut bool FALSE
+
 	/call CheckINI ${Settings} General AssistMe bool TRUE
 	/call CheckINI ${Settings} General UseE3BC bool TRUE
 	/call CheckINI ${Settings} General UseDanNet bool FALSE
