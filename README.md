@@ -50,9 +50,6 @@ Switch camp selection method in game:
 /E3LDON ThemeCheck on (to use SMarrT Theme Check method)
 /E3LDON ThemeCheck off (to use SMarrT RoundRobin method)
 
-Log out after completing the task
-/E3LDON UseLogOut on
-
 Use a mercenary
 /E3LDON UseMerc on
 
