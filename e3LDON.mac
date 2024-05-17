@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-May 15th, 2024 - 05:17:00AM
+May 17th, 2024 - 07:01:44AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -3304,7 +3304,6 @@ Sub CheckInvis
 	/if (${Debugging}) /echo Sub CheckInvis Entry
 	
 	/declare x 					int 	local	0
-	/declare BRDTravelSong		string	local	"Selo's Song of Travel"
 	
 	|----------------------------------------------------------------------------
 	|--- REFERENCE ----
