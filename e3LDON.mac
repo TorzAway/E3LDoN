@@ -222,23 +222,23 @@ Version is specific to Project Lazarus server for Temple of Marr and PoK Magus t
 E3LDON.mac v6.0 by Kroaking
 Incorporated RoundRobin and ThemeCheck camp selection methods:
 RoundRobin .. cycles between all camps..  skipping last camp won. (ThemeCheck=FALSE)
-ThemeCHeck .. determines how many wins needed by camp/theme to max your augment stats/get COH, 
-skips last camp wonand then selects the camp you need the most wins in.
+ThemeCheck .. determines how many wins needed by camp/theme to max your augment stats/get COH, 
+skips last camp won and then selects the camp you need the most wins in.
 toon will pick camp with LEAST amount of LDON theme wins, and 
 attempt to skip the last successful camp theme completed.
 
 E3LDON.mac v6.1 contribution by Venoryk
 Added exception sub to handle wait lock for file data being written which was causing steparray 
-to go out of bounds on multiple array creation/deletion. Duneon SpawnStel location array data should be 
-created dynamicly for each dungeon now.
+to go out of bounds on multiple array creation/deletion. Dungeon SpawnSteplocation array data should be 
+created dynamically for each dungeon now.
 
-E3LDON.mac v6.2 
-Reworked ThemeSelect to properly detect camp teme completionand switch to Round RObin if done with LDON themes.
+E3LDON.mac v6.2 by Kroaking
+Reworked ThemeSelect to properly detect camp theme completion and switch to Round Robin if done with LDON themes.
 Cleaned up code for window state opens
----  Reworked the SPawnSteps for many of the dungeons to not pull deadly trains !!! 
----  ( a few more steps won't kill ya, buyt a few less WILL !)
+---  Reworked the SpawnSteps for many of the dungeons to not pull deadly trains !!! 
+---  ( a few more steps won't kill ya, but a few less WILL !)
 
-E3LDON.mac v6.3
+E3LDON.mac v6.3 by Kroaking
 Removed UseLogOut functionality and declares.
 Revisited and updated Group End/Mana/Death check routines..   removed GroupHealth and its ini settings.
 
