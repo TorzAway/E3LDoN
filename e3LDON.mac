@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-May 17th, 2024 - 07:04:44PM
+May 18th, 2024 - 07:18:24PM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -247,6 +247,8 @@ Revisited and updated Group End/Mana/Death check routines..   removed GroupHealt
 
 [Endurance] MedEndAt=?? Should be set to what you currently have in your E3 INI file as: 
 	[Misc] AutoMedBreak PctMana=30 ( if you have AutoMedBreak (On/Off)=On )
+	
+Added BardSong INI section to define BardSong and BardSongSlot to play travel invis song.
 	
 This will be updated after Rekka pushes Exposed E3 ini settings to E3Bots to be captured via mono queries.
 
@@ -520,7 +522,6 @@ Sub Declares
 	/declare Adventure_Progress		string	outer	NULL
 	/declare CurrentDC				int		outer	0
 	/declare CurrentDCAC			int		outer	0
-	/declare BRDTravelSong			string	outer	"Selo's Song of Travel"
 	/declare UsingE3BC 				bool 	outer 	FALSE
 	/declare UsingMQ2DanNet			bool 	outer 	FALSE
 	|----------------------------------------------------------		
@@ -574,7 +575,10 @@ Sub Declares
 	/call CheckIni ${Settings} Group UseCWTNHunterTankMode bool FALSE
 	/call CheckIni ${Settings} Group UseCWTN bool FALSE
 	/call CheckIni ${Settings} Group UseKissAssist bool FALSE
-	/call CheckIni ${Settings} Group UseRGMercs bool FALSE	
+	/call CheckIni ${Settings} Group UseRGMercs bool FALSE
+	
+	/call CheckINI ${Settings} BardSong BRDTravelSong string "Selo's Song of Travel"
+	/call CheckINI ${Settings} BardSong BRDTravelSongSlot string 11	
 	
 	/call CheckINI ${Settings} Pull PullAbility string ReplaceMeWithYourSkill
 	/call CheckINI ${Settings} Pull PullAbilityRange int 30
@@ -587,7 +591,7 @@ Sub Declares
 	/call CheckINI ${Settings} Mana MedAt int 30
 	/call CheckINI ${Settings} Mana MedTill int 100
 	/call CheckINI ${Settings} Mana BardMed bool TRUE
-	
+		
 	/call CheckIni ${Settings} Alerts AFKGM bool TRUE
 	/call CheckIni ${Settings} Alerts UseBeep bool TRUE
 	
@@ -3352,11 +3356,11 @@ Sub CheckInvis
 				/if (${UseE3BC}) {
 					/squelch /e3bct ${Group.Member[${x}].CleanName} /playmelody stop
 					/delay 1s
-					/squelch /e3bct ${Group.Member[${x}].CleanName} /memspell 11 ${BRDTravelSong}
+					/squelch /e3bct ${Group.Member[${x}].CleanName} /memspell ${BRDTravelSongSlot} ${BRDTravelSong}
 					/delay 2s
 					:CheckBrdInvisNowE3BCT
 					/if (!${Me.Invis}) {				
-						/squelch /e3bct ${Group.Member[${x}].CleanName} /cast 11 ${BRDTravelSong}
+						/squelch /e3bct ${Group.Member[${x}].CleanName} /cast ${BRDTravelSongSlot} ${BRDTravelSong}
 						/delay 3s
 						/delay 5s
 						/echo \agWaiting for invis to kick in .....
