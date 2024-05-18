@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-May 18th, 2024 - 07:18:24PM
+May 18th, 2024 - 09:42:24PM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -2197,6 +2197,7 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 		| Call Group2Me me if separated members before next pull.
 		|--------------------------------------------------------
 		/call Group2Me
+		/call GroupWait
 		/delay 10
 		|--------------------------------------------------------
 
@@ -3742,7 +3743,7 @@ Sub GroupManaChk
 				/while ((${Me.PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]} && !${Select[${Me.Class.ShortName},WAR,BER,ROG,MNK,BRD]}) || (${BardMed} && ${Me.PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 					/call GMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-					/delay 10
+					/delay 3s
 				}
 				|--------------------------------------
 				|----
@@ -3782,12 +3783,12 @@ Sub GroupManaChk
 						/while ((${Group.Member[${i}].PctMana} < ${MedTill} && ${Group.Member[${i}].Class.CanCast} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && !${Select[${Group.Member[${i}].Class.ShortName},BRD,WAR,MNK,BER,ROG]}) || (${BardMed} && ${Group.Member[${i}].PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 							/call GMCheck
 							/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-							/delay 10
+							/delay 3s
 							|----------
 							/if (${Group.Member[${i}].Standing}) {
+								/delay 3s
 								/if (${UseE3BC}) /squelch /e3bct ${Group.Member[${i}].CleanName} /sit
 								/if (${UseDanNet}) /squelch /dex ${Group.Member[${i}].CleanName} /sit
-								/delay 10
 							}							
 							|----------
 						}
@@ -3834,7 +3835,7 @@ Sub GroupEndChk
 				/while ((${Me.PctEndurance} < ${MedEndTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Me.PctEndurance} < ${MedEndAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 					/call GMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-					/delay 10
+					/delay 3s
 				}
 				|--------------------------------------
 				|----
@@ -3876,12 +3877,12 @@ Sub GroupEndChk
 							/while ((${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 								/call GMCheck
 								/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-								/delay 10
+								/delay 3s
 								|----------
 								/if (${Group.Member[${i}].Standing}) {
+									/delay 3s
 									/if (${UseE3BC}) /squelch /e3bct ${Group.Member[${i}].CleanName} /sit
-									/if (${UseDanNet}) /squelch /dex ${Group.Member[${i}].CleanName} /sit
-									/delay 10
+									/if (${UseDanNet}) /squelch /dex ${Group.Member[${i}].CleanName} /sit									
 								}							
 								|----------
 						}
