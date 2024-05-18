@@ -2188,6 +2188,13 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 			/if (${UseMerc}) /call CheckMerc
 		}		
 		|------------------------------------------
+		
+		|--------------------------------------------------------
+		| Call Group2Me me if separated members before next pull.
+		|--------------------------------------------------------
+		/call Group2Me
+		/delay 10
+		|--------------------------------------------------------
 
 		|-----------------------------------------------
 		|/echo \arSwarmPullStepMove: \ayTempSpawnPull_Loc=(${TempSpawnPull_Loc})
@@ -3772,6 +3779,13 @@ Sub GroupManaChk
 							/call GMCheck
 							/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
 							/delay 10
+							|----------
+							/if (${Group.Member[${i}].Standing}) {
+								/if (${UseE3BC}) /squelch /e3bct ${Group.Member[${i}].CleanName} /sit
+								/if (${UseDanNet}) /squelch /dex ${Group.Member[${i}].CleanName} /sit
+								/delay 10
+							}							
+							|----------
 						}
 						|---------------------------------------
 						|----
@@ -3859,9 +3873,16 @@ Sub GroupEndChk
 								/call GMCheck
 								/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
 								/delay 10
-							}
-							|---------------------------------------
-							|----
+								|----------
+								/if (${Group.Member[${i}].Standing}) {
+									/if (${UseE3BC}) /squelch /e3bct ${Group.Member[${i}].CleanName} /sit
+									/if (${UseDanNet}) /squelch /dex ${Group.Member[${i}].CleanName} /sit
+									/delay 10
+								}							
+								|----------
+						}
+						|---------------------------------------
+						|----
 							/if (${UseE3BC}) {
 								/squelch /e3bcg /stand
 							}
