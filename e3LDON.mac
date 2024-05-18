@@ -2192,14 +2192,6 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 			/if (${UseMerc}) /call CheckMerc
 		}		
 		|------------------------------------------
-		
-		|--------------------------------------------------------
-		| Call Group2Me me if separated members before next pull.
-		|--------------------------------------------------------
-		/call Group2Me
-		/call GroupWait
-		/delay 10
-		|--------------------------------------------------------
 
 		|-----------------------------------------------
 		|/echo \arSwarmPullStepMove: \ayTempSpawnPull_Loc=(${TempSpawnPull_Loc})
