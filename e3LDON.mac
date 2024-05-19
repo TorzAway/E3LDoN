@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-May 18th, 2024 - 09:42:24PM
+May 19th, 2024 - 04:15:22AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -2191,6 +2191,14 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 			/call GroupEndChk
 			/if (${UseMerc}) /call CheckMerc
 		}		
+		|------------------------------------------		
+		
+		|------------------------------------------
+		| Move group to me before next step
+		|------------------------------------------
+		/echo \at - Calling the group to me before moving to the next step . . . . 
+		/call GroupWait
+		/delay 1s
 		|------------------------------------------
 
 		|-----------------------------------------------
@@ -3226,12 +3234,12 @@ Sub GroupWait
 	/call DoSinglePull
 	/goto :WaitForGroup
 }
-/echo \ayWaiting for the Group...
+/echo \ayWaiting for the group. . .
 
 /if (${Debugging}) /echo ${Group.Member[1].CleanName}:(${Group.Member[1].Distance}) ${Group.Member[2].CleanName}:(${Group.Member[2].Distance}) ${Group.Member[3].CleanName}:(${Group.Member[3].Distance}) ${Group.Member[4].CleanName}:(${Group.Member[4].Distance}) ${Group.Member[5].CleanName}:(${Group.Member[5].Distance})
 
     /while ((${Group.Member[1].Distance} > 40) || (${Group.Member[2].Distance} > 40) || (${Group.Member[3].Distance} > 40) || (${Group.Member[4].Distance} > 40) || (${Group.Member[5].Distance} > 40) || (${Group.Member[6].Distance} > 40)) {
-        /echo waiting group, timer ${GroupWaitTimer}			
+        /echo \aywaiting for the group, timer ${GroupWaitTimer}.\ax
 		/if (${UseE3BC}) {
 			/e3bca /stand
 			/e3bca /nav id ${Me.ID}
@@ -3246,7 +3254,7 @@ Sub GroupWait
 		/goto :WaitForGroup
 	}
 	/varset GroupWaitTimer 0
-	/echo . . . my group is now here, timer (${GroupWaitTimer}).
+	/echo \ay. . . my group is now here.\ax
 	/if (${Debugging}) /echo Sub GroupWait Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -3349,11 +3357,11 @@ Sub CheckInvis
 				/if (${UseE3BC}) {
 					/squelch /e3bct ${Group.Member[${x}].CleanName} /playmelody stop
 					/delay 1s
-					/squelch /e3bct ${Group.Member[${x}].CleanName} /memspell ${BRDTravelSongSlot} ${BRDTravelSong}
+					/squelch /e3bct ${Group.Member[${x}].CleanName} /memspell ${BRDTravelSongSlot} "${BRDTravelSong}"
 					/delay 2s
 					:CheckBrdInvisNowE3BCT
 					/if (!${Me.Invis}) {				
-						/squelch /e3bct ${Group.Member[${x}].CleanName} /cast ${BRDTravelSongSlot} ${BRDTravelSong}
+						/squelch /e3bct ${Group.Member[${x}].CleanName} /cast ${BRDTravelSongSlot} "${BRDTravelSong}"
 						/delay 3s
 						/delay 5s
 						/echo \agWaiting for invis to kick in .....
@@ -3366,7 +3374,7 @@ Sub CheckInvis
 					/delay 5s
 					:CheckBrdInvisNowDEX
 					/if (!${Me.Invis}) {				
-						/squelch /dex ${Group.Member[${x}].CleanName} /cast 11 ${BRDTravelSong}
+						/squelch /dex ${Group.Member[${x}].CleanName} /cast ${BRDTravelSongSlot} "${BRDTravelSong}"
 						/echo \agWaiting for invis to kick in .....
 						/delay 3s
 						/delay 5s ${Me.Invis}
@@ -4712,7 +4720,7 @@ Sub Refresh
 Sub GenerateList
 	/if (${Debugging}) /echo Sub GenerateList Entry
 	/declare i int local
-	/echo \ayGetting Named Mobs currently up in ${Zone}.
+	/echo \ayGetting \am[\atNamed Mobs\am]\ay currently up in: \am[\at${Zone}\am]\ay.
 	/if (!${Ini[E3LDoN_MobIgnored.ini,${Zone.ShortName},Ignored].Length}) /ini "E3LDoN_MobIgnored.ini" "${Zone.ShortName}" "Ignored" "|"
 	/for i 1 to ${SpawnCount[npc named]}
 		/if (${NearestSpawn[${i},npc named].Name.NotEqual[NULL]}) {
@@ -4724,7 +4732,7 @@ Sub GenerateList
 			}
 		}
 	/next i
-	/echo \ayGetting Objects currently up in ${Zone}.
+	/echo \ayGetting \am[\atObjects\am]\ay currently up in: \am[\at${Zone}\am]\ay.
 	/if (!${Ini[E3LDoN_MobIgnored.ini,${Zone.ShortName},Objects].Length}) /ini "E3LDoN_MobIgnored.ini" "${Zone.ShortName}" "Objects" "|"
 	/for i 1 to ${SpawnCount[Object]}
 		/if (${NearestSpawn[${i},Object].Name.NotEqual[NULL]}) {
@@ -4739,7 +4747,7 @@ Sub GenerateList
 			}
 		}
 	/next i
-	/echo \ayGetting NPCs currently up in ${Zone}.
+	/echo \ayGetting \am[\atNPCs\am]\ay currently up in: \am[\at${Zone}\am]\ay.
 	/if (!${Ini[E3LDoN_MobIgnored.ini,${Zone.ShortName},NPCs].Length}) /ini "E3LDoN_MobIgnored.ini" "${Zone.ShortName}" "NPCs" "|"
 	/for i 1 to ${SpawnCount[npc]}
 		/if (${NearestSpawn[${i},NPC].Name.NotEqual[NULL]} && !${NearestSpawn[${i},NPC].Named}) {
