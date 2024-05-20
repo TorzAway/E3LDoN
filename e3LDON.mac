@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-May 19th, 2024 - 04:15:22AM
+May 19th, 2024 - 11:52:23AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -268,21 +268,22 @@ This will be updated after Rekka pushes Exposed E3 ini settings to E3Bots to be 
 #bind E3LDONCommand /E3LDoN
 
 Sub Main
-	/if (${Debugging}) /echo Sub Main Entry	
-	/declare StuckSpamTimerSet		timer	outer	0
-	/declare StuckSpamTrigger		timer	outer	0
-	/declare OutX1 					int 	outer 	${Me.X}
-    /declare OutY1 					int 	outer	${Me.Y}
-	/declare OutZ1					int		outer	${Me.Z}
-	/declare StuckCountOut 			int 	outer	0
-	/declare BackUpTimer			int		outer 	0
-	/declare GroupWaitTimer			int		outer 	0
-	/declare StuckSwitch			int 	outer
-	/declare runcounter 			int 	outer 	0
-	/declare notkillable			int 	outer	0
-	/declare Announce				bool	outer	FALSE
-	/declare startTask 				int 	outer 	${Zone.ID}
-	/declare version				string	outer 	6.3
+	/if (${Debugging}) /echo Sub Main Entry
+	
+	/declare StuckSpamTimerSet	timer		outer	0
+	/declare StuckSpamTrigger		timer		outer	0
+	/declare OutX1 							int 		outer ${Me.X}
+	/declare OutY1 							int 		outer	${Me.Y}
+	/declare OutZ1							int			outer	${Me.Z}
+	/declare StuckCountOut 			int 		outer	0
+	/declare BackUpTimer				int			outer 0
+	/declare GroupWaitTimer			int			outer	0
+	/declare StuckSwitch				int 		outer
+	/declare runcounter 				int 		outer	0
+	/declare notkillable				int 		outer	0
+	/declare Announce						bool		outer	FALSE
+	/declare startTask 					int 		outer	${Zone.ID}
+	/declare version						string	outer	6.3
 
 	/message ==================================================================
  	/call Declares
@@ -1096,16 +1097,16 @@ Sub SelectAdventureZone_TC
 	/if (${Debugging}) /echo Sub SelectAdventureZone_TC Entry
 	/echo \ayGetting theme from \ay[\atTHEME CHECK\ay]\ag status...
 	
-	/declare x 					int local
-	/declare y 					int local
+	/declare x 								int local
+	/declare y 								int local
 	/declare MostWinsNeeded 	int local 0
 	/declare TempCampWins 		int local 0
-	/declare TempCampWinsToGo 	int local 0
+	/declare TempCampWinsToGo	int local 0
 
 	|------------------------------------------------------
-	| Camp 1 *** Guk_Wins_Max			int		outer 	70
+	| Camp 1 *** Guk_Wins_Max				int		outer 	70
 	| Camp 2 *** Miragul_Wins_Max		int 	outer 	68
-	| Camp 3 *** Mistmoore_Wins_Max 	int 	outer 	76
+	| Camp 3 *** Mistmoore_Wins_Max int 	outer 	76
 	| Camp 4 *** Ruj_Wins_Max 			int 	outer 	74
 	| Camp 5 *** Tak_Wins_Max 			int 	outer 	78	
 	|------------------------------------------------------
@@ -2313,10 +2314,10 @@ Sub DoSwarmPull
 |---------------------------------------------------------
 | Delete any EXISTING LocalStepArray
 |---------------------------------------------------------
-/if (${Defined[LocalStepArray]}) {
-	/echo \arDeleting \atOLD \aydungeon array\ar from previous task.
-	/deletevar LocalStepArray
-}
+|/if (${Defined[LocalStepArray]}) {
+|	/echo \arDeleting \atOLD \aydungeon array\ar from previous task.
+|	/deletevar LocalStepArray
+|}
 |---------------------------------------------------------
 	
 |------------------------1: RoyalObservatory - TO DO
