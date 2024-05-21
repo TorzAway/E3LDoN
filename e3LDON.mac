@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-May 19th, 2024 - 11:52:23AM
+May 20th, 2024 - 11:49:33AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -3354,34 +3354,37 @@ Sub CheckInvis
 		|-----------------------------		
 		/for x 1 to ${Group.Members} 
 			/if (${Group.Member[${x}].Class.ShortName.Equal[BRD]}) {
-				/echo \ay[\am${Group.Member[${x}].CleanName}\ay] is a [\atBRD\ay], making them sing invis !
+				/echo \ay[\am${Group.Member[${x}].CleanName}\ay] is a [\atBRD\ay], making them sing invis !				
+				|------------------------
 				/if (${UseE3BC}) {
 					/squelch /e3bct ${Group.Member[${x}].CleanName} /playmelody stop
 					/delay 1s
 					/squelch /e3bct ${Group.Member[${x}].CleanName} /memspell ${BRDTravelSongSlot} "${BRDTravelSong}"
-					/delay 2s
+					/delay 5s
 					:CheckBrdInvisNowE3BCT
 					/if (!${Me.Invis}) {				
 						/squelch /e3bct ${Group.Member[${x}].CleanName} /cast ${BRDTravelSongSlot} "${BRDTravelSong}"
-						/delay 3s
-						/delay 5s
 						/echo \agWaiting for invis to kick in .....
 						/delay 5s ${Me.Invis}
 						/goto :CheckBrdInvisNowE3BCT
 					}
 				}	
+				|------------------------
+				|------------------------
 				/if (${UseDanNet}) {
 					/squelch /dex ${Group.Member[${x}].CleanName} /playmelody stop
+					/delay 1s
+					/squelch /dex ${Group.Member[${x}].CleanName} /memspell ${BRDTravelSongSlot} "${BRDTravelSong}"
 					/delay 5s
 					:CheckBrdInvisNowDEX
 					/if (!${Me.Invis}) {				
 						/squelch /dex ${Group.Member[${x}].CleanName} /cast ${BRDTravelSongSlot} "${BRDTravelSong}"
 						/echo \agWaiting for invis to kick in .....
-						/delay 3s
 						/delay 5s ${Me.Invis}
 						/goto :CheckBrdInvisNowDEX
 					}
 				}
+				|------------------------
 			}		
 		/next x
 		|-----------------------------
