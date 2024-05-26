@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-May 23rd, 2024 - 12:05:13PM
+May 26th, 2024 - 07:36:13PM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -271,19 +271,19 @@ Sub Main
 	/if (${Debugging}) /echo Sub Main Entry
 	
 	/declare StuckSpamTimerSet	timer		outer	0
-	/declare StuckSpamTrigger		timer		outer	0
-	/declare OutX1 							int 		outer ${Me.X}
-	/declare OutY1 							int 		outer	${Me.Y}
-	/declare OutZ1							int			outer	${Me.Z}
-	/declare StuckCountOut 			int 		outer	0
-	/declare BackUpTimer				int			outer 0
-	/declare GroupWaitTimer			int			outer	0
-	/declare StuckSwitch				int 		outer
-	/declare runcounter 				int 		outer	0
-	/declare notkillable				int 		outer	0
-	/declare Announce						bool		outer	FALSE
-	/declare startTask 					int 		outer	${Zone.ID}
-	/declare version						string	outer	6.3
+	/declare StuckSpamTrigger	timer		outer	0
+	/declare OutX1 				int 		outer 	${Me.X}
+	/declare OutY1 				int 		outer	${Me.Y}
+	/declare OutZ1				int			outer	${Me.Z}
+	/declare StuckCountOut 		int 		outer	0
+	/declare BackUpTimer		int			outer 	0
+	/declare GroupWaitTimer		int			outer	0
+	/declare StuckSwitch		int 		outer
+	/declare runcounter 		int 		outer	0
+	/declare notkillable		int 		outer	0
+	/declare Announce			bool		outer	FALSE
+	/declare startTask 			int 		outer	${Zone.ID}
+	/declare version			string		outer	6.3
 
 	/message ==================================================================
  	/call Declares
@@ -295,7 +295,7 @@ Sub Main
 		/echo \ayLooks like we do \arNOT\ax currently have a task assigned to us.
 		/if (!${Select[${Zone.ID},202,386,22,30,34,35,68]} && ${NextCamp_Bark.Equal[NONE]}) {
 			/echo \ayLooks like we are \am[\atnot in a valid starting zone\am]\ay for LDoN zone routing.\ax
-			/call GoToKMarrs
+			/call GoToMarrs
 			/call GoPoKMagus
 		}
 	}
@@ -486,7 +486,13 @@ Sub Declares
 	/if (${Debugging}) /echo Sub Declares Entry
 	/declare FarmMob 			string outer 
 	/declare PullRange 			int outer 
-	/declare Settings 			string outer E3LDoN_${Me}.ini
+	/declare MacroName			string	outer	E3LDoN
+	/declare Settings			string	outer	${MacroName}_${Me.CleanName}.ini
+	/declare FirstRun			int		outer	0
+	
+	|--------------------------------------
+	/if (!${Ini[${Settings}].Length}) /varset FirstRun 1
+	|--------------------------------------
 	
 	/echo \ay${Settings} is the INI being used.
 	/declare MobIgnore			string outer E3LDoN_MobIgnored.ini
@@ -609,7 +615,7 @@ Sub Declares
 	/call CheckINI ${Settings} General ForageTime int 0
 	|** End of LDON.mac/PullFarm.mac type declares **|
 	
-	|** ZoneID as variable **|
+	|** Start ZoneID as variable **|
 	/declare TempleofMarr int outer 386
 	/declare PlaneofKnowledge int outer 202
 		
@@ -688,6 +694,17 @@ Sub Declares
 	|** End Deepest Guk Zones **|
 	
 	|** End ZoneID as Variable **|
+
+	|-------------------------------	
+	/if (${FirstRun}) {
+		/echo Created INI file ${Settings} with default values.
+		/echo Please edit the file and restart ${MacroName}.
+		/echo Ending Macro
+		/end
+	} else {
+		/echo Config loaded from ${Settings}.
+	}
+	|-------------------------------	
 	
 	/if (${Debugging}) /echo Sub Declares Exit
 		
@@ -741,10 +758,10 @@ Sub CheckInADungeon
 | --------------------------------------------------------------------------------------------	
 
 | --------------------------------------------------------------------------------------------
-| SUB: GoToKMarrs
+| SUB: GoToMarrs
 | --------------------------------------------------------------------------------------------
-Sub GoToKMarrs
-	/if (${Debugging}) /echo Sub GoToKMarrs Entry
+Sub GoToMarrs
+	/if (${Debugging}) /echo Sub GoToMarrs Entry
 	/call CloseAdventureWnd
 	/echo \arOoops..   your not in a valid starting zone for macro, Gating to Marr !
 	
@@ -814,7 +831,7 @@ Sub GoToKMarrs
 	/call GroupWait
 	/delay 2s
 	
-/if (${Debugging}) /echo Sub GoToKMarrs Exit
+/if (${Debugging}) /echo Sub GoToMarrs Exit
 /return
 | --------------------------------------------------------------------------------------------
 
@@ -2319,6 +2336,15 @@ Sub DoSwarmPull
 /message \agSetting up pathing to \ay[\arSwarm Pull\ay] \agdungeon. . . . . 
 /message ==================================================================
 
+|---------------------------------------------------------
+| Delete any EXISTING LocalStepArray
+|---------------------------------------------------------
+/if (${Defined[LocalStepArray_${Zone.ShortName}]}) {
+	/echo \arDeleting \atOLD \aydungeon array\ar \am[\atLocalStepArray_${Zone.ShortName}\am]\ax
+	/deletevar LocalStepArray_${Zone.ShortName}
+}
+|---------------------------------------------------------
+
 |------------------------1: RoyalObservatory - UPDATED
 /if (${Zone.ID} == ${RoyalObservatory}) {
 	/echo \atLoading steps for: \ay[Royal Observatory]\at.
@@ -2328,6 +2354,7 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
 		/delay 10
 	}
@@ -2367,6 +2394,7 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
 		/delay 10
 	}
@@ -2406,6 +2434,7 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
 		/delay 10
 	}
@@ -2445,6 +2474,7 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,6]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}[1,6]	string	outer
 		/delay 10	
 	}
@@ -2482,6 +2512,7 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,8]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}[1,8]	string	outer
 		/delay 10
 	}
@@ -2522,6 +2553,7 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,8]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}[1,8]	string	outer
 		/delay 10
 	}
@@ -2563,6 +2595,7 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
 		/delay 10
 	}
@@ -2602,6 +2635,7 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
 		/delay 10
 	}
@@ -2641,6 +2675,7 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,9]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}[1,9]	string	outer
 		/delay 10
 	}
@@ -2804,7 +2839,7 @@ Sub FinishAdventure
 	|-----------------------------------------------	
 	
 	| -- *** --
-	/call GoToKMarrs
+	/call GoToMarrs
 	/call GetAdventureStatus
 	/call GotoTask
 	| -- *** --
@@ -4045,6 +4080,7 @@ Sub CheckMerc
 Sub NavToLoc(int Y,int X,int Z)
 	/if (${Debugging}) /echo Entering Sub NavToLoc for ${Y} ${X} ${Z} at Line: ${Macro.CurLine}
 	/varset GroupWaitTimer 0
+	|-------------------------------------------------------------------------------
 	/while (${Math.Distance[${Me.Y}, ${Me.X}, ${Me.Z}: ${Y}, ${X}, ${Z}]} > 30) {
 		/if (${Navigation.Active}) {
 			/if (${CheckBots}) /call GroupDeathChk
@@ -4078,6 +4114,7 @@ Sub NavToLoc(int Y,int X,int Z)
 			/nav loc ${Y} ${X} ${Z}
 		}
 	}
+	|-------------------------------------------------------------------------------
 	/delay 2s
 	|/if (${Navigation.Active}) /nav stop
 	/if (${Debugging}) /echo Sub NavToLoc Exit
@@ -4183,7 +4220,7 @@ Sub WaitNav(NavTargetID)
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
 			/if (!${courseCorrection}) {
-				/squelch /nav id ${NavTargetID}
+				/squelch /e3bcaa /nav id ${NavTargetID}	
 				/varset courseCorrection ${courseCorrection.OriginalValue}
 			}
 			/if (${GroupNavToMe}) {
