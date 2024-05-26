@@ -4133,7 +4133,6 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/if (${CheckBots}) /call GroupDeathChk			
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
-			/if (${CheckBots} && ${UseMerc}) /call CheckMerc		
 			/call GMCheck
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
@@ -4144,6 +4143,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${Target.ID}) /face
 				/squelch /killthis
 				/squelch /attack on
+				/call DoClearTargets
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
 			}
@@ -4152,7 +4152,6 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupDeathChk				
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
-				/if (${CheckBots} && ${UseMerc}) /call CheckMerc
 				/call GMCheck
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
@@ -4167,15 +4166,15 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${Target.ID}) /face
 				/squelch /killthis
 				/squelch /attack on
+				/call DoClearTargets
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
 			}
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
-				/if (${UseMerc}) /call CheckMerc
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
-			/nav loc ${Y} ${X} ${Z}
+			/squelch /e3bcaa /nav loc ${Y} ${X} ${Z}
 		}
 	}
 	/delay 2s
