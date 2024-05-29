@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-May 26th, 2024 - 07:36:13PM
+May 29th, 2024 - 07:36:13 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -1689,6 +1689,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
+			/call ResetBard
 		}
 		|----------------------
 		
@@ -1731,6 +1732,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
+			/call ResetBard
 		}
 		|----------------------
 }		
@@ -1778,6 +1780,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
+			/call ResetBard
 		}
 		|----------------
 		
@@ -1825,6 +1828,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
+			/call ResetBard
 		}
 		|----------------
 }
@@ -1868,6 +1872,7 @@ Sub GotoTask
 			/call GroupPlugin
 			/varcalc ZoneCount 5
 			/call ForeceSpawnStepReset
+			/call ResetBard
 		}
 		
 }
@@ -1959,6 +1964,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
+			/call ResetBard
 		}
 		|----------------------	
 	}
@@ -2021,9 +2027,8 @@ Sub GotoTask
 		/call CheckInvis
 		
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[rotting tree trunk]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[rotting tree trunk]} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
+			
 			/echo \aoMoving to a \at[\agrotting tree trunk\at]
-			
-			
 			/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc 1338.00 1189.00 -11.00
 			/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc 1338.00 1189.00 -11.00
 			/delay 5s
@@ -2054,6 +2059,7 @@ Sub GotoTask
 			/delay 2s
 			/if (${Zone.ID} == ${Innothule} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive8
 			/call ForeceSpawnStepReset
+			/call ResetBard
 		}
 		|----------------------	
 		
@@ -2141,6 +2147,7 @@ Sub GotoTask
 		/delay 2s
 		/if (${Zone.ID} == ${GukTop} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive9
 		/call ForeceSpawnStepReset
+		/call ResetBard
 	}
 	/if (${Debugging}) /echo Sub GotoTask Exit
 |----------- GUK TOP ------------	
@@ -3424,6 +3431,28 @@ Sub GroupWaitTimer
 	/if (${Debugging}) /echo Sub GroupWaitTimer Exit
 /return GroupWaitTimer
 |--------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: ResetBard
+| --------------------------------------------------------------------------------------------
+Sub ResetBard
+	/if (${Debugging}) /echo Sub ResetBard Entry
+	/echo \agPerforming Bard Reset !\ax
+	
+	/declare x 					int 	local	1
+	
+		/for x 1 to ${Group.Members} 
+			/if (${Group.Member[${x}].Class.ShortName.Equal[BRD]}) {
+				/echo \ayResetting E3 [\atBRD\ay] MELODY for [\am${Group.Member[${x}].CleanName}\ay].
+				|------------------------				
+				/squelch /e3bct ${Group.Member[${x}].CleanName} /mono E3
+				/delay 3s
+			}		
+		/next x
+
+	/if (${Debugging}) /echo Sub ResetBard Exit
+/return
+| --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
 | SUB: CheckInvis
