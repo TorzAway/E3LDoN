@@ -3898,7 +3898,7 @@ Sub GroupManaChk
 					/echo \agYour \am[\atMana\am]\ag is currently at \am[\at${Me.PctMana}\am]\ag%, medding to \am[\at${MedTill}\am]\ag%.
 					/call GMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-					/delay 3s
+					/delay 6s
 				}
 				|--------------------------------------
 				|----
@@ -3942,7 +3942,7 @@ Sub GroupManaChk
 							/delay 3s
 							|----------
 							/if (${Group.Member[${i}].Standing}) {
-								/delay 3s
+								/delay 6s
 								/if (${UseE3BC}) /squelch /e3bct ${Group.Member[${i}].CleanName} /sit
 								/if (${UseDanNet}) /squelch /dex ${Group.Member[${i}].CleanName} /sit
 							}							
@@ -3992,7 +3992,7 @@ Sub GroupEndChk
 					/echo \agYour \am[\atEndurance\am]\ag is currently at \am[\at${Me.PctEndurance}\am]\ag%, medding to \am[\at${MedEndTill}\am]\ag%.
 					/call GMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
-					/delay 3s
+					/delay 6s
 				}
 				|--------------------------------------
 				|----
@@ -4038,7 +4038,7 @@ Sub GroupEndChk
 								/delay 3s
 								|----------
 								/if (${Group.Member[${i}].Standing}) {
-									/delay 3s
+									/delay 6s
 									/if (${UseE3BC}) /squelch /e3bct ${Group.Member[${i}].CleanName} /sit
 									/if (${UseDanNet}) /squelch /dex ${Group.Member[${i}].CleanName} /sit									
 								}							
