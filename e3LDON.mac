@@ -4104,7 +4104,7 @@ Sub CheckMerc
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
-| SUB: NavToLoc
+| SUB: NavToLoc -- [NO Combat and Agro Aware movement]
 | --------------------------------------------------------------------------------------------
 Sub NavToLoc(int Y,int X,int Z)
 	/if (${Debugging}) /echo Entering Sub NavToLoc for ${Y} ${X} ${Z} at Line: ${Macro.CurLine}
@@ -4140,7 +4140,9 @@ Sub NavToLoc(int Y,int X,int Z)
 				/if (${UseMerc}) /call CheckMerc
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
-			/nav loc ${Y} ${X} ${Z}
+			/if (!${Me.Moving}) /nav loc ${Y} ${X} ${Z}
+			/delay 5 ${Me.Moving}
+			/delay 5 ${Navigation.Active}
 		}
 	}
 	|-------------------------------------------------------------------------------
@@ -4151,7 +4153,7 @@ Sub NavToLoc(int Y,int X,int Z)
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
-| SUB: NavToLoc2
+| SUB: NavToLoc2 -- [Combat and Agro Aware movement]
 | --------------------------------------------------------------------------------------------
 Sub NavToLoc2(int Y,int X,int Z)
 	/if (${Debugging}) /echo Entering Sub NavToLoc2 for ${Y} ${X} ${Z} at Line: ${Macro.CurLine}
@@ -4203,7 +4205,9 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupDeathChk
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
-			/squelch /e3bcaa /nav loc ${Y} ${X} ${Z}
+			/if (!${Me.Moving}) /squelch /e3bcaa /nav loc ${Y} ${X} ${Z}
+			/delay 5 ${Me.Moving}
+			/delay 5 ${Navigation.Active}
 		}
 	}
 	/delay 2s
