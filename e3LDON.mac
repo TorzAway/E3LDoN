@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-May 29th, 2024 - 07:36:13 AM
+June 4th, 2024 - 10:38:13 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -4205,7 +4205,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupDeathChk
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
-			/if (!${Me.Moving}) /squelch /e3bcaa /nav loc ${Y} ${X} ${Z}
+			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /e3bcaa /nav loc ${Y} ${X} ${Z}
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
@@ -4252,7 +4252,12 @@ Sub WaitNav(NavTargetID)
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
 			/if (!${courseCorrection}) {
-				/squelch /e3bcaa /nav id ${NavTargetID}	
+				|------  ALL GO TO TARGET - staggered
+				/nav id ${NavTargetID}	
+				/delay 5
+				/if (${UseE3BC}) /squelch /e3bca /nav id ${NavTargetID}				
+				/if (${UseDanNet}) /squelch /dgex /nav id ${NavTargetID}		
+				|------  ALL GO TO TARGET - staggered
 				/varset courseCorrection ${courseCorrection.OriginalValue}
 			}
 			/if (${GroupNavToMe}) {
