@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-June 4th, 2024 - 10:38:13 AM
+June 5th, 2024 - 09:11:13 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -360,6 +360,7 @@ Sub Main
 	|/echo \at/E3LDoN \agUseCWTN \ayis set to \at[\ag${UseCWTN}\at]
 	|/echo \at/E3LDoN \agUseCWTNHunterTankMode \ayis set to \at[\ag${UseCWTNHunterTankMode}\at]
 	|/echo \at/E3LDoN \agUseKissAssist \ayis set to \at[\ag${UseKissAssist}\at]
+	|/echo \at/E3LDoN \agDoBurns \ayis set to \at[\ag${DoBurns}\at]
 	|/echo \at/E3LDoN \agUseRGMercs \ayis set to \at[\ag${UseRGMercs}\at]
 	|/echo \at/E3LDoN \agUseBeep \atWhen Stuck \ayis set to \at[\ag${UseBeep}\at]
 	|/echo \at/E3LDoN \agUseE3BC \ayis set to \at[\ag${UseE3BC}\at]
@@ -570,6 +571,7 @@ Sub Declares
 	/call CheckINI ${Settings} General UseDanNet bool FALSE
 	/call CheckINI ${Settings} General UseMerc bool FALSE
 	/call CheckIni ${Settings} General CheckBots bool FALSE
+	/call CheckINI ${Settings} General DoBurns bool FALSE
 	/call CheckINI ${Settings} General HardMode bool FALSE
 	/call CheckINI ${Settings} General SwarmPull bool FALSE
 	/call CheckINI ${Settings} General GroupNavToMe bool TRUE
@@ -2723,7 +2725,7 @@ Sub DoSwarmPull
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
-| SUB: DoClearTargets  ( Called by DoSwarmPull )
+| SUB: DoClearTargets  
 | --------------------------------------------------------------------------------------------
 Sub DoClearTargets
 	/if (${Debugging}) /echo Sub DoClearTargets Entry
@@ -2735,8 +2737,7 @@ Sub DoClearTargets
 		:gotoloopkeepfighting
 		/if (${Me.Sitting}) /stand
 		/if (!${Target.ID} && ${Me.XTarget[1].ID}) {
-			/if (${UseE3BC}) /squelch /e3bca /nav id ${Me.ID}
-			/if (${UseDanNet}) /squelch /dgex /nav id ${Me.ID}
+			/squelch /e3bca /nav id ${Me.ID}			
 			|/keypress º
 			/delay 5
 			/ClearTargets
@@ -2747,8 +2748,7 @@ Sub DoClearTargets
 			/delay 3
 			}
 		/if (${Target.ID} && !${Me.Combat}) {
-			/if (${UseE3BC}) /squelch /e3bca /nav id ${Me.ID}
-			/if (${UseDanNet}) /squelch /dgex /nav id ${Me.ID}
+			/squelch /e3bca /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
 			/ClearTargets
@@ -2760,27 +2760,34 @@ Sub DoClearTargets
 			/ClearTargets stick
 			}
 		/if (${Target.Distance.Int} > 20) /stick 15
+		|-------------------------------------------------------------------
         /if (${Target.ID} && ${Me.Combat} && ${Target.Type.Equal[npc]}) {
-			/if (${SpawnCount[npc radius 50]} >2 && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[749]}) {
+			| --- Explosion of Spite
+			/if (${SpawnCount[npc radius 50]} >2 && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[749]} && ${DoBurns}) {
 				/alt act 749
-				/quickburn
-				/longburn
+				/if (${DoBurns}) /quickburn
+				/if (${DoBurns}) /longburn
 				/delay 20
 				/goto :gotoloopkeepfighting  
 				}
-			/if (${SpawnCount[npc radius 50]} >4 && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[822]}) {
+			| --- Explosion of Hatred	
+			/if (${SpawnCount[npc radius 50]} >4 && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[822]} && ${DoBurns}) {
 				/alt act 822
-				/fullburn
+				/if (${DoBurns}) /fullburn
 				/delay 20
 				/goto :gotoloopkeepfighting  
 				}
-			/if (${SpawnCount[npc radius 50]} >6 && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[3215]}) /alt act 3215		
-			/if (${SpawnCount[npc radius 50]} >4 && ${Spawn[npc radius 50].Aggressive}) /epicburn
-			/if ((${Me.PctHPs} < 95) && ${Cast.Ready[825]})  /alt act 825
-			/if (${Cast.Ready[3822]}) /alt act 3822
-			/if ((${SpawnCount[npc radius 50]} <3) && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[826]}) {
-				/if (${UseE3BC}) /squelch /e3bca /nav target
-				/if (${UseDanNet}) /squelch /dgex /nav target
+			| --- Projection of Doom
+			/if (${SpawnCount[npc radius 50]} >6 && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[3215]} && ${DoBurns}) /alt act 3215
+			| --- EpicBurn
+			/if (${SpawnCount[npc radius 50]} >4 && ${Spawn[npc radius 50].Aggressive} && ${DoBurns}) /epicburn
+			| --- Vicious Bite of Chaos
+			/if ((${Me.PctHPs} < 95) && ${Cast.Ready[825]} && ${DoBurns})  /alt act 825
+			| --- Chattering Bones
+			/if (${Cast.Ready[3822]} && ${DoBurns}) /alt act 3822
+			| --- Encroaching Darkness
+			/if ((${SpawnCount[npc radius 50]} <3) && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[826]} && ${DoBurns}) {
+				/squelch /e3bca /nav target
 				/assistme
 				/alt act 826
 				}
@@ -2788,8 +2795,9 @@ Sub DoClearTargets
             /if (${Debugging}) /echo DEBUG: KillMob: Combat Loop
 			
             /goto :gotoloopkeepfighting 
-        } 
-		/if (${Me.XTarget[1].ID} || ${Target.ID}) /goto :gotoloopkeepfighting 
+        }
+		|-------------------------------------------------------------------		
+		/if (${Me.XTarget[1].ID} || ${Target.ID}) /goto :gotoloopkeepfighting
 	}
 	/delay 20
 	/if (${Debugging}) /echo Sub DoClearTargets Exit
