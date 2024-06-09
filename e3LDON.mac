@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-June 5th, 2024 - 09:11:13 AM
+June 8th, 2024 - 09:19:23 PM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -2948,7 +2948,7 @@ Sub DoSinglePull(string Enemy)
 		/if (${Me.XTarget[1].ID}) {
 		/varset myTargetID ${Me.XTarget[1].ID}
 		/if (${Debugging}) /echo CALL COMBAT
-		/call Combat
+		/if (${Spawn[id ${Target.ID}].Distance} < 30) /call combat
 		/if (${Debugging}) /echo END CALL COMBAT
 		}
 	}
