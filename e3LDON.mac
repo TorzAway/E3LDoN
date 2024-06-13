@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-June 8th, 2024 - 09:19:23 PM
+June 13th, 2024 - 04:08:01 PM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -23,10 +23,6 @@ USAGE:
 Use /E3LDON HELP or /E3LDON while the macro is running for a list of commands.
 
 -----------------------------------------------------------------
-
-Uses E3BC or DanNet for assisting the group leader and following
-Will use EQBC by default, if you want to use DanNet you will need to turn off EQBC
-/E3LDON UseE3BC off (and) /E3LDON UseDanNet on
 
 If you want your group to assist and follow the group leader (Requires EQBC or DanNet
 /E3LDON UseAssist on (and) /E3LDON GroupNavToMe on
@@ -213,7 +209,7 @@ to request a mission after starting the macro
 
 E3LDON.mac v5.5 by Kroaking
 Updated for usage under E3 envioronment system.
-Fully integrated / migrated away from standard MQ EQBCS commands to E3 /e3bca command structure if using E3BCS (UseE3BC option).
+Fully integrated / migrated away from standard MQ EQBCS commands to E3 /e3bca command structure.
 All command systems for interacting with bots now supports E3BCS and MQ2DanNet.
 Incorporated SwarmPull method for mob pulling, config file now supports SwarmPull option. If TRUE, camp 
 locations are used for mass agro swarm pulls.
@@ -261,7 +257,9 @@ This will be updated after Rekka pushes Exposed E3 ini settings to E3Bots to be 
 #event MissionFailed "#*#You failed to complete your adventure in time#*#"
 #event MissionOver "#*#You have left your adventure#*#"
 #event MissionSuccess "#*#You have sucessfully completed your adventure#*#"
+
 #define /message "/echo \ay[\atE3LDoN\ay]\aw "
+
 #bind AddToIgnore /ignorethese
 #bind AddThisIgnore /ignorethis
 #bind PermIgnore /permignore
@@ -303,32 +301,6 @@ Sub Main
 	
 	/if (${ForageTime}>0) /call CheckPlugin MQ2AutoForage
 	/call CheckPlugin MQ2Melee
-	/if (${UseE3BC}) /call CheckPlugin E3BCS
-	/if (${UseDanNet}) /call CheckPlugin MQ2DanNet
-
-	|------------
-	/if (${UsingE3BC} && ${UsingMQ2DanNet}) {
-		|/echo UsingMQ2DanNet=(${UsingMQ2DanNet})
-		|/echo UsingE3BC=(${UsingE3BC})
-		/message ==================================================================
-		/echo \arYou can only use \atONE\ax communication system, please select \at(one or the other)\ax to use !\ax
-		/echo \arCorrect this in ytour INI and restart the macro. . . .  \agExiting!
-		/message ==================================================================
-		/end
-	}
-	|------------
-
-	|------------
-	/if (!${UsingE3BC} && !${UsingMQ2DanNet}) {
-		|/echo UsingMQ2DanNet=(${UsingMQ2DanNet})
-		|/echo UsingE3BC=(${UsingE3BC})
-		/message ==================================================================
-		/echo \arYou are \atNOT\ax using a supported ommunication system, please select \at(one or the other)\ax to use !\ax
-		/echo \arCorrect this in ytour INI and restart the macro. . . .  \agExiting!
-		/message ==================================================================
-		/end
-	}
-	|------------
 		
 	/if (${Bool[${Plugin[MQ2Bucles]}]}) {
         /squelch /plugin MQ2Bucles unload noauto
@@ -363,8 +335,6 @@ Sub Main
 	|/echo \at/E3LDoN \agDoBurns \ayis set to \at[\ag${DoBurns}\at]
 	|/echo \at/E3LDoN \agUseRGMercs \ayis set to \at[\ag${UseRGMercs}\at]
 	|/echo \at/E3LDoN \agUseBeep \atWhen Stuck \ayis set to \at[\ag${UseBeep}\at]
-	|/echo \at/E3LDoN \agUseE3BC \ayis set to \at[\ag${UseE3BC}\at]
-	|/echo \at/E3LDoN \agUseDanNet \ayis set to \at[\ag${UseDanNet}\at]
 	|/echo \at/E3LDoN \agBardMed \ayis set to \at[\ag${BardMed}\at]
 	|/echo \at/E3LDoN \agUseCastSpells \at(If Leader Can Cast) \ayis set to \at[\ag${UseCastSpells}\at]
 	/message ==================================================================	
@@ -530,32 +500,31 @@ Sub Declares
 	/declare Adventure_Progress		string	outer	NULL
 	/declare CurrentDC				int		outer	0
 	/declare CurrentDCAC			int		outer	0
-	/declare UsingE3BC 				bool 	outer 	FALSE
-	/declare UsingMQ2DanNet			bool 	outer 	FALSE
+	/declare ZoneIdentityNum		int		outer	NULL
 	|----------------------------------------------------------		
 	|** SPECIFIC of E3LDON.mac/SwarmPull & Theme type declares **|
 	
 	|** Declare colors their escape code for read-ability **|
-	/declare Black 		string outer \ab
-	/declare Blue   	string outer \au
-	/declare Brown      string outer \a-o
-	/declare Cyan   	string outer \at
-	/declare Gray		string outer \a-w
-	/declare Green		string outer \ag
-	/declare Pink   	string outer \am
-	/declare Orange   	string outer \ao
-	/declare Purple   	string outer \ap
-	/declare Red   		string outer \ar
-	/declare Teal   	string outer \at
-	/declare White   	string outer \aw
-	/declare Yellow  	string outer \ay
-	/declare DarkGreen 	string outer \a-g
+	/declare Black 			string outer \ab
+	/declare Blue   		string outer \au
+	/declare Brown      	string outer \a-o
+	/declare Cyan   		string outer \at
+	/declare Gray			string outer \a-w
+	/declare Green			string outer \ag
+	/declare Pink   		string outer \am
+	/declare Orange   		string outer \ao
+	/declare Purple   		string outer \ap
+	/declare Red   			string outer \ar
+	/declare Teal   		string outer \at
+	/declare White   		string outer \aw
+	/declare Yellow  		string outer \ay
+	/declare DarkGreen 		string outer \a-g
 	/declare DarkMarroon	string outer \a-m
-	/declare DarkPurple	string outer \a-p
-	/declare DarkRed	string outer \a-r
-	/declare DarkCyan	string outer \a-t
-	/declare DarkBlue	string outer \a-u
-	/declare DarkYellow	string outer \a-y
+	/declare DarkPurple		string outer \a-p
+	/declare DarkRed		string outer \a-r
+	/declare DarkCyan		string outer \a-t
+	/declare DarkBlue		string outer \a-u
+	/declare DarkYellow		string outer \a-y
 	|** End color declarations **|
 	
 	|** E3LDON.mac/PullFarm.mac type declares INIThings **|
@@ -567,8 +536,6 @@ Sub Declares
 	|** SPECIFIC of E3LDON.mac/PullFarm.mac type declares **|
 
 	/call CheckINI ${Settings} General AssistMe bool TRUE
-	/call CheckINI ${Settings} General UseE3BC bool TRUE
-	/call CheckINI ${Settings} General UseDanNet bool FALSE
 	/call CheckINI ${Settings} General UseMerc bool FALSE
 	/call CheckIni ${Settings} General CheckBots bool FALSE
 	/call CheckINI ${Settings} General DoBurns bool FALSE
@@ -586,8 +553,9 @@ Sub Declares
 	/call CheckIni ${Settings} Group UseKissAssist bool FALSE
 	/call CheckIni ${Settings} Group UseRGMercs bool FALSE
 	
-	/call CheckINI ${Settings} BardSong BRDTravelSong string "Selo's Song of Travel"
-	/call CheckINI ${Settings} BardSong BRDTravelSongSlot string 11	
+	/declare BRDTravelSong string  outer "Selo's Song of Travel"
+	/call CheckINI ${Settings} BardSong BRDTravelSongSlot string 11
+	/call CheckINI ${Settings} BardSong BRDMelodyName string base
 	
 	/call CheckINI ${Settings} Pull PullAbility string ReplaceMeWithYourSkill
 	/call CheckINI ${Settings} Pull PullAbilityRange int 30
@@ -722,6 +690,7 @@ Sub CheckThings
 	/call CheckPlugin MQ2Nav
 	/call CheckMesh
 	/if (!${UseCWTNHunterTankMode}) /call CheckPlugin MQ2Melee
+	/call CheckPlugin MQ2Events
 	/call CheckPlugin MQ2MoveUtils
 	
 	/if (${LootCorpse}) {
@@ -730,15 +699,13 @@ Sub CheckThings
 		/message        if configured in your E3 \agLoot Settings.ini\ax
 		/message ==================================================================
 		/squelch /looton
-		/if (${UseE3BC}) /squelch /e3bca /squelch /lootoff
-		/if (${UseDanNet}) /squelch /dgex /squelch /lootoff
+		/squelch /e3bca /squelch /lootoff
 	} else {
 		/message ==================================================================
 		/message \ar--- DISABLING E3 LOOTING, YOU WILL NOT LOOT CORPSES !
 		/message ==================================================================
 		/squelch /lootoff
-		/if (${UseE3BC}) /squelch /e3bca /squelch /lootoff
-		/if (${UseDanNet}) /squelch /dgex /squelch /lootoff
+		/squelch /e3bca /squelch /lootoff
 	}
 	
 	/if (${Endmac}) /end
@@ -769,24 +736,13 @@ Sub GoToMarrs
 	
 	|Start in Marrs	
 	/delay 10
-	/if (${UseE3BC}) {
-		/e3bca /nav stop
-		/e3bca /playmelody stop
-		/e3bca /keypress x 
-		/delay 6
-		/e3bcaa /stand
-		/delay 5
-		/e3bca /alt act 511
-	}
-	/if (${UseDanNet}) {
-		/dgex /nav stop
-		/dgex /playmelody stop
-		/dgex /keypress x 
-		/delay 6
-		/dgex /stand
-		/delay 5
-		/dgex /alt act 511
-	}
+	/e3bca /nav stop
+	/e3bca /playmelody stop
+	/e3bca /keypress x 
+	/delay 6
+	/e3bcaa /stand
+	/delay 5
+	/e3bca /alt act 511
 	/nav stop
 	/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 	/keypress x 
@@ -798,24 +754,13 @@ Sub GoToMarrs
 
 	|----------------------------
 	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone} || ${Group.Member[6].OtherZone}) {
-		/if (${UseE3BC}) {
-			/squelch /e3bca /nav stop
-			/squelch /e3bca /playmelody stop		 	
-			/squelch /e3bca /keypress x 
-			/delay 6
-			/squelch /e3bca /stand
-			/delay 5
-			/squelch /e3bca /alt act 511
-		}
-		/if (${UseDanNet}) {
-			/squelch /dgex /nav stop
-			/squelch /dgex /playmelody stop
-			/squelch /dgex /keypress x 
-			/delay 6
-			/squelch /dgex /stand
-			/delay 5
-			/squelch /dgex /alt act 511
-		}
+		/squelch /e3bca /nav stop
+		/squelch /e3bca /playmelody stop		 	
+		/squelch /e3bca /keypress x 
+		/delay 6
+		/squelch /e3bca /stand
+		/delay 5
+		/squelch /e3bca /alt act 511
 		/nav stop
 		/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 		/keypress x 
@@ -849,24 +794,13 @@ Sub GoPoKMagus
 	/delay 3s	
 	|----------------------------
 	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone} || ${Group.Member[6].OtherZone}) {
-		/if (${UseE3BC}) {
-			/squelch /e3bca /nav stop
-			/squelch /e3bca /playmelody stop		 	
-			/squelch /e3bca /keypress x 
-			/delay 6
-			/squelch /e3bca /stand
-			/delay 5
-			/squelch /e3bca /alt act 511
-		}
-		/if (${UseDanNet}) {
-			/squelch /dgex /nav stop
-			/squelch /dgex /playmelody stop
-			/squelch /dgex /keypress x 
-			/delay 6
-			/squelch /dgex /stand
-			/delay 5
-			/squelch /dgex /alt act 511
-		}
+		/squelch /e3bca /nav stop
+		/squelch /e3bca /playmelody stop		 	
+		/squelch /e3bca /keypress x 
+		/delay 6
+		/squelch /e3bca /stand
+		/delay 5
+		/squelch /e3bca /alt act 511
 		/nav stop
 		/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 		/keypress x 
@@ -877,11 +811,9 @@ Sub GoPoKMagus
 		/delay 20s
 	}
 	|----------------------------
-	/if (${UseE3BC})  /squelch /e3bcaa /tar Klonopin
-	/if (${UseDanNet}) /squelch /dgae /tar Klonopin
+	/squelch /e3bcaa /tar Klonopin
 	/delay 5
-	/if (${UseE3BC})  /squelch /e3bcaa /nav target
-	/if (${UseDanNet}) /squelch /dgae /nav target
+	/squelch /e3bcaa /nav target
 	/delay 5
 	/while (${Navigation.Active}) {
 		/call SetLoc
@@ -905,14 +837,13 @@ Sub GoPoKMagus
 	|/echo \ayMoving to a common loc in PoK . . .	
 	|--------------------------------------
 	|/delay 3s
-	|/if (${UseE3BC}) /squelch /e3bcaa /nav loc 189.76 48.62 -116.87
-	|/if (${UseDanNet}) /squelch /dgae /nav loc 189.76 48.62 -116.87
-	|	/delay 3s
-	|	/while (${Navigation.Active}) {
-	|		/call SetLoc
-	|		/call CheckStuck
-	|		/delay 5
-	|	}
+	|/squelch /e3bcaa /nav loc 189.76 48.62 -116.87
+	|/delay 3s
+	|/while (${Navigation.Active}) {
+	|	/call SetLoc
+	|	/call CheckStuck
+	|	/delay 5
+	|}
 	|/call GroupWait
 	|--------------------------------------
 	
@@ -922,11 +853,9 @@ Sub GoPoKMagus
 	
 	/echo \ayFinding Magus . . .
 	|/delay 3s
-	/if (${UseE3BC})  /squelch /e3bcaa /tar Magus Alaria
-	/if (${UseDanNet}) /squelch /dgae /tar Magus Alaria
+	/squelch /e3bcaa /tar Magus Alaria
 	/delay 5
-	/if (${UseE3BC})  /squelch /e3bcaa /nav target
-	/if (${UseDanNet}) /squelch /dgae /nav target
+	/squelch /e3bcaa /nav target
 	/delay 5
 	/while (${Navigation.Active}) {
 		/call SetLoc
@@ -977,14 +906,8 @@ Sub GetAdventureStatus
 	
 	/echo \ayGetting adventure status...
 	/if (!${Group.Leader.Name.Equal[${Me.Name}]}) {
-		/if (${EQBC.Connected} && ${EQBC.Names.Find[${Group.Leader.Name}]}) {
-			/e3bct ${Group.Leader.Name} /makeleader ${Me.Name}
-			/delay 2s ${Group.Leader.Name.Equal[${Me.Name}]}
-		}
-		/if (${UseDanNet}) {
-    		/dgge /makeleader ${Me.Name}
-			/delay 2s ${Group.Leader.Name.Equal[${Me.Name}]}
-		}
+		/e3bct ${Group.Leader.Name} /makeleader ${Me.Name}
+		/delay 2s ${Group.Leader.Name.Equal[${Me.Name}]}
 		/delay 1s
 		/if (!${Group.Leader.Name.Equal[${Me.Name}]}) {
 			/echo ${Red}You are not the group leader. Please get leadership of the group and try again. Ending Macro!
@@ -1107,7 +1030,6 @@ Sub SelectAdventureZone_RR
 	/if (${Debugging}) /echo Sub SelectAdventureZone_RR Exit
 /return
 | --------------------------------------------------------------------------------------------
-
 
 | --------------------------------------------------------------------------------------------
 | SUB: SelectAdventureZone_TC  (TO DO: Round Robin based on win needs)  (ThemeCheck)
@@ -1330,8 +1252,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/echo \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	 
-			/if (${UseE3BC}) /squelch /e3bcaa /nav loc 2699.06 931.71 -23.92
-			/if (${UseDanNet}) /squelch /dgae /nav loc 2699.06 931.71 -23.92
+			/squelch /e3bcaa /nav loc 2699.06 931.71 -23.92			
 			/call GroupWait			
 			/delay 5
 			/while (${Navigation.Active}) {
@@ -1339,16 +1260,14 @@ Sub GetTask
 				/call CheckStuck
 				/delay 5
 				}
-			/if (${UseE3BC}) /squelch /e3bcaa /nav loc ${RecruiterLoc}
-			/if (${UseDanNet}) /squelch /dgae /nav loc ${RecruiterLoc}
+			/squelch /e3bcaa /nav loc ${RecruiterLoc}
 			/call GroupWait
 			/delay 3s   
 			/goto :getTaskNRo
 			}
 		}
 		|- Move to avoid getting trapped in a tent  onroute to task.
-		/if (${UseE3BC}) /squelch /e3bcaa /nav loc 2661.87 976.10 -20.15
-		/if (${UseDanNet}) /squelch /dgae /nav loc 2661.87 976.10 -20.15
+		/squelch /e3bcaa /nav loc 2661.87 976.10 -20.15
 		/call GroupWait		
 		/delay 5
 	}
@@ -1369,8 +1288,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/echo \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	
-			/if (${UseE3BC}) /squelch /e3bcaa /nav loc ${RecruiterLoc}
-			/if (${UseDanNet}) /squelch /dgae /nav loc ${RecruiterLoc}
+			/squelch /e3bcaa /nav loc ${RecruiterLoc}
 			/call GroupWait
 			/delay 3s   
 			/goto :getTaskCommon
@@ -1394,8 +1312,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/echo \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	  
-			/if (${UseE3BC}) /squelch /e3bcaa /nav loc ${RecruiterLoc}
-			/if (${UseDanNet}) /squelch /dgae /nav loc ${RecruiterLoc}
+			/squelch /e3bcaa /nav loc ${RecruiterLoc}
 			/call GroupWait
 			/delay 3s   
 			/goto :getTaskButcher
@@ -1419,8 +1336,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/echo \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	  
-			/if (${UseE3BC}) /squelch /e3bcaa /nav loc ${RecruiterLoc}
-			/if (${UseDanNet}) /squelch /dgae /nav loc ${RecruiterLoc}
+			/squelch /e3bcaa /nav loc ${RecruiterLoc}
 			/call GroupWait			
 			/delay 3s   
 			/goto :getTaskEFP
@@ -1445,8 +1361,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/echo \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	  
-			/if (${UseE3BC}) /squelch /e3bcaa /nav loc ${RecruiterLoc}
-			/if (${UseDanNet}) /squelch /dgae /nav loc ${RecruiterLoc}
+			/squelch /e3bcaa /nav loc ${RecruiterLoc}
 			/call GroupWait
 			/delay 3s   
 			/goto :getTaskSRo
@@ -1561,8 +1476,7 @@ Sub GotoTask
 		/call GroupWait
 		/call CheckInvis
 		
-		/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc -1318.19 -3086.02 3.12
-		/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc -1318.19 -3086.02 3.12
+		/if (${runcounter}==0) /squelch /e3bca /nav loc -1318.19 -3086.02 3.12
 		/delay 1s
 		/call NavToLoc2 -1318.19 -3086.02 3.12
 		/delay 5
@@ -1573,7 +1487,7 @@ Sub GotoTask
 		}
 		/call GroupWait
 		/if (${Me.XTarget[1].ID}) /call DoClearTargets
-		/if (${UseE3BC} && ${runcounter}==0) {
+		/if (${runcounter}==0) {
 			/squelch /e3bca /face heading 290
 			/delay 2s
 			/squelch /e3bca /keypress forward hold
@@ -1581,21 +1495,13 @@ Sub GotoTask
 			/squelch /e3bca /keypress forward
 			/delay 1s
 		} 
-		/if (${UseDanNet} && ${runcounter}==0) {
-			/squelch /dgex /face heading 290
-			/delay 2s
-			/squelch /dgex /keypress forward hold
-			/delay 3s
-			/squelch /dgex /keypress forward
-			/delay 1s
-		}
-			/squelch /face heading 290
-			/delay 2s
-			/squelch /keypress forward hold
-			/delay 3s
-			/squelch /keypress forward
-			/delay 1s
-			/call Zoning
+		/squelch /face heading 290
+		/delay 2s
+		/squelch /keypress forward hold
+		/delay 3s
+		/squelch /keypress forward
+		/delay 1s
+		/call Zoning
 		/if (!${Zone.ID} == ${Butcherblock} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive3
 		/varcalc ZoneCount 4
 }
@@ -1609,8 +1515,7 @@ Sub GotoTask
 		
 		|----------------------
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {	
-			/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc -2624.00 -1113.00 3.12
-			/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc -2624.00 -1113.00 3.12
+			/if (${runcounter}==0) /squelch /e3bca /nav loc -2624.00 -1113.00 3.12			
 			/delay 1s
 			/call NavToLoc2 -2624.00 -1113.00 3.12
 			/delay 5
@@ -1621,29 +1526,19 @@ Sub GotoTask
 			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
-			/if (${UseE3BC}) {
-				/squelch /e3bca /face heading 155
-				/delay 2s
-				/squelch /e3bca /keypress forward hold
-				/delay 3s
-				/squelch /e3bca /keypress forward
-				/delay 1s
-			} 
-			/if (${UseDanNet}) {
-				/squelch /dgex /face heading 155
-				/delay 2s
-				/squelch /dgex /keypress forward hold
-				/delay 3s
-				/squelch /dgex /keypress forward
-				/delay 1s
-			}
-				/squelch /face heading 155
-				/delay 2s
-				/squelch /keypress forward hold
-				/delay 3s
-				/squelch /keypress forward
-				/delay 1s
-				/call Zoning
+			/squelch /e3bca /face heading 155
+			/delay 2s
+			/squelch /e3bca /keypress forward hold
+			/delay 3s
+			/squelch /e3bca /keypress forward
+			/delay 1s
+			/squelch /face heading 155
+			/delay 2s
+			/squelch /keypress forward hold
+			/delay 3s
+			/squelch /keypress forward
+			/delay 1s
+			/call Zoning
 		}
 		|-------------------
 }
@@ -1658,8 +1553,7 @@ Sub GotoTask
 		|----------------------
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/echo \aoHeaded to an \at[\agunearthed grave\at]
-			/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc -111.31 3861.35 -39.73
-			/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc -111.31 3861.35 -39.73
+			/if (${runcounter}==0) /squelch /e3bca /nav loc -111.31 3861.35 -39.73
 			/delay 1s
 			/call NavToLoc2 -111.31 3861.35 -39.73
 			/delay 5
@@ -1672,18 +1566,10 @@ Sub GotoTask
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
-			/if (${UseE3BC}) {
-				/squelch /e3bca /removelev
-				/squelch /e3bca /doortarget MISTPORT701
-				/delay 2s
-				/squelch /e3bca /click left door
-			}
-			/if (${UseDanNet}) {
-				/squelch /dgex /removelev
-				/squelch /dgex /doortarget MISTPORT701
-				/delay 2s
-				/squelch /dgex /click left door
-			}
+			/squelch /e3bca /removelev
+			/squelch /e3bca /doortarget MISTPORT701
+			/delay 2s
+			/squelch /e3bca /click left door
 			/squelch /removelev
 			/squelch /doortarget MISTPORT701
 			/delay 2s
@@ -1698,8 +1584,7 @@ Sub GotoTask
 		|----------------------
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/echo \aoHeaded to a \at[\agcrypt\at]
-			/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc -755.00 3831.00 1.84
-			/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc -755.00 3831.00 1.84
+			/if (${runcounter}==0) /squelch /e3bca /nav loc -755.00 3831.00 1.84
 			/delay 1s
 			/call NavToLoc2 -755.00 3831.00 1.84
 			/delay 5
@@ -1712,22 +1597,15 @@ Sub GotoTask
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
-			/if (${UseE3BC}) {
-				/squelch /e3bca /removelev
-				|Corrected Door
-				/squelch /e3bca /doortarget MISTFCFN700
-				/delay 2s
-				/squelch /e3bca /click left door
-			}
-			/if (${UseDanNet}) {
-				/squelch /dgex /removelev
-				|Corrected Door
-				/squelch /dgex /doortarget MISTFCFN700
-				/delay 2s
-				/squelch /dgex /click left door
-			}
-			/squelch /removelev
+			/squelch /e3bca /removelev
 			|Corrected Door
+			/squelch /e3bca /doortarget MISTFCFN700
+			/delay 2s
+			/squelch /e3bca /click left door
+			/squelch /removelev
+			|--------------
+			|Corrected Door
+			|--------------
 			/squelch /doortarget MISTFCFN700
 			/delay 2s
 			/squelch /click left door
@@ -1754,26 +1632,22 @@ Sub GotoTask
 		
 			|Group goes in now.
 			/echo \aoHeaded to a \at[\agglimmering portal\at]
-			/if (${UseE3BC}) /squelch /e3bca /nav loc -841.47 -5460 188
-			/if (${UseDanNet}) /squelch /dgex /nav loc -841.47 -5460 188
+			/squelch /e3bca /nav loc -841.47 -5460 188
 			/call NavToLoc2 -841.47 -5460 188
-			
+			/delay 5
+			/while (${Navigation.Active}) {
+				/call SetLoc
+				/call CheckStuck
+				/delay 20
+			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
-			/if (${UseE3BC}) {
-				/squelch /e3bca /removelev
-				/squelch /e3bca /doortarget MIRPORTAL700
-				/delay 2s
-				/squelch /e3bca /click left door
-			}
-			/if (${UseDanNet}) {
-				/squelch /dgex /removelev
-				/squelch /dgex /doortarget MIRPORTAL700
-				/delay 2s
-				/squelch /dgex /click left door
-			}
+			/squelch /e3bca /removelev
+			/squelch /e3bca /doortarget MIRPORTAL700
+			/delay 2s
+			/squelch /e3bca /click left door
 			|I goe in now.
 			/squelch /removelev
 			/squelch /doortarget MIRPORTAL700
@@ -1795,33 +1669,28 @@ Sub GotoTask
 			|Moveto Entrance Stage1
 			|Group goes in now.
 			/echo \aoHeaded to a \at[\agsnowy mine\at]
-			/if (${UseE3BC}) /squelch /e3bcaa /nav loc 2739.42 -4684.45 -105.04
-			/if (${UseDanNet}) /squelch /dgae /nav loc 2739.42 -4684.45 -105.04
+			/squelch /e3bcaa /nav loc 2739.42 -4684.45 -105.04
 			/call NavToLoc2 2739.42 -4684.45 -105.04
+			/delay 5
+			/while (${Navigation.Active}) {
+				/call SetLoc
+				/call CheckStuck
+				/delay 20
+			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 				
 			|Go Inside Entrance Stage2
-			/if (${UseE3BC}) /squelch /e3bcaa /nav loc 2772.21 -4726.54 -97.27
-			/if (${UseDanNet}) /squelch /dgae /nav loc 2772.21 -4726.54 -97.27
+			/squelch /e3bcaa /nav loc 2772.21 -4726.54 -97.27
 			/call NavToLoc2 2772.21 -4726.54 -97.27
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
-	
-			/if (${UseE3BC}) {
-				/squelch /e3bca /removelev
-				/squelch /e3bca /doortarget MIRPORTAL701
-				/delay 2s
-				/squelch /e3bca /click left door
-			}
-			/if (${UseDanNet}) {
-				/squelch /dgae /removelev
-				/squelch /dgae /doortarget MIRPORTAL701
-				/delay 2s
-				/squelch /dgae /click left door
-			}
+			/squelch /e3bca /removelev
+			/squelch /e3bca /doortarget MIRPORTAL701
+			/delay 2s
+			/squelch /e3bca /click left door
 			|I goe in now.
 			/removelev
 			/doortarget MIRPORTAL701
@@ -1846,24 +1715,21 @@ Sub GotoTask
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[quicksand pit in Northern Ro.]}) {
 			/echo \aoHeaded to a \at[\agquicksand pit\at]
 			/delay 1s
-			/if (${UseE3BC}) /squelch /e3bcaa /nav loc -949.78 124.60 -63.23
-			/if (${UseDanNet}) /squelch /dgex /nav loc -949.78 124.60 -63.23
+			/squelch /e3bcaa /nav loc -949.78 124.60 -63.23
 			/call NavToLoc2 -949.78 124.60 -63.23
+			/delay 5
+			/while (${Navigation.Active}) {
+				/call SetLoc
+				/call CheckStuck
+				/delay 20
+			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			/echo \agEveryone is here. \ayGoing in to task...
-			/if (${UseE3BC}) {
-				/squelch /e3bcaa /removelev
-				/squelch /e3bcaa /doortarget
-				/delay 2s
-				/squelch /e3bcaa /click left door
-			}
-			/if (${UseDanNet}) {
-				/squelch /dgex /removelev
-				/squelch /dgex /doortarget
-				/delay 2s
-				/squelch /dgex /click left door
-			}
+			/squelch /e3bcaa /removelev
+			/squelch /e3bcaa /doortarget
+			/delay 2s
+			/squelch /e3bcaa /click left door			
 			/removelev
 			/doortarget
 			/delay 2s
@@ -1887,9 +1753,8 @@ Sub GotoTask
 			/call GroupWait
 			
 			/echo \aoHeaded to an \at[\agMagus Zeir\at]
-			/if (${UseE3BC}) /squelch /e3bcaa /nav spawn Magus_Zeir
-			/if (${UseDanNet}) /squelch /dgae /nav spawn Magus_Zeir	
-			/delay 1s			
+			/squelch /e3bcaa /nav spawn Magus_Zeir
+			/delay 5			
 			/while (${Navigation.Active}) {
 				/call SetLoc
 				/call CheckStuck
@@ -1897,11 +1762,9 @@ Sub GotoTask
 			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
-			/if (${UseE3BC}) /squelch /e3bcaa /tar Magus_Zeir
-			/if (${UseDanNet}) /squelch /dgae /tar Magus_Zeir	
+			/squelch /e3bcaa /tar Magus_Zeir
 			/delay 2s
-			/if (${UseE3BC}) /squelch /e3bcaa /if (${Me.Invis}) /dropinvis
-			/if (${UseDanNet}) /squelch /dgae /if (${Me.Invis}) /dropinvis			
+			/squelch /e3bcaa /if (${Me.Invis}) /dropinvis
 			/keypress H
 			/delay 2s
 			/bark South Ro
@@ -1922,16 +1785,14 @@ Sub GotoTask
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Through a cave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Through a cave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length}) {			
 			
 			/echo \aoAvoiding tent obtacles at \at[\agSro Camp\at]
-			/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc -1470.44 1119.92 -23.86
-			/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc -1470.44 1119.92 -23.86
+			/if (${runcounter}==0) /squelch /e3bca /nav loc -1470.44 1119.92 -23.86
 			/delay 5s
 			/call NavToLoc2 -1470.44 1119.92 -23.86
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			
 			/echo \aoHeaded through \at[\aga cave\at]
-			/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc -2131.66 1321.46 -75.30
-			/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc -2131.66 1321.46 -75.30			
+			/if (${runcounter}==0) /squelch /e3bca /nav loc -2131.66 1321.46 -75.30
 			/delay 1s
 			/call NavToLoc2 -2131.66 1321.46 -75.30
 			/delay 5
@@ -1943,21 +1804,12 @@ Sub GotoTask
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			/echo \agEveryone is here. \ayGoing in to task...
-			/doevents
-			/if (${UseE3BC}) {
-				/squelch /e3bca /removelev
-				|Corrected Door
-				/squelch /e3bca /doortarget RUJPORTAL701
-				/delay 2s
-				/squelch /e3bca /click left door
-			}
-			/if (${UseDanNet}) {
-				/squelch /dgex /removelev
-				|Corrected Door
-				/squelch /dgex /doortarget RUJPORTAL701
-				/delay 2s
-				/squelch /dgex /click left door
-			}
+			/doevents			
+			/squelch /e3bca /removelev
+			|Corrected Door
+			/squelch /e3bca /doortarget RUJPORTAL701
+			/delay 2s
+			/squelch /e3bca /click left door
 			/squelch /removelev
 			|Corrected Door
 			/squelch /doortarget RUJPORTAL701
@@ -1981,38 +1833,32 @@ Sub GotoTask
 		/call CheckInvis
 		
 		/echo \aoAvoiding tent obtacles at \at[\agSro Camp\at]
-		/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc -1487.19 998.12 -23.84
-		/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc -1487.19 998.12 -23.84
+		/if (${runcounter}==0) /squelch /e3bca /nav loc -1487.19 998.12 -23.84
 		/delay 5s
 		/call NavToLoc2 -1487.19 998.12 -23.84
 		/call GroupWait
 		/if (${Me.XTarget[1].ID}) /call DoClearTargets
 		
 		/echo \aoMoving to \at[\agInnothule Swamp\at]
-		/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc -3190.48 1113.44 -24.93
-		/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc -3190.48 1113.44 -24.93
+		/if (${runcounter}==0) /squelch /e3bca /nav loc -3190.48 1113.44 -24.93
 		/delay 5s
 		/call NavToLoc2 -3190.48 1113.44 -24.93
+		/delay 5
+		/while (${Navigation.Active}) {
+			/call SetLoc
+			/call CheckStuck
+			/delay 20
+		}
 		/call GroupWait
 		/if (${Me.XTarget[1].ID}) /call DoClearTargets
 		
-			/if (${UseE3BC}) {
-				/squelch /e3bca /face heading 95
-				/delay 5
-				/squelch /e3bca /keypress forward hold
-				/delay 6s
-				/squelch /e3bca /keypress forward
-			}
-			/if (${UseDanNet}) {
-				/squelch /dgex /face heading 95
-				/delay 5
-				/squelch /dgex /keypress forward hold
-				/delay 6s
-				/squelch /dgex /keypress forward
-			}			
-		
-			/squelch /face heading 95
+			/squelch /e3bca /face heading 95
 			/delay 5
+			/squelch /e3bca /keypress forward hold
+			/delay 6s
+			/squelch /e3bca /keypress forward
+			/squelch /face heading 95
+			/delay 1s
 			/squelch /keypress forward hold
 			/delay 6s
 			/squelch /keypress forward
@@ -2031,26 +1877,23 @@ Sub GotoTask
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[rotting tree trunk]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[rotting tree trunk]} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			
 			/echo \aoMoving to a \at[\agrotting tree trunk\at]
-			/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc 1338.00 1189.00 -11.00
-			/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc 1338.00 1189.00 -11.00
+			/if (${runcounter}==0) /squelch /e3bca /nav loc 1338.00 1189.00 -11.00
 			/delay 5s
 			/call NavToLoc2 1338.00 1189.00 -11.00
+			/delay 5
+			/while (${Navigation.Active}) {
+				/call SetLoc
+				/call CheckStuck
+				/delay 20
+			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			
 		    /echo \agEveryone is here. \ayGoing in to task...
-		    /if (${UseE3BC}) {
-			    /squelch /e3bca /removelev
-			    /squelch /e3bca  /doortarget GKPORTAL700
-			    /delay 2s
-			    /squelch /e3bca /click left door
-		    }
-			/if (${UseDanNet}) {
-				/squelch /dgex /removelev
-				/squelch /dgex /doortarget GKPORTAL700
-				/delay 2s
-				/squelch /dgex /click left door
-			}
+		    /squelch /e3bca /removelev
+		    /squelch /e3bca  /doortarget GKPORTAL700
+		    /delay 2s
+		    /squelch /e3bca /click left door
 			/removelev
 			/doortarget GKPORTAL700
 			/delay 2s
@@ -2070,38 +1913,40 @@ Sub GotoTask
 		:getoutalive333
 		
 		/echo \aoMoving to \at[\agInnothule - Safe Spot\at]
-		/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc 2279.71 -651.85 -11.08
-		/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc 2279.71 -651.85 -11.08
+		/if (${runcounter}==0) /squelch /e3bca /nav loc 2279.71 -651.85 -11.08
 		/delay 5s
 		/call NavToLoc2 2279.71 -651.85 -11.08
+		/delay 5
+		/while (${Navigation.Active}) {
+			/call SetLoc
+			/call CheckStuck
+			/delay 20
+		}
 		/call GroupWait
 		/if (${Me.XTarget[1].ID}) /call DoClearTargets
 		
 		/echo \aoMoving to \at[\agUpper Guk - Entrancet\at]
-		/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc 142.63 -817.07 -6.21
-		/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc 142.63 -817.07 -6.21
+		/if (${runcounter}==0) /squelch /e3bca /nav loc 142.63 -817.07 -6.21
 		/delay 5s
 		/call NavToLoc2 142.63 -817.07 -6.21
-		/call GroupWait		
+		/delay 5
+		/while (${Navigation.Active}) {
+			/call SetLoc
+			/call CheckStuck
+			/delay 20
+		}
+		/call GroupWait	
 		/if (${Me.XTarget[1].ID}) /call DoClearTargets
 		
-		/if (${UseE3BC}) {	 
-			/squelch /e3bca /face heading 275
-			/delay 2s
-			/squelch /e3bca  /keypress forward hold
-			/delay 3s
-			/squelch /e3bca /keypress forward
-			}
-		/if (${UseDanNet}) {
-			/squelch /dgex /face heading 275
-			/delay 2s
-			/squelch /dgex  /keypress forward hold
-			/delay 3s
-			/squelch /dgex /keypress forward
-		}
-		/face heading 275
+		/squelch /e3bca /face heading 275
 		/delay 2s
-		/keypress forward hold
+		/squelch /e3bca  /keypress forward hold
+		/delay 3s
+		/squelch /e3bca /keypress forward
+		/delay 1s
+		/squelch /face heading 275
+		/delay 2s
+		/squelch /keypress forward hold
 		/delay 3s
 		/squelch /keypress forward
 		/call Zoning
@@ -2119,26 +1964,23 @@ Sub GotoTask
 		/call CheckInvis
 		
 		/echo \aoMoving to \at[\agbarricaded door\at]
-		/if (${UseE3BC} && ${runcounter}==0) /squelch /e3bca /nav loc 441.77 228.63 -9.13
-		/if (${UseDanNet} && ${runcounter}==0) /squelch /dgex /nav loc 441.77 228.63 -9.13
+		/if (${runcounter}==0) /squelch /e3bca /nav loc 441.77 228.63 -9.13
 		/delay 5s
 		/call NavToLoc2 441.77 228.63 -9.13
+		/delay 5
+		/while (${Navigation.Active}) {
+			/call SetLoc
+			/call CheckStuck
+			/delay 20
+		}
 		/call GroupWait
 		/if (${Me.XTarget[1].ID}) /call DoClearTargets
 		
 		/echo \agEveryone is here. \ayGoing in to task...
-		/if (${UseE3BC}) {
-			/squelch /e3bca /removelev
-			/squelch /e3bca /doortarget GKPORTAL701
-			/delay 2s
-			/squelch /e3bca /click left door
-		}
-		/if (${UseDanNet}) {
-			/squelch /dgex /removelev
-			/squelch /dgex /doortarget GKPORTAL701
-			/delay 2s
-			/squelch /dgex /click left door
-		}
+		/squelch /e3bca /removelev
+		/squelch /e3bca /doortarget GKPORTAL701
+		/delay 2s
+		/squelch /e3bca /click left door
 		/removelev
 		/doortarget GKPORTAL701
 		/delay 2s
@@ -2204,12 +2046,26 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 	/declare x 						int 	local 	${SpawnPull_Step}
 	/declare TempSpawnPull_Loc		string 	local	NULL
 	
+	|--------------------------------------------------------------------
+	| SET THE Zone Identifier Numbher to make zone arrays UNIQUE
+	|--------------------------------------------------------------------
+	/if (${Zone.ID} == ${RoyalObservatory})		/varset ZoneIdentityNum 1
+	/if (${Zone.ID} == ${Taskmasters})			/varset ZoneIdentityNum 2
+	/if (${Zone.ID} == ${InfernalSanctuary})	/varset ZoneIdentityNum 3
+	/if (${Zone.ID} == ${TheSepulcher})  		/varset ZoneIdentityNum 4
+	/if (${Zone.ID} == ${ForlornCaverns})  		/varset ZoneIdentityNum 5
+	/if (${Zone.ID} == ${EternalAffliction})  	/varset ZoneIdentityNum 6
+	/if (${Zone.ID} == ${AislesOfBlood})  		/varset ZoneIdentityNum 7
+	/if (${Zone.ID} == ${SilentGallery})  		/varset ZoneIdentityNum 8
+	/if (${Zone.ID} == ${AncientAqua}) 			/varset ZoneIdentityNum 9
+	|--------------------------------------------------------------------
+	
 	/if (${Debugging}) /echo Sub SwarmPullStepMove Entry
 	/if (${Debugging}) /echo SpawnPull_Loc=(${SpawnPull_Loc}) | SpawnPull_Step=(${SpawnPull_Step})
 	
 	|----------------------------------------------------------------------------------------------
-    /for x ${SpawnPull_Step} to ${LocalStepArray_${Zone.ShortName}.Size}
-		/varset TempSpawnPull_Loc ${LocalStepArray_${Zone.ShortName}[1,${x}]}
+    /for x ${SpawnPull_Step} to ${LocalStepArray_${Zone.ShortName}_${ZoneIdentityNum}.Size}
+		/varset TempSpawnPull_Loc ${LocalStepArray_${Zone.ShortName}_${ZoneIdentityNum}[1,${x}]}
 		
 		|-----------------------------
 		/if (${TempSpawnPull_Loc.Equal[NULL]}) {
@@ -2240,7 +2096,7 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 		|/echo \arSwarmPullStepMove: \ayTempSpawnPull_Loc=(${TempSpawnPull_Loc})
 		|-----------------------------------------------
 		/if (${TempSpawnPull_Loc.Length}>0) {
-			/echo \agNext location to Nav to is: \aySTEP: \ay[\am${x}\ay] of \ay[\am${LocalStepArray_${Zone.ShortName}.Size}\ay] Coordinates: [\am${TempSpawnPull_Loc}\ay]
+			/echo \agNext location to Nav to is: \aySTEP: \ay[\am${x}\ay] of \ay[\am${LocalStepArray_${Zone.ShortName}_${ZoneIdentityNum}.Size}\ay] Coordinates: [\am${TempSpawnPull_Loc}\ay]
 			|--------------------------------------------------------------
 			|/echo \agARRAY RETURNED DATA for step \ay[${x}]\ag: TempSpawnPull_Loc=(\am${TempSpawnPull_Loc})
 			|--------------------------------------------------------------
@@ -2249,20 +2105,17 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 				|-- Just nav to loc, using NavToLoc function will cause you to engage mobs along the path !
 				/nav loc ${TempSpawnPull_Loc}
 				|----------------------------------------------
-				/if (${UseE3BC}) /squelch /e3bca /nav loc ${TempSpawnPull_Loc}
-				/if (${UseDanNet}) /squelch /dgex /nav loc ${TempSpawnPull_Loc}
+				/squelch /e3bca /nav loc ${TempSpawnPull_Loc}
 			}
 			|--------------------------------------------------------------
-			/if (${UseE3BC}) /squelch /e3bca /nav loc ${TempSpawnPull_Loc}
-			/if (${UseDanNet}) /squelch /dgex /nav loc ${TempSpawnPull_Loc}
+			/squelch /e3bca /nav loc ${TempSpawnPull_Loc}
 			/delay 5
 			/while (${Navigation.Active}) {
 				/call SetLoc
 				/call CheckStuck
 				/delay 5
 			}
-			/if (${UseE3BC}) /squelch /e3bca /nav id ${Me.ID}
-			/if (${UseDanNet}) /squelch /dgex /nav id ${Me.ID}
+			/squelch /e3bca /nav id ${Me.ID}
 			/delay 5
 			|----------------------------------------------------------		
 
@@ -2345,15 +2198,6 @@ Sub DoSwarmPull
 /message \agSetting up pathing to \ay[\arSwarm Pull\ay] \agdungeon. . . . . 
 /message ==================================================================
 
-|---------------------------------------------------------
-| Delete any EXISTING LocalStepArray
-|---------------------------------------------------------
-/if (${Defined[LocalStepArray_${Zone.ShortName}]}) {
-	/echo \arDeleting \atOLD \aydungeon array\ar \am[\atLocalStepArray_${Zone.ShortName}\am]\ax
-	/deletevar LocalStepArray_${Zone.ShortName}
-}
-|---------------------------------------------------------
-
 |------------------------1: RoyalObservatory - UPDATED
 /if (${Zone.ID} == ${RoyalObservatory}) {
 	/echo \atLoading steps for: \ay[Royal Observatory]\at.
@@ -2362,27 +2206,27 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
-		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}_1]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_1[1,7]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_1[1,7]	string	outer
 		/delay 10
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}[1,1] 434.73 -355.54 4.03
-	/varset LocalStepArray_${Zone.ShortName}[1,2] -47.92 -26.65 2.03
-	/varset LocalStepArray_${Zone.ShortName}[1,3] 90.66 294.72 2.98
-	/varset LocalStepArray_${Zone.ShortName}[1,4] -593.20 253.32 1.12
-	/varset LocalStepArray_${Zone.ShortName}[1,5] -485.30 596.76 -17.54
-	/varset LocalStepArray_${Zone.ShortName}[1,6] -975.46 436.70 43.62
-	/varset LocalStepArray_${Zone.ShortName}[1,7] -1255.37 584.45 131.03
+	/varset LocalStepArray_${Zone.ShortName}_1[1,1] 434.73 -355.54 4.03
+	/varset LocalStepArray_${Zone.ShortName}_1[1,2] -47.92 -26.65 2.03
+	/varset LocalStepArray_${Zone.ShortName}_1[1,3] 90.66 294.72 2.98
+	/varset LocalStepArray_${Zone.ShortName}_1[1,4] -593.20 253.32 1.12
+	/varset LocalStepArray_${Zone.ShortName}_1[1,5] -485.30 596.76 -17.54
+	/varset LocalStepArray_${Zone.ShortName}_1[1,6] -975.46 436.70 43.62
+	/varset LocalStepArray_${Zone.ShortName}_1[1,7] -1255.37 584.45 131.03
 	|------------------------------------------------------
-	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,1]}\am]\ay
-	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,2]}\am]\ay
-	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,3]}\am]\ay
-	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,4]}\am]\ay
-	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,5]}\am]\ay
-	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,6]}\am]\ay
-	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,7]}\am]\ay
+	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_1[1,1]}\am]\ay
+	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_1[1,2]}\am]\ay
+	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_1[1,3]}\am]\ay
+	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_1[1,4]}\am]\ay
+	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_1[1,5]}\am]\ay
+	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_1[1,6]}\am]\ay
+	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_1[1,7]}\am]\ay
 	/message ==================================================================
 	|----------------------------------------------------
 	/echo \agGet ready, the fun is starting soon !
@@ -2402,27 +2246,27 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
-		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}_2]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_2[1,7]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_2[1,7]	string	outer
 		/delay 10
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}[1,1] -852.11 -771.74 -458.12
-	/varset LocalStepArray_${Zone.ShortName}[1,2] 231.88 -342.97 -485.62
-	/varset LocalStepArray_${Zone.ShortName}[1,3] 594.17 -12.62 -480.37
-	/varset LocalStepArray_${Zone.ShortName}[1,4] -213.87 127.00 -482.20	
-	/varset LocalStepArray_${Zone.ShortName}[1,5] -515.27 395.37 -479.87
-	/varset LocalStepArray_${Zone.ShortName}[1,6] -1057.00 768.46 -476.12
-	/varset LocalStepArray_${Zone.ShortName}[1,7] -1347.06 734.89 -485.46
+	/varset LocalStepArray_${Zone.ShortName}_2[1,1] -852.11 -771.74 -458.12
+	/varset LocalStepArray_${Zone.ShortName}_2[1,2] 231.88 -342.97 -485.62
+	/varset LocalStepArray_${Zone.ShortName}_2[1,3] 594.17 -12.62 -480.37
+	/varset LocalStepArray_${Zone.ShortName}_2[1,4] -213.87 127.00 -482.20	
+	/varset LocalStepArray_${Zone.ShortName}_2[1,5] -515.27 395.37 -479.87
+	/varset LocalStepArray_${Zone.ShortName}_2[1,6] -1057.00 768.46 -476.12
+	/varset LocalStepArray_${Zone.ShortName}_2[1,7] -1347.06 734.89 -485.46
 	|------------------------------------------------------
-	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,1]}\am]\ay
-	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,2]}\am]\ay
-	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,3]}\am]\ay
-	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,4]}\am]\ay
-	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,5]}\am]\ay
-	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,6]}\am]\ay
-	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,7]}\am]\ay
+	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_2[1,1]}\am]\ay
+	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_2[1,2]}\am]\ay
+	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_2[1,3]}\am]\ay
+	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_2[1,4]}\am]\ay
+	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_2[1,5]}\am]\ay
+	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_2[1,6]}\am]\ay
+	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_2[1,7]}\am]\ay
 	/message ==================================================================
 	|----------------------------------------------------
 	/echo \agGet ready, the fun is starting soon !
@@ -2442,27 +2286,27 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
-		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}_3]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_3[1,7]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_3[1,7]	string	outer
 		/delay 10
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}[1,1] 276.72 74.80 7.68	
-	/varset LocalStepArray_${Zone.ShortName}[1,2] 97.35 219.22 1.87
-	/varset LocalStepArray_${Zone.ShortName}[1,3] 77.38 -95.25 1.87	
-	/varset LocalStepArray_${Zone.ShortName}[1,4] -350.71 -171.71 21.22
-	/varset LocalStepArray_${Zone.ShortName}[1,5] -722.15 -235.59 17.87
-	/varset LocalStepArray_${Zone.ShortName}[1,6] -102.16 23.28 2.87
-	/varset LocalStepArray_${Zone.ShortName}[1,7] -429.96 165.62 18.42
+	/varset LocalStepArray_${Zone.ShortName}_3[1,1] 276.72 74.80 7.68	
+	/varset LocalStepArray_${Zone.ShortName}_3[1,2] 97.35 219.22 1.87
+	/varset LocalStepArray_${Zone.ShortName}_3[1,3] 77.38 -95.25 1.87	
+	/varset LocalStepArray_${Zone.ShortName}_3[1,4] -350.71 -171.71 21.22
+	/varset LocalStepArray_${Zone.ShortName}_3[1,5] -722.15 -235.59 17.87
+	/varset LocalStepArray_${Zone.ShortName}_3[1,6] -102.16 23.28 2.87
+	/varset LocalStepArray_${Zone.ShortName}_3[1,7] -429.96 165.62 18.42
 	|------------------------------------------------------
-	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,1]}\am]\ay
-	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,2]}\am]\ay
-	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,3]}\am]\ay
-	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,4]}\am]\ay
-	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,5]}\am]\ay
-	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,6]}\am]\ay
-	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,7]}\am]\ay
+	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_3[1,1]}\am]\ay
+	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_3[1,2]}\am]\ay
+	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_3[1,3]}\am]\ay
+	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_3[1,4]}\am]\ay
+	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_3[1,5]}\am]\ay
+	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_3[1,6]}\am]\ay
+	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_3[1,7]}\am]\ay
 	/message ==================================================================
 	|----------------------------------------------------
 	/echo \agGet ready, the fun is starting soon !
@@ -2482,25 +2326,25 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
-		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,6]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}[1,6]	string	outer
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}_4]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_4[1,6]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_4[1,6]	string	outer
 		/delay 10	
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}[1,1] 312.27 -251.84 0.12
-	/varset LocalStepArray_${Zone.ShortName}[1,2] -166.47 -309.34 0.12
-	/varset LocalStepArray_${Zone.ShortName}[1,3] -242.18 -537.21 -0.89
-	/varset LocalStepArray_${Zone.ShortName}[1,4] 24.30 -211.06 0.12
-	/varset LocalStepArray_${Zone.ShortName}[1,5] 223.93 -129.85 0.12
-	/varset LocalStepArray_${Zone.ShortName}[1,6] -48.88 164.08 4.66
+	/varset LocalStepArray_${Zone.ShortName}_4[1,1] 312.27 -251.84 0.12
+	/varset LocalStepArray_${Zone.ShortName}_4[1,2] -166.47 -309.34 0.12
+	/varset LocalStepArray_${Zone.ShortName}_4[1,3] -242.18 -537.21 -0.89
+	/varset LocalStepArray_${Zone.ShortName}_4[1,4] 24.30 -211.06 0.12
+	/varset LocalStepArray_${Zone.ShortName}_4[1,5] 223.93 -129.85 0.12
+	/varset LocalStepArray_${Zone.ShortName}_4[1,6] -48.88 164.08 4.66
 	|------------------------------------------------------
-	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,1]}\am]\ay
-	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,2]}\am]\ay
-	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,3]}\am]\ay
-	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,4]}\am]\ay
-	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,5]}\am]\ay
-	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,6]}\am]\ay
+	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_4[1,1]}\am]\ay
+	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_4[1,2]}\am]\ay
+	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_4[1,3]}\am]\ay
+	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_4[1,4]}\am]\ay
+	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_4[1,5]}\am]\ay
+	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_4[1,6]}\am]\ay
 	/message ==================================================================
 	|----------------------------------------------------
 	/echo \agGet ready, the fun is starting soon !
@@ -2520,29 +2364,29 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
-		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,8]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}[1,8]	string	outer
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}_5]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_5[1,8]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_5[1,8]	string	outer
 		/delay 10
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}[1,1] -181.88 -265.97 9.96
-	/varset LocalStepArray_${Zone.ShortName}[1,2] -251.16 -220.94 5.17
-	/varset LocalStepArray_${Zone.ShortName}[1,3] -238.65 -36.66 -2.47
-	/varset LocalStepArray_${Zone.ShortName}[1,4] -33.86 340.34 -3.85
-	/varset LocalStepArray_${Zone.ShortName}[1,5] 265.11 370.31 -6.11
-	/varset LocalStepArray_${Zone.ShortName}[1,6] 525.94 -45.50 -8.46
-	/varset LocalStepArray_${Zone.ShortName}[1,7] 102.84 553.45 -0.55
-	/varset LocalStepArray_${Zone.ShortName}[1,8] 203.05 878.30 -5.50
+	/varset LocalStepArray_${Zone.ShortName}_5[1,1] -181.88 -265.97 9.96
+	/varset LocalStepArray_${Zone.ShortName}_5[1,2] -251.16 -220.94 5.17
+	/varset LocalStepArray_${Zone.ShortName}_5[1,3] -238.65 -36.66 -2.47
+	/varset LocalStepArray_${Zone.ShortName}_5[1,4] -33.86 340.34 -3.85
+	/varset LocalStepArray_${Zone.ShortName}_5[1,5] 265.11 370.31 -6.11
+	/varset LocalStepArray_${Zone.ShortName}_5[1,6] 525.94 -45.50 -8.46
+	/varset LocalStepArray_${Zone.ShortName}_5[1,7] 102.84 553.45 -0.55
+	/varset LocalStepArray_${Zone.ShortName}_5[1,8] 203.05 878.30 -5.50
 	|------------------------------------------------------
-	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,1]}\am]\ay
-	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,2]}\am]\ay
-	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,3]}\am]\ay
-	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,4]}\am]\ay
-	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,5]}\am]\ay
-	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,6]}\am]\ay
-	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,7]}\am]\ay
-	/echo \ayStep \am[\ag8\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,8]}\am]\ay
+	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_5[1,1]}\am]\ay
+	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_5[1,2]}\am]\ay
+	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_5[1,3]}\am]\ay
+	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_5[1,4]}\am]\ay
+	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_5[1,5]}\am]\ay
+	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_5[1,6]}\am]\ay
+	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_5[1,7]}\am]\ay
+	/echo \ayStep \am[\ag8\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_5[1,8]}\am]\ay
 	/message ==================================================================
 	|----------------------------------------------------
 	/echo \agGet ready, the fun is starting soon !
@@ -2561,29 +2405,29 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	|  Define The Array Variables so the dungeon can be Run
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
-		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,8]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}[1,8]	string	outer
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}_6]}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_6[1,8]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_6[1,8]	string	outer
 		/delay 10
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}[1,1] -398.23 -34.52 1.67
-	/varset LocalStepArray_${Zone.ShortName}[1,2] -183.27 -222.08 -1.12
-	/varset LocalStepArray_${Zone.ShortName}[1,3] -0.94 75.34 6.10
-	/varset LocalStepArray_${Zone.ShortName}[1,4] 51.60 365.40 5.55
-	/varset LocalStepArray_${Zone.ShortName}[1,5] 199.64 232.56 20.99
-	/varset LocalStepArray_${Zone.ShortName}[1,6] 42.05 619.57 4.67
-	/varset LocalStepArray_${Zone.ShortName}[1,7] -72.44 823.40 21.30
-	/varset LocalStepArray_${Zone.ShortName}[1,8] -398.88 654.76 55.17
+	/varset LocalStepArray_${Zone.ShortName}_6[1,1] -398.23 -34.52 1.67
+	/varset LocalStepArray_${Zone.ShortName}_6[1,2] -183.27 -222.08 -1.12
+	/varset LocalStepArray_${Zone.ShortName}_6[1,3] -0.94 75.34 6.10
+	/varset LocalStepArray_${Zone.ShortName}_6[1,4] 51.60 365.40 5.55
+	/varset LocalStepArray_${Zone.ShortName}_6[1,5] 199.64 232.56 20.99
+	/varset LocalStepArray_${Zone.ShortName}_6[1,6] 42.05 619.57 4.67
+	/varset LocalStepArray_${Zone.ShortName}_6[1,7] -72.44 823.40 21.30
+	/varset LocalStepArray_${Zone.ShortName}_6[1,8] -398.88 654.76 55.17
 	|------------------------------------------------------
-	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,1]}\am]\ay
-	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,2]}\am]\ay
-	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,3]}\am]\ay
-	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,4]}\am]\ay
-	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,5]}\am]\ay
-	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,6]}\am]\ay
-	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,7]}\am]\ay
-	/echo \ayStep \am[\ag8\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,8]}\am]\ay	
+	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_6[1,1]}\am]\ay
+	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_6[1,2]}\am]\ay
+	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_6[1,3]}\am]\ay
+	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_6[1,4]}\am]\ay
+	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_6[1,5]}\am]\ay
+	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_6[1,6]}\am]\ay
+	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_6[1,7]}\am]\ay
+	/echo \ayStep \am[\ag8\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_6[1,8]}\am]\ay	
 	/message ==================================================================
 	|----------------------------------------------------
 	/echo \agGet ready, the fun is starting soon !
@@ -2603,27 +2447,27 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
-		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}]_7}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_7[1,7]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_7[1,7]	string	outer
 		/delay 10
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}[1,1] -276.36 -149.95 5.45
-	/varset LocalStepArray_${Zone.ShortName}[1,2] -140.05 97.44 -0.52
-	/varset LocalStepArray_${Zone.ShortName}[1,3] 129.87 -46.06 0.68
-	/varset LocalStepArray_${Zone.ShortName}[1,4] 229.47 114.54 4.67	
-	/varset LocalStepArray_${Zone.ShortName}[1,5] 428.26 -18.14 7.72
-	/varset LocalStepArray_${Zone.ShortName}[1,6] 83.96 318.89 -10.62
-	/varset LocalStepArray_${Zone.ShortName}[1,7] -309.26 299.73 -3.40
+	/varset LocalStepArray_${Zone.ShortName}_7[1,1] -276.36 -149.95 5.45
+	/varset LocalStepArray_${Zone.ShortName}_7[1,2] -140.05 97.44 -0.52
+	/varset LocalStepArray_${Zone.ShortName}_7[1,3] 129.87 -46.06 0.68
+	/varset LocalStepArray_${Zone.ShortName}_7[1,4] 229.47 114.54 4.67	
+	/varset LocalStepArray_${Zone.ShortName}_7[1,5] 428.26 -18.14 7.72
+	/varset LocalStepArray_${Zone.ShortName}_7[1,6] 83.96 318.89 -10.62
+	/varset LocalStepArray_${Zone.ShortName}_7[1,7] -309.26 299.73 -3.40
 	|------------------------------------------------------
-	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,1]}\am]\ay
-	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,2]}\am]\ay
-	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,3]}\am]\ay
-	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,4]}\am]\ay
-	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,5]}\am]\ay
-	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,6]}\am]\ay
-	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,7]}\am]\ay
+	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,1]}\am]\ay
+	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,2]}\am]\ay
+	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,3]}\am]\ay
+	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,4]}\am]\ay
+	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,5]}\am]\ay
+	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,6]}\am]\ay
+	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,7]}\am]\ay
 	/message ==================================================================
 	|----------------------------------------------------
 	/echo \agGet ready, the fun is starting soon !
@@ -2643,27 +2487,27 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
-		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,7]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}[1,7]	string	outer
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}]_8}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_8[1,7]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_8[1,7]	string	outer
 		/delay 10
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}[1,1] -27.67 416.21 -55.87
-	/varset LocalStepArray_${Zone.ShortName}[1,2] -345.88 402.49 -116.87
-	/varset LocalStepArray_${Zone.ShortName}[1,3] -113.21 262.63 -116.37
-	/varset LocalStepArray_${Zone.ShortName}[1,4] 0.56 5.65 4.13
-	/varset LocalStepArray_${Zone.ShortName}[1,5] -337.81 54.79 63.13
-	/varset LocalStepArray_${Zone.ShortName}[1,6] -467.00 -337.06 -56.87
-	/varset LocalStepArray_${Zone.ShortName}[1,7] -435.91 -814.49 65.13
+	/varset LocalStepArray_${Zone.ShortName}_8[1,1] -27.67 416.21 -55.87
+	/varset LocalStepArray_${Zone.ShortName}_8[1,2] -345.88 402.49 -116.87
+	/varset LocalStepArray_${Zone.ShortName}_8[1,3] -113.21 262.63 -116.37
+	/varset LocalStepArray_${Zone.ShortName}_8[1,4] 0.56 5.65 4.13
+	/varset LocalStepArray_${Zone.ShortName}_8[1,5] -337.81 54.79 63.13
+	/varset LocalStepArray_${Zone.ShortName}_8[1,6] -467.00 -337.06 -56.87
+	/varset LocalStepArray_${Zone.ShortName}_8[1,7] -435.91 -814.49 65.13
 	|------------------------------------------------------
-	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,1]}\am]\ay
-	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,2]}\am]\ay
-	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,3]}\am]\ay
-	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,4]}\am]\ay
-	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,5]}\am]\ay
-	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,6]}\am]\ay
-	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,7]}\am]\ay	
+	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,1]}\am]\ay
+	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,2]}\am]\ay
+	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,3]}\am]\ay
+	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,4]}\am]\ay
+	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,5]}\am]\ay
+	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,6]}\am]\ay
+	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,7]}\am]\ay	
 	/message ==================================================================
 	|----------------------------------------------------
 	/echo \agGet ready, the fun is starting soon !
@@ -2683,31 +2527,31 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]}) {
-		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}[1,9]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}[1,9]	string	outer
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}]_9}) {
+		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_9[1,9]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_9[1,9]	string	outer
 		/delay 10
 	}
 	|------------------------------------------------------	
-	/varset LocalStepArray_${Zone.ShortName}[1,1] -96.23 -656.16 47.87
-	/varset LocalStepArray_${Zone.ShortName}[1,2] -307.92 -316.91 55.85
-	/varset LocalStepArray_${Zone.ShortName}[1,3] -379.25 -5.50 51.35	
-	/varset LocalStepArray_${Zone.ShortName}[1,4] -560.51 -17.47 71.66
-	/varset LocalStepArray_${Zone.ShortName}[1,5] 48.19 -291.14 29.67
-	/varset LocalStepArray_${Zone.ShortName}[1,6] 174.10 39.36 -16.33
-	/varset LocalStepArray_${Zone.ShortName}[1,7] -150.30 22.18 3.12	
-	/varset LocalStepArray_${Zone.ShortName}[1,8] -276.10 410.11 -44.12
-	/varset LocalStepArray_${Zone.ShortName}[1,9] 739.18 98.36 -97.12
+	/varset LocalStepArray_${Zone.ShortName}_9[1,1] -96.23 -656.16 47.87
+	/varset LocalStepArray_${Zone.ShortName}_9[1,2] -307.92 -316.91 55.85
+	/varset LocalStepArray_${Zone.ShortName}_9[1,3] -379.25 -5.50 51.35	
+	/varset LocalStepArray_${Zone.ShortName}_9[1,4] -560.51 -17.47 71.66
+	/varset LocalStepArray_${Zone.ShortName}_9[1,5] 48.19 -291.14 29.67
+	/varset LocalStepArray_${Zone.ShortName}_9[1,6] 174.10 39.36 -16.33
+	/varset LocalStepArray_${Zone.ShortName}_9[1,7] -150.30 22.18 3.12	
+	/varset LocalStepArray_${Zone.ShortName}_9[1,8] -276.10 410.11 -44.12
+	/varset LocalStepArray_${Zone.ShortName}_9[1,9] 739.18 98.36 -97.12
 	|------------------------------------------------------
-	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,1]}\am]\ay
-	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,2]}\am]\ay
-	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,3]}\am]\ay
-	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,4]}\am]\ay
-	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,5]}\am]\ay
-	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,6]}\am]\ay
-	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,7]}\am]\ay
-	/echo \ayStep \am[\ag8\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,8]}\am]\ay
-	/echo \ayStep \am[\ag9\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}[1,9]}\am]\ay	
+	/echo \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_9[1,1]}\am]\ay
+	/echo \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_9[1,2]}\am]\ay
+	/echo \ayStep \am[\ag3\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_9[1,3]}\am]\ay
+	/echo \ayStep \am[\ag4\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_9[1,4]}\am]\ay
+	/echo \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_9[1,5]}\am]\ay
+	/echo \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_9[1,6]}\am]\ay
+	/echo \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_9[1,7]}\am]\ay
+	/echo \ayStep \am[\ag8\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_9[1,8]}\am]\ay
+	/echo \ayStep \am[\ag9\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_9[1,9]}\am]\ay	
 	/message ==================================================================
 	|----------------------------------------------------
 	/echo \agGet ready, the fun is starting soon !
@@ -2725,7 +2569,7 @@ Sub DoSwarmPull
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
-| SUB: DoClearTargets  
+| SUB: DoClearTargets
 | --------------------------------------------------------------------------------------------
 Sub DoClearTargets
 	/if (${Debugging}) /echo Sub DoClearTargets Entry
@@ -2737,7 +2581,7 @@ Sub DoClearTargets
 		:gotoloopkeepfighting
 		/if (${Me.Sitting}) /stand
 		/if (!${Target.ID} && ${Me.XTarget[1].ID}) {
-			/squelch /e3bca /nav id ${Me.ID}			
+			/squelch /e3bca /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
 			/ClearTargets
@@ -2768,14 +2612,14 @@ Sub DoClearTargets
 				/if (${DoBurns}) /quickburn
 				/if (${DoBurns}) /longburn
 				/delay 20
-				/goto :gotoloopkeepfighting  
+				/goto :gotoloopkeepfighting
 				}
-			| --- Explosion of Hatred	
+			| --- Explosion of Hatred
 			/if (${SpawnCount[npc radius 50]} >4 && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[822]} && ${DoBurns}) {
 				/alt act 822
 				/if (${DoBurns}) /fullburn
 				/delay 20
-				/goto :gotoloopkeepfighting  
+				/goto :gotoloopkeepfighting
 				}
 			| --- Projection of Doom
 			/if (${SpawnCount[npc radius 50]} >6 && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[3215]} && ${DoBurns}) /alt act 3215
@@ -2793,10 +2637,10 @@ Sub DoClearTargets
 				}
             /delay 2s
             /if (${Debugging}) /echo DEBUG: KillMob: Combat Loop
-			
-            /goto :gotoloopkeepfighting 
+
+            /goto :gotoloopkeepfighting
         }
-		|-------------------------------------------------------------------		
+		|-------------------------------------------------------------------
 		/if (${Me.XTarget[1].ID} || ${Target.ID}) /goto :gotoloopkeepfighting
 	}
 	/delay 20
@@ -2870,7 +2714,7 @@ Sub DoSinglePull(string Enemy)
 	/if (${Debugging}) /echo DoSinglePull Sub Entry
 	|-------------------------
 	/call CheckCasting
-	|-------------------------	
+	|-------------------------
 	/varset CampX ${Me.X}
 	/varset CampY ${Me.Y}
 	/varset CampZ ${Me.Z}
@@ -2885,16 +2729,11 @@ Sub DoSinglePull(string Enemy)
 		/varset reportTarget ${reportTarget.OriginalValue}
 		/if (${myTargetID} && !${Target.Type.Equal[corpse]}) {
 		/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-		/if (!${UseCWTNHunterTankMode}) {
-		/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) {
-			/pet attack
-			}
-		/if (${Spawn[id ${Target.ID}].Distance} < 30) /killthis
-		}
-		/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+		/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
-				/squelch /killthis
+				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
+				/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) /pet attack
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
 			}
@@ -2905,20 +2744,13 @@ Sub DoSinglePull(string Enemy)
 					/call BackUp
 					/varset BackUpTimer 0
 				}
-		/if (${UseE3BC} && ${AssistMe} && !${UseCWTN} && !${UseRGMercs}) {
+		/if (${AssistMe}) {
 			/if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
 			/squelch /e3bcg /nav id ${Me.ID}
 			/squelch /e3bcg /target id ${Me.XTarget[1].ID}
 			/timed 10 /squelch /e3bcg /pet attack
 			/timed 15 /squelch /e3bcg /pet swarm
 			/timed 20 /squelch /e3bcg /assistme
-		}
-		/if (${UseDanNet} && ${AssistMe} && !${UseCWTN} && !${UseRGMercs}) {
-			/squelch /dgge /nav id ${Me.ID}
-			/squelch /dgge /target id ${Me.XTarget[1].ID}
-			/timed 10 /squelch /dgge /pet attack
-			/timed 15 /squelch /dgge /pet swarm
-			/timed 20 /squelch /dgge /assistme
 		}
 		}
 
@@ -2934,22 +2766,25 @@ Sub DoSinglePull(string Enemy)
 		/call GroupDeathChk
 		/call GroupManaChk
 		/call GroupEndChk
-		/if (${UseMerc}) /call CheckMerc
 	}
 	/if (${Debugging}) /echo \aymyTargetID has an ID: ${Spawn[id ${myTargetID}].ID} - is a corpse: ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} - I have an XTarget: !${Me.XTarget[1].ID}
 	/if (!${Spawn[id ${myTargetID}].ID} || ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) {
 		/echo \ay"Looking for a target!"
 		/varset myTargetID 0
+		|-------------------
 		/call TargetShortest
+		|-------------------
 		/delay 1s
 		/echo \atMy Target: \ay[\ap${Spawn[id ${myTargetID}].Name}\ay]
 	} else {
 		/if (${Debugging}) /echo \ayI have an XTarget so I'm going to set that as my target.
 		/if (${Me.XTarget[1].ID}) {
 		/varset myTargetID ${Me.XTarget[1].ID}
+		|---------------------------------------
 		/if (${Debugging}) /echo CALL COMBAT
-		/if (${Spawn[id ${Target.ID}].Distance} < 30) /call combat
+		/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) /call combat
 		/if (${Debugging}) /echo END CALL COMBAT
+		|---------------------------------------
 		}
 	}
 	:navto
@@ -2958,7 +2793,7 @@ Sub DoSinglePull(string Enemy)
 	/if (${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && ${PullRequiresLineOfSight} || ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[${myTargetID}].ID}) {
 			/squelch /target clear
-			/if (${Debugging}) /echo \ar My target ID was null, so I'm returning out of the sub. 
+			/if (${Debugging}) /echo \ar My target ID was null, so I'm returning out of the sub.
 			/return
 		}
 		/varset BackUpTimer 0
@@ -3070,9 +2905,9 @@ Sub Combat
 	/if (${Debugging}) /echo Sub Combat Entry
 	/if (${Target.ID} && (${Target.Type.Equal[npc]} || ${Target.Type.Equal[pet]})) {
 		/if (${Navigation.Active}) /squelch /nav stop
-		/stick uw loose moveback 8 
+		/stick uw loose moveback 8
 		|/setchattitle Killing ${Target.CleanName}
-		/if (${UseE3BC} && ${AssistMe} && !${UseCWTN} && !${UseRGMercs}) {
+		/if (${AssistMe} && !${UseCWTN} && !${UseRGMercs}) {
 			/if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
 			/squelch /e3bcg /nav id ${Me.ID}
 			/squelch /e3bcg /target id ${Me.XTarget[1].ID}
@@ -3080,35 +2915,28 @@ Sub Combat
 			/timed 15 /squelch /e3bcg /pet swarm
 			/timed 20 /squelch /e3bcg /assistme
 		}
-		/if (${UseDanNet} && ${AssistMe} && !${UseCWTN} && !${UseRGMercs}) {
-				/squelch /dgge /nav id ${Me.ID}
-				/squelch /dgge /target id ${Me.XTarget[1].ID}
-				/timed 10 /squelch /dgge /pet attack
-				/timed 15 /squelch /dgge /pet swarm
-				/timed 20 /squelch /dgge /assistme
-		}
 		/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) {
 			/pet attack
 			}
 		/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-		/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+		/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
-				/squelch /killthis
+				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
-			}									 
+			}
 		:waitTillDead
-	
+
 		/if (${Target.ID} && ${Me.CombatState.Equal[Combat]} && (${Target.Type.Equal[npc]} || ${Target.Type.Equal[pet]})) {
 			/if (!${Me.Combat}) {
 			/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 			/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) {
 			/pet attack
 			}
-			/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
-				/squelch /killthis
+				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
@@ -3132,11 +2960,11 @@ Sub Combat
 					/next i
 				}
 			}
-			
+
 			/delay 10
-			/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
-				/squelch /killthis
+				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
@@ -3151,23 +2979,17 @@ Sub Combat
 		/if (${Spawn[id ${Me.XTarget[1].ID} radius 30 zradius 50].ID} && ${Spawn[id ${Me.XTarget[1].ID} radius 30 zradius 50].LineOfSight}) {
 			/if (${Navigation.Active}) /nav stop
 			/if (${AssistMe}) {
-                /if (${UseE3BC}) {
-                    /if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) target XTarget ${Spawn[id ${Me.XTarget[1].ID}].Name}
-                    /squelch /e3bcg /target id ${Me.XTarget[1].ID}
-                }
-				/if (${UseDanNet}) {
-                    /if (${Debugging}) /dgt all (Line: ${Macro.CurLine}) target XTarget ${Spawn[id ${Me.XTarget[1].ID}].Name}
-                    /squelch /dgge /target id ${Me.XTarget[1].ID}
-                }
+                /if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) target XTarget ${Spawn[id ${Me.XTarget[1].ID}].Name}
+                /squelch /e3bcg /target id ${Me.XTarget[1].ID}
             } else {
                 /target id ${Me.XTarget[1].ID}
 				/if (${Spawn[id ${Me.XTarget[1].ID}].Distance} > 30) /squelch /nav id ${Me.XTarget[1].ID}
 				/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) {
 					/pet attack
 					}
-				/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+				/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
-				/squelch /killthis
+				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
@@ -3177,18 +2999,10 @@ Sub Combat
 		} else /if (${Spawn[id ${Me.XTarget[1].ID}].Distance} > 30 || !${Spawn[id ${Me.XTarget[1].ID} radius 30 zradius 50].LineOfSight}) {
 			/squelch /nav id ${Me.XTarget[1].ID}
 			/if (!${Me.CombatState.Equal[Combat]}) {
-                /if (${UseE3BC}) {
-                    /if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) target me and stick (DoSinglePull1).
-                    /squelch /e3bcg /target id ${Me.ID}
-                    /delay 5
-                    /squelch /e3bcg /stick 10 loose moveback uw
-                } 
-				/if (${UseDanNet}) {
-                    /if (${Debugging}) /dgt all (Line: ${Macro.CurLine}) target me and stick (DoSinglePull1).
-                    /squelch /dgge /target id ${Me.ID}
-                    /delay 5
-                    /squelch /dgge /stick 10 loose moveback uw
-                }
+                /if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) target me and stick (DoSinglePull1).
+                /squelch /e3bcg /target id ${Me.ID}
+                /delay 5
+                /squelch /e3bcg /stick 10 loose moveback uw
             }
 			|/setchattitle Navigating to add ${Spawn[id ${Me.XTarget[1].ID}].CleanName}
 			/varset BackUpTimer 0
@@ -3196,18 +3010,10 @@ Sub Combat
 				/if (!${Navigation.Active}) {
 					/squelch /nav id ${Me.XTarget[1].ID}
 					/if (!${Me.CombatState.Equal[Combat]}) {
-                        /if (${UseE3BC}) {
-                            /if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) target me and stick (DoSinglePull2).
-                            /squelch /e3bcg /target id ${Me.ID}
-                            /delay 5
-                            /squelch /e3bcg /stick 10 loose moveback uw
-                        }
-						/if (${UseDanNet}) {
-                            /if (${Debugging}) /dgt all (Line: ${Macro.CurLine}) target me and stick (DoSinglePull2).
-                            /squelch /dgge /target id ${Me.ID}
-                            /delay 5
-                            /squelch /dgge /stick 10 loose moveback uw
-                        }
+                        /if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) target me and stick (DoSinglePull2).
+                        /squelch /e3bcg /target id ${Me.ID}
+                        /delay 5
+                        /squelch /e3bcg /stick 10 loose moveback uw
                     }
                 }
                 /delay 10
@@ -3220,7 +3026,7 @@ Sub Combat
 			/call GMCheck
 			}
 		}
-            /if (${AssistMe} && ${UseE3BC} && !${UseCWTN} && !${UseRGMercs}) {
+            /if (${AssistMe} && !${UseCWTN} && !${UseRGMercs}) {
                 /if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
 				/squelch /e3bcg /nav id ${Me.ID}
                 /squelch /e3bcg /target id ${Me.XTarget[1].ID}
@@ -3228,21 +3034,13 @@ Sub Combat
                 /timed 15 /squelch /e3bcg /pet swarm
                 /timed 20 /squelch /e3bcg /assistme
             }
-			/if (${AssistMe} && ${UseDanNet} && !${UseCWTN} && !${UseRGMercs}) {
-                /if (${Debugging}) /dgt all (Line: ${Macro.CurLine}) killthis
-				/squelch /dgge /nav id ${Me.ID}
-                /squelch /dgge /target id ${Me.XTarget[1].ID}
-                /timed 10 /squelch /dgge /pet attack
-                /timed 15 /squelch /dgge /pet swarm
-                /timed 20 /squelch /dgge /assistme
-            }
 		/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 		/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) {
 			/pet attack
 			}
-		/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+		/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
-				/squelch /killthis
+				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
@@ -3366,7 +3164,8 @@ Sub GroupWait
 :WaitForGroup
 /if (${Me.XTarget[1].ID}) {
 	/if (${Navigation.Active}) /nav stop
-	/call DoSinglePull
+	/call Group2Me
+	/call DoClearTargets
 	/goto :WaitForGroup
 }
 /echo \ayWaiting for the group. . .
@@ -3375,14 +3174,8 @@ Sub GroupWait
 
     /while ((${Group.Member[1].Distance} > 40) || (${Group.Member[2].Distance} > 40) || (${Group.Member[3].Distance} > 40) || (${Group.Member[4].Distance} > 40) || (${Group.Member[5].Distance} > 40) || (${Group.Member[6].Distance} > 40)) {
         /echo \aywaiting for the group, timer ${GroupWaitTimer}.\ax
-		/if (${UseE3BC}) {
-			/e3bca /stand
-			/e3bca /nav id ${Me.ID}
-		}		
-		/if (${UseDanNet}) {
-			/dgex /stand
-			/dgex /nav id ${Me.ID}
-		}
+		/e3bca /stand
+		/e3bca /nav id ${Me.ID}
         /delay 5s
 		/varcalc GroupWaitTimer (${GroupWaitTimer})+1
 		/call GroupWaitTimer
@@ -3402,39 +3195,20 @@ Sub GroupWaitTimer
 	/if (${GroupWaitTimer}==12) /varset GroupWaitTimer 0
 	/if (${GroupWaitTimer}==10) {
 		/echo \ayA Group Member might be stuck!
-		/if (${UseE3BC}) {
-			/squelch /e3bcaa /stand
-			/squelch /e3bcaa /removelev
-			/squelch /e3bcaa /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
-			/squelch /e3bcaa /keypress back hold
-			/delay 3s
-			/squelch /e3bcaa /keypress back
-		}
-		/if (${UseDanNet}) {
-			/squelch /dgae /stand
-			/squelch /dgae /removelev
-			/squelch /dgae /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
-			/squelch /dgae /keypress back hold
-			/delay 3s
-			/squelch /dgae /keypress back
-		}
+		/squelch /e3bcaa /stand
+		/squelch /e3bcaa /removelev
+		/squelch /e3bcaa /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
+		/squelch /e3bcaa /keypress back hold
+		/delay 3s
+		/squelch /e3bcaa /keypress back
 	}
 	/if (${GroupWaitTimer}==11) {
-	/echo \ayA Group Member is stuck!
-		/if (${UseE3BC}) {
-			/squelch /e3bcaa /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
-			/squelch /e3bcaa /keypress forward hold
-			/delay 2s
-			/squelch /e3bcaa /keypress forward
-			/delay 2s
-		}	
-		/if (${UseDanNet}) {
-			/squelch /dgae /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
-			/squelch /dgae /keypress forward hold
-			/delay 2s
-			/squelch /dgae /keypress forward
-			/delay 2s
-		}		
+		/echo \ayA Group Member is stuck!
+		/squelch /e3bcaa /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
+		/squelch /e3bcaa /keypress forward hold
+		/delay 2s
+		/squelch /e3bcaa /keypress forward
+		/delay 2s
 	}
 	/if (${Debugging}) /echo Sub GroupWaitTimer Exit
 /return GroupWaitTimer
@@ -3446,17 +3220,28 @@ Sub GroupWaitTimer
 Sub ResetBard
 	/if (${Debugging}) /echo Sub ResetBard Entry
 	/echo \agPerforming Bard Reset !\ax
-	
+
 	/declare x 					int 	local	1
-	
-		/for x 1 to ${Group.Members} 
-			/if (${Group.Member[${x}].Class.ShortName.Equal[BRD]}) {
-				/echo \ayResetting E3 [\atBRD\ay] MELODY for [\am${Group.Member[${x}].CleanName}\ay].
-				|------------------------				
-				/squelch /e3bct ${Group.Member[${x}].CleanName} /mono E3
+
+	|--- BRDMelodyName
+
+	/for x 1 to ${Group.Members}
+		/if (${Group.Member[${x}].Class.ShortName.Equal[BRD]}) {
+		|-----------------------------------------
+		/while (${Group.Member[${x}].OtherZone}) {
+			:WaitForBardToZoneIn
+				/echo \ay - [\am${Group.Member[${x}].CleanName}\ay] is \arNOT IN ZONE\ax yet, waiting.
 				/delay 3s
-			}		
-		/next x
+				/if (${Group.Member[${x}].OtherZone}) /goto :WaitForBardToZoneIn
+		}
+		|-----------------------------------------
+		/echo \ayResetting E3 [\atBRD\ay] MELODY for [\am${Group.Member[${x}].CleanName}\ay].
+		|------------------------
+		|/squelch /e3bct ${Group.Member[${x}].CleanName} /mono E3
+		/squelch /e3bct ${Group.Member[${x}].CleanName} /playmelody ${BRDMelodyName}
+		/delay 3s
+	}
+	/next x
 
 	/if (${Debugging}) /echo Sub ResetBard Exit
 /return
@@ -3467,9 +3252,14 @@ Sub ResetBard
 | --------------------------------------------------------------------------------------------
 Sub CheckInvis
 	/if (${Debugging}) /echo Sub CheckInvis Entry
-	
+	/if (!${Me.Combat} && !${Me.XTarget[1].ID}) /call Group2Me
+
 	/declare x 					int 	local	0
-	
+
+	|------------
+	/call Group2Me
+	|------------
+
 	|----------------------------------------------------------------------------
 	|--- REFERENCE ----
 	|----------------------------------------------------------------------------
@@ -3482,8 +3272,8 @@ Sub CheckInvis
 	|/squelch /e3bcg /alt act 1210 	; -- Group Perfect Invisibility
 	|/squelch /e3bcg /alt act 231 	; -- Shauri's Sonorious Clouding
 	|----------------------------------------------------------------------------
-	
-	/if (${UseE3BC}) {
+
+	/if (!${Me.Invis}) {
 		/squelch /e3bcg /alt act 280
 		/squelch /e3bcg /alt act 8301
 		/squelch /e3bcg /alt act 1212
@@ -3492,58 +3282,31 @@ Sub CheckInvis
 		/squelch /e3bcg /alt act 518
 		/squelch /e3bcg /alt act 1210
 		/squelch /e3bcg /alt act 231
+		/delay 5s
 	}
-	/if (${UseDanNet}) {
-		/squelch /dgge /alt act 280
-		/squelch /dgge /alt act 8301
-		/squelch /dgge /alt act 1212
-		/squelch /dgge /alt act 630
-		/squelch /dgge /alt act 531
-		/squelch /dgge /alt act 518
-		/squelch /dgge /alt act 1210
-		/squelch /dgge /alt act 231
-	}
-	/delay 5s
+
 	|:CheckBrdInvisNow
 	/if (!${Me.Invis}) {
 		/echo \arNeed to make myself invisible!
-		|-----------------------------		
-		/for x 1 to ${Group.Members} 
+		|-----------------------------
+		/for x 1 to ${Group.Members}
 			/if (${Group.Member[${x}].Class.ShortName.Equal[BRD]}) {
-				/echo \ay[\am${Group.Member[${x}].CleanName}\ay] is a [\atBRD\ay], making them sing invis !				
+				/echo \ay[\am${Group.Member[${x}].CleanName}\ay] is a [\atBRD\ay], making them sing invis !
 				|------------------------
-				/if (${UseE3BC}) {
-					/squelch /e3bct ${Group.Member[${x}].CleanName} /playmelody stop
-					/delay 1s
-					/squelch /e3bct ${Group.Member[${x}].CleanName} /memspell ${BRDTravelSongSlot} "${BRDTravelSong}"
+				/squelch /e3bct ${Group.Member[${x}].CleanName} /playmelody stop
+				/delay 1s
+				/squelch /e3bct ${Group.Member[${x}].CleanName} /memspell ${BRDTravelSongSlot} ${BRDTravelSong}
+				/delay 3s
+				:CheckBrdInvisNow
+				/if (!${Me.Invis}) {
+					/squelch /e3bct ${Group.Member[${x}].CleanName} /cast ${BRDTravelSongSlot} ${BRDTravelSong}
 					/delay 3s
-					:CheckBrdInvisNowE3BCT
-					/if (!${Me.Invis}) {				
-						/squelch /e3bct ${Group.Member[${x}].CleanName} /cast ${BRDTravelSongSlot} "${BRDTravelSong}"
-						/delay 3s
-						/echo \agWaiting for invis to kick in .....
-						/delay 5s ${Me.Invis}
-						/goto :CheckBrdInvisNowE3BCT
-					}
-				}	
-				|------------------------
-				|------------------------
-				/if (${UseDanNet}) {
-					/squelch /dex ${Group.Member[${x}].CleanName} /playmelody stop
-					/delay 1s
-					/squelch /dex ${Group.Member[${x}].CleanName} /memspell ${BRDTravelSongSlot} "${BRDTravelSong}"
-					/delay 3s
-					:CheckBrdInvisNowDEX
-					/if (!${Me.Invis}) {				
-						/squelch /dex ${Group.Member[${x}].CleanName} /cast ${BRDTravelSongSlot} "${BRDTravelSong}"
-						/delay 3s
-						/echo \agWaiting for invis to kick in .....
-						/delay 5s ${Me.Invis}
-						/goto :CheckBrdInvisNowDEX
-					}
+					/echo \agWaiting for invis to kick in .....
+					/delay 5s ${Me.Invis}
+					/goto :CheckBrdInvisNow
 				}
 				|------------------------
-			}		
+			}
 		/next x
 		|-----------------------------
 		/if (${Me.Class.ShortName.Equal[NEC]} || ${Me.Class.ShortName.Equal[SHD]}) {
@@ -3602,7 +3365,7 @@ Sub CheckInvis
 				/casting "Cloudy Potion|Item"
 			} else {
 				/echo \ayYou are out of \at[\apCloudy Potions\at]\ay. \agFighting my way through if a group member doesn't have invis!
-			
+
 			}
 		} else /if (${Me.Class.ShortName.Equal[ROG]}) {
 			/if (${Me.AbilityReady[Hide]}) {
@@ -3615,7 +3378,7 @@ Sub CheckInvis
 				/casting "Cloudy Potion|Item"
 			} else {
 				/echo \ayYou are out of \at[\apCloudy Potions\at]\ay. \agFighting my way through if a group member doesn't have invis!
-			
+
 			}
 		} else /if (${FindItemCount[Cloudy Potion]}) {
 			/casting "Cloudy Potion|Item"
@@ -3731,8 +3494,7 @@ Sub CloseAdventureWnd
 	/if (${Window[AdventureRequestWnd].Open}) /squelch /windowstate AdventureRequestWnd close
 	/delay 1s !${Window[AdventureRequestWnd].Open}
 	/if (${Window[AdventureRequestWnd].Open}) /goto :CloseAdvWindow	
-	/if (${UseE3BC}) /e3bca /squelch /windowstate AdventureRequestWnd close
-	/if (${UseDanNet}) /dgex /squelch /windowstate AdventureRequestWnd close
+	/e3bca /squelch /windowstate AdventureRequestWnd close
 	/if (${Debugging}) /echo Sub CloseAdventureWnd Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -3801,28 +3563,11 @@ Sub GMMode
 /if (${Debugging}) /echo Sub GMMode Entry
 		/if (${UseBeep}) /beep
 		/popcustom 13 5 Warning! GMMode: GM is Present!
-		
-		/if (${Navigation.Active}) /nav stop
-		/if (${UseE3BC}) {
-			/e3bcg /end
-			/e3bcg /useitem "Bulwark of Many Portals"
-			/e3bcg /alt act 1217
-			/e3bcg /useitem "Philter of Major Translocation"		
-			/e3bcg /alt act 511
-		}
-		/if (${UseDanNet}) {
-			/dgga /end
-			/dgga /useitem "Bulwark of Many Portals"
-			/dgga /alt act 1217
-			/dgga /useitem "Philter of Major Translocation"		
-			/dgga /alt act 511
-		}
-		/alt act 1217
-		/alt act 511
-		/delay 30s
-		/if (${UseE3BC}) /e3bcg /afk
-		/if (${UseDanNet}) /dgga /afk	
-		/end
+		/message ==================================================================
+		/message \ar***** GM IN ZONE, PAUUSING MACRO *****\ax
+		/message ==================================================================
+		/mqp
+
 /if (${Debugging}) /echo Sub GMMode Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -3841,7 +3586,7 @@ Sub GroupDeathChk
 			/beep
 			/beep
 			/beep
-			/delay 30			
+			/delay 30
 		}
 		|----------
 	}
@@ -3864,15 +3609,7 @@ Sub GroupDeathChk
 						/beep
 						/delay 30
 					}
-					|----------------------------------
-					|--
-					/if (${UseE3BC}) {
-						/squelch /e3bcg /stand
-					}
-					/if (${UseDanNet}) {
-                        /squelch /dgga /stand
-                    }
-					|--
+					/squelch /e3bcg /stand
 				}
 				|------   If No Target ID
 			}
@@ -3881,7 +3618,7 @@ Sub GroupDeathChk
 		|----------------------------------
 	}
 	|--- If Group --
-	
+
 	/if (${Debugging}) /echo Sub GroupDeathChk Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -3892,11 +3629,11 @@ Sub GroupDeathChk
 Sub GroupManaChk
 	/if (${Debugging}) /echo Sub GroupManaChk Entry
 	/if (${Me.XTarget[1].ID}) /return
-	
-	|------------------- If NoCombat	
+
+	|------------------- If NoCombat
 	/if (!${Me.Combat}) {
 		|---
-		|--- If Me LowMana	
+		|--- If Me LowMana
 		/if ((${Me.PctMana} < ${MedAt} && !${Me.State.Equal[DEAD]} && !${Select[${Me.Class.ShortName},WAR,BER,ROG,MNK,BRD]}) || (${BardMed} && ${Me.PctMana} < ${MedAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 			/echo \arYOU are low on mana!
 			|------   If No Target ID
@@ -3908,20 +3645,12 @@ Sub GroupManaChk
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
 					/delay 6s
 				}
-				|--------------------------------------
-				|----
-				/if (${UseE3BC}) {
-                    /squelch /e3bcg /stand
-                }
-				/if (${UseDanNet}) {
-                    /squelch /dgge /stand
-                }
-				|----
+                /squelch /e3bcg /stand
 			}
 			|------   If No Target ID
 		}
 		|--- If Me LowMana
-		|--- If Group --		
+		|--- If Group --
 		/if (${Group}) {
 			/declare i int local
 			|--------------------------------------
@@ -3932,13 +3661,8 @@ Sub GroupManaChk
 					|--------------
 					| Make Them Sit
 					|--------------
-					/if (${UseE3BC}) {
-						/squelch /e3bct ${Group.Member[${i}].CleanName} /sit
-					}
-					/if (${UseDanNet}) {
-						/squelch /dex ${Group.Member[${i}].CleanName} /sit
-					}
-					|----					
+					/squelch /e3bct ${Group.Member[${i}].CleanName} /sit
+					|----
 					/call Refresh
 					|------   If No Target ID
 					/if (!${Me.XTarget[1].ID}) {
@@ -3951,20 +3675,11 @@ Sub GroupManaChk
 							|----------
 							/if (${Group.Member[${i}].Standing}) {
 								/delay 6s
-								/if (${UseE3BC}) /squelch /e3bct ${Group.Member[${i}].CleanName} /sit
-								/if (${UseDanNet}) /squelch /dex ${Group.Member[${i}].CleanName} /sit
-							}							
+								/squelch /e3bct ${Group.Member[${i}].CleanName} /sit
+							}
 							|----------
 						}
-						|---------------------------------------
-						|----
-						/if (${UseE3BC}) {
-							/squelch /e3bcg /stand
-						}
-						/if (${UseDanNet}) {
-							/squelch /dgge /stand
-						}
-						|----
+						/squelch /e3bcg /stand
 					}
 					|------   If No Target ID
 				}
@@ -3975,7 +3690,7 @@ Sub GroupManaChk
 		|--- If Group --
 	}
 	|------------------- If NoCombat
-	
+
 	/if (${Debugging}) /echo Sub GroupManaChk Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -3986,7 +3701,7 @@ Sub GroupManaChk
 Sub GroupEndChk
 	/if (${Debugging}) /echo Sub GroupEndChk Entry
 	/if (${Me.XTarget[1].ID}) /return
-	
+
 	|------------------- If NoCombat
 	/if (!${Me.Combat}) {
 		|---
@@ -4002,15 +3717,7 @@ Sub GroupEndChk
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
 					/delay 6s
 				}
-				|--------------------------------------
-				|----
-				/if (${UseE3BC}) {
-                    /squelch /e3bcg /stand
-                }
-				/if (${UseDanNet}) {
-                    /squelch /dgge /stand
-                }
-				|----
+                /squelch /e3bcg /stand
 			}
 			|------   If No Target ID
 		}
@@ -4028,13 +3735,7 @@ Sub GroupEndChk
 						|--------------
 						| Make Them Sit
 						|--------------
-						/if (${UseE3BC}) {
-							/squelch /e3bct ${Group.Member[${i}].CleanName} /sit
-						}
-						/if (${UseDanNet}) {
-							/squelch /dex ${Group.Member[${i}].CleanName} /sit
-						}
-						|----						
+						/squelch /e3bct ${Group.Member[${i}].CleanName} /sit
 						/call Refresh
 						|------   If No Target ID
 						/if (!${Me.XTarget[1].ID}) {
@@ -4047,20 +3748,12 @@ Sub GroupEndChk
 								|----------
 								/if (${Group.Member[${i}].Standing}) {
 									/delay 6s
-									/if (${UseE3BC}) /squelch /e3bct ${Group.Member[${i}].CleanName} /sit
-									/if (${UseDanNet}) /squelch /dex ${Group.Member[${i}].CleanName} /sit									
-								}							
+									/squelch /e3bct ${Group.Member[${i}].CleanName} /sit
+								}
 								|----------
 						}
 						|---------------------------------------
-						|----
-							/if (${UseE3BC}) {
-								/squelch /e3bcg /stand
-							}
-							/if (${UseDanNet}) {
-								/squelch /dgge /stand
-							}
-							|----
+						/squelch /e3bcg /stand
 						}
 						|------   If No Target ID
 					}
@@ -4073,7 +3766,7 @@ Sub GroupEndChk
 		|--- If Group --
 	}
 	|------------------- If NoCombat
-	
+
 	/if (${Debugging}) /echo Sub GroupEndChk Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -4123,7 +3816,6 @@ Sub NavToLoc(int Y,int X,int Z)
 			/if (${CheckBots}) /call GroupDeathChk
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
-			/if (${CheckBots} && ${UseMerc}) /call CheckMerc
 			/call GMCheck
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
@@ -4133,7 +3825,6 @@ Sub NavToLoc(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupDeathChk
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
-				/if (${CheckBots} && ${UseMerc}) /call CheckMerc
 				/call GMCheck
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
@@ -4145,10 +3836,10 @@ Sub NavToLoc(int Y,int X,int Z)
 				/call DoSinglePull
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
-				/if (${UseMerc}) /call CheckMerc
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
-			/if (!${Me.Moving}) /nav loc ${Y} ${X} ${Z}
+			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) /call Group2Me
+			/if (!${Me.Moving}) /squelch /e3bcga /nav loc ${Y} ${X} ${Z}
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
@@ -4169,7 +3860,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 	/while (${Math.Distance[${Me.Y}, ${Me.X}, ${Me.Z}: ${Y}, ${X}, ${Z}]} > 20) {
 		/if (${Navigation.Active}) {
 			/if (${Debugging}) /echo WaitNav Moving ELSE
-			/if (${CheckBots}) /call GroupDeathChk			
+			/if (${CheckBots}) /call GroupDeathChk
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
 			/call GMCheck
@@ -4178,9 +3869,9 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc
 				/target ${Me.XTarget[1].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-				/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+				/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
-				/squelch /killthis
+				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				/call DoClearTargets
 				/doevents
@@ -4188,7 +3879,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 			}
 			} else {
 				/if (${Debugging}) /echo WaitNav Moving ELSE
-				/if (${CheckBots}) /call GroupDeathChk				
+				/if (${CheckBots}) /call GroupDeathChk
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
 				/call GMCheck
@@ -4201,9 +3892,9 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II
 				/target ${Me.XTarget[1].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-				/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+				/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
-				/squelch /killthis
+				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				/call DoClearTargets
 				/doevents
@@ -4213,7 +3904,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupDeathChk
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
-			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /e3bcaa /nav loc ${Y} ${X} ${Z}
+			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /e3bcga /nav loc ${Y} ${X} ${Z}
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
@@ -4252,19 +3943,17 @@ Sub WaitNav(NavTargetID)
 				/call DoSinglePull
 			} else {
 				/if (${Debugging}) /echo \ayWaitNav Moving
-				/if (${CheckBots}) /call GroupDeathChk				
+				/if (${CheckBots}) /call GroupDeathChk
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
-				/if (${CheckBots} && ${UseMerc}) /call CheckMerc
 				/call GMCheck
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
 			/if (!${courseCorrection}) {
 				|------  ALL GO TO TARGET - staggered
-				/nav id ${NavTargetID}	
+				/nav id ${NavTargetID}
 				/delay 5
-				/if (${UseE3BC}) /squelch /e3bca /nav id ${NavTargetID}				
-				/if (${UseDanNet}) /squelch /dgex /nav id ${NavTargetID}		
+				/squelch /e3bca /nav id ${NavTargetID}
 				|------  ALL GO TO TARGET - staggered
 				/varset courseCorrection ${courseCorrection.OriginalValue}
 			}
@@ -4275,15 +3964,7 @@ Sub WaitNav(NavTargetID)
 		} else {
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
-				/if (${UseE3BC}) {
-                    /if (${Debugging}) /bcg (Line: ${Macro.CurLine}) target xtarget ${Spawn[id ${Me.XTarget[1].ID}].Name}
-                    /squelch /bcg //target id ${Me.XTarget[1].ID}
-                } else /if (${UseDanNet}) {
-                    /if (${Debugging}) /dgt all (Line: ${Macro.CurLine}) target xtarget ${Spawn[id ${Me.XTarget[1].ID}].Name}
-                    /squelch /dgge /target id ${Me.XTarget[1].ID}
-                } else {
-					/target id ${Me.XTarget[1].ID}
-				}
+				/e3bcga /target id ${Me.XTarget[1].ID}
 				/varset NavTargetID ${Me.XTarget[1].ID}
 				/if (${Debugging}) /echo CALL DoSinglePull WaitNav II
 				/call DoSinglePull
@@ -4300,10 +3981,9 @@ Sub WaitNav(NavTargetID)
 					}
 				}
 				/if (${Debugging}) /echo WaitNav Moving ELSE
-				/if (${CheckBots}) /call GroupDeathChk				
+				/if (${CheckBots}) /call GroupDeathChk
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
-				/if (${CheckBots} && ${UseMerc}) /call CheckMerc
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
 			/squelch /nav id ${NavTargetID}
@@ -4325,43 +4005,41 @@ Sub WaitNav(NavTargetID)
 | --------------------------------------------------------------------------------------------
   Sub AutoSell_Loot
   /if (${Debugging}) /echo Sub AutoSell_Loot Entry
-  
+
   	|--------------------------
 	/echo \am<***> Sending the rest of my group to Magus as I sell <***>
-  	/if (${UseE3BC})  /squelch /e3bca /tar Magus Alaria
-	/if (${UseDanNet}) /squelch /dgex /tar Magus Alaria
+  	/squelch /e3bca /tar Magus Alaria
 	/delay 5
-	/if (${UseE3BC})  /squelch /e3bca /nav target
-	/if (${UseDanNet}) /squelch /dgex /nav target
+	/squelch /e3bca /nav target
 	/delay 5
 	|--------------------------
-	
+
 	/declare MerchName	string	local Merabo
-	
-	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agAttempting to lacate a \ay[\at${MerchName}\ay]\ag to \ay[\atAutoSell\ay]\ag ! \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw> 
+
+	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agAttempting to lacate a \ay[\at${MerchName}\ay]\ag to \ay[\atAutoSell\ay]\ag ! \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw>
 	/target clear
 	/delay 2s !${Target.ID}
-	
+
 	/squelch /target ${MerchName}
 	/delay 2s ${Target.ID}
-	
+
 	|-------------------------------------
 	/if (${Target.ID}) {
-		/squelch /nav id ${Target.ID} 
+		/squelch /nav id ${Target.ID}
 		/delay 5
 		/while (${Navigation.Active}) {
 			/call SetLoc
 			/call CheckStuck
 			/delay 5
-		}	
+		}
 	}
 	/delay 5
 	|-------------------------------------
-	
+
 	|------------------
 	/call ReclaimAltDC
 	|------------------
-	
+
 	|-------------------------------------
 	/if (${Target.ID} && ${Target.Distance}<=20) {
 		/nomodkey /click right target
@@ -4372,7 +4050,7 @@ Sub WaitNav(NavTargetID)
 		/delay 1s
 		/autosell
 		|-----------------
-		/while (${Window[MerchantWnd].Open}) {		
+		/while (${Window[MerchantWnd].Open}) {
 			/delay 5
 		}
 		|-----------------
@@ -4380,8 +4058,8 @@ Sub WaitNav(NavTargetID)
 		/delay 1s
 	}
 	|-------------------------------------
-		
-	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agDone Selling! \ag \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw> 
+
+	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agDone Selling! \ag \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw>
 
 	/if (${Debugging}) /echo Sub AutoSell_Loot Exit
   /return
@@ -4394,25 +4072,25 @@ Sub ReclaimAltDC
  /if (${Debugging}) /echo Sub ReclaimAltDC Entry
 
 	/varset CurrentDC ${FindItemCount[=Diamond Coin]}
-	/varset CurrentDCAC ${Me.AltCurrency[20]} 
+	/varset CurrentDCAC ${Me.AltCurrency[20]}
 	/echo \ayDiamond Coin: Alternate Currency=(\at${CurrentDCAC}\ay) | Inventory=(\at${CurrentDC}\ax)
 
 	|-----------------------------------------------
-	/if (${CurrentDC}>0) {	
-		; --- If I have DC in inventory, RECLAIM it to Alternate Currency !!!  
+	/if (${CurrentDC}>0) {
+		; --- If I have DC in inventory, RECLAIM it to Alternate Currency !!!
 		/echo \ag$$$\ay I have [\atDiamond Coin\ay]  to reclaim!\ax
-	
+
 		; Open the Inventory Window if it is closed
 		|----------------------------------------------
 		/if (!${Window[InventoryWindow].Open}) /call OpenInvWindow
-		|----------------------------------------------	
-	
+		|----------------------------------------------
+
 		; Select Alt Currency Tab
 		/if (${Debugging}) /echo Selecting Alt Currency Tab
 		/if (!${Window[InventoryWindow].Child[IW_AltCurrPage].Open})  /notify InventoryWindow IW_Subwindows tabselect 5
 		/delay 5
-	
-		; Select Diamond Coin off the Alternate Currecy tab in Inventory window ..  YOU NEED TO OPEN INVENTORY WINDOW FOR THIS ! 
+
+		; Select Diamond Coin off the Alternate Currecy tab in Inventory window ..  YOU NEED TO OPEN INVENTORY WINDOW FOR THIS !
 		/if (${Debugging}) /echo Selecting Diamond Coins
 		/notify InventoryWindow IW_AltCurr_PointList listselect 2
 		/delay 5
@@ -4427,12 +4105,12 @@ Sub ReclaimAltDC
 	|-----------------------------------------------
 	; Update the DC and Alternate DC Currency ammount.
 	/varset CurrentDC ${FindItemCount[=Diamond Coin]}
-	/varset CurrentDCAC ${Me.AltCurrency[20]} 
+	/varset CurrentDCAC ${Me.AltCurrency[20]}
 	/echo \ayDiamond Coin: Alternate Currency=(\at${CurrentDCAC}\ay) | Inventory=(\at${CurrentDC}\ax)
 	; Close the Inventory Window if it is open
 	|----------------------------------------------
 	/if (${Window[InventoryWindow].Open}) /call CloseInvWindow
-	|----------------------------------------------	
+	|----------------------------------------------
 
 	/if (${CurrentDC}==0) /echo \ag$$$ \ayAll available DC was converted to Alternate Currency !
 
@@ -4735,8 +4413,7 @@ Sub DoorClick
 |--------------------------------------------------------
 Sub Group2Me
 /if (${Debugging}) /echo Sub Group2Me Entry
-	/if (${UseE3BC}) /e3bcaa /nav id ${Me.ID}
-	/if (${UseDanNet}) /dgge /nav id ${Me.ID}
+	/e3bcaa /nav id ${Me.ID}
 /if (${Debugging}) /echo Sub Group2Me Exit
 /return
 |--------------------------------------------------------
@@ -4769,11 +4446,9 @@ Sub IsNumber(data)
 Sub MoveFwd
 /if (${Debugging}) /echo Sub MoveFwd Entry
 	/delay 2s
-	/if (${UseE3BC}) /keypress forward hold
-	/if (${UseDanNet}) /keypress forward hold
+	/keypress forward hold
 	/delay 3s
-	/if (${UseE3BC}) /keypress forward
-	/if (${UseDanNet}) /keypress forward
+	/keypress forward
 	/delay 1s
 /if (${Debugging}) /echo Sub MoveFwd Exit
 /return
@@ -4786,12 +4461,7 @@ Sub GroupPlugin
 	/if (${UseKissAssist}) {
 		/delay 30s
 		/if (${Debugging}) /echo Starting KissAssist if enabled
-		/if (${UseE3BC}) { 
-			/squelch /bcg //mac kissassist ${Me.CleanName}
-		}
-		/if (${UseDanNet}) {
-        	/squelch /dgge /mac kissassist ${Me.CleanName}
-		}
+		/squelch /e3bcg /mac kissassist ${Me.CleanName}
 		/echo \atWaiting a minute for KissAssist to load...
 		/delay 60s
 		/echo \agGet Ready!
@@ -4799,16 +4469,9 @@ Sub GroupPlugin
 	/if (${UseRGMercs}) {
 		/delay 30s
 		/if (${Debugging}) /echo Starting RGMercs if enabled
-		/if (${UseE3BC}) { 
-			/squelch /bcg //rgstart
-			/delay 5s
-			/squelch /bcg //rg chaseon
-		}
-		/if (${UseDanNet}) {
-        	/squelch /dgge /rgstart
-			/delay 5s
-			/squelch /dgge /rg chaseon
-		}
+		/squelch /e3bcg /rgstart
+		/delay 5s
+		/squelch /e3bcg /rg chaseon
 		/echo \atWaiting a minute for RGMercs to load...
 		/delay 60s
 		/echo \agGet Ready!
@@ -4816,12 +4479,7 @@ Sub GroupPlugin
 	/if (${UseCWTN}) {
 		/delay 30s
 		/if (${Debugging}) /echo Starting CWTN if enabled
-		/if (${UseE3BC}) {
-			/noparse /bcg //docommand /${Me.Class.ShortName} mode 2
-		}
-		/if (${UseDanNet}) {
-			/noparse /dgge /docommand /${Me.Class.ShortName} mode 2
-		}
+		/noparse /e3bcg /docommand /${Me.Class.ShortName} mode 2
 		/echo \atWaiting a minute for CWTN to load...
 		/delay 60s
 		/echo \agGet Ready!
@@ -4829,12 +4487,7 @@ Sub GroupPlugin
 	/if (${UseMuleAssist}) {
 		/delay 30s
 		/if (${Debugging}) /echo Starting MuleAssist if enabled
-		/if (${UseE3BC}) {
-			/squelch /bcg //mac muleassist ${Me.CleanName} assist 98
-		}
-		/if (${UseDanNet}) {
-			/squelch /dgge /mac muleassist assist ${Me.CleanName} 98
-		}
+		/squelch /e3bcg /mac muleassist ${Me.CleanName} assist 98
 		/echo \atWaiting a minute for MuleAssist to load...
 		/delay 60s
 		/echo \agGet Ready!
@@ -4848,20 +4501,10 @@ Sub GroupPlugin
 Sub EndGroupPlugin
 	/if (${Debugging}) /echo Ending Group Plugin
 		/if (${UseKissAssist} || ${UseMuleAssist} || ${RGMercs}) {
-			/if (${UseE3BC}) { 
-				/squelch /bcg //end
-			}
-			/if (${UseDanNet}) {
-        		/squelch /dgge /end
-			}
+		/squelch /e3bcg /end
 		}
 		/if (${UseCWTN}) {
-			/if (${UseE3BC}) { 
-				/noparse /bcg //docommand /${Me.Class.ShortName} mode 0
-			}
-			/if (${UseDanNet}) {
-        		/noparse /dgge /docommand /${Me.Class.ShortName} mode 0
-			}
+			/noparse /e3bcg /docommand /${Me.Class.ShortName} mode 0
 		}
 		/if (${UseCWTNHunterTankMode}) {
 			/docommand /${Me.Class.ShortName} mode 0
@@ -5218,11 +4861,9 @@ Sub Event_Too_Far
 |--------------------------------------------------------
 Sub Event_Magical_Presence
 
-	/if (${UseE3BC}) /e3bcaa /doortarget
-	/if (${UseDanNet}) /dgge /doortarget
+	/e3bcaa /doortarget
     /delay 2s
-	/if (${UseE3BC}) /e3bcaa /click left door
-	/if (${UseDanNet}) /dgge /click left door
+	/e3bcaa /click left door
     /doortarget
     /delay 2s
     /click left door
@@ -5278,28 +4919,15 @@ Sub Event_Sealed_Off
 	
 	|Finish Go to Marrs	
 	/delay 10
-	/if (${UseE3BC}) {
-		/e3bca /nav stop
-		/e3bca /playmelody stop
-		/e3bca /keypress x 
-		/delay 6
-		/e3bca /stand
-		/delay 5
-		/e3bca /alt act 511
-		/delay 1s
-		/e3bca /alt act 511
-	}
-	/if (${UseDanNet}) {
-		/dgex /nav stop
-		/dgex /playmelody stop
-		/dgex /keypress x 
-		/delay 6
-		/dgex /stand
-		/delay 5
-		/dgex /alt act 511
-		/delay 1s
-		/dgex /alt act 511
-	}
+	/e3bca /nav stop
+	/e3bca /playmelody stop
+	/e3bca /keypress x 
+	/delay 6
+	/e3bca /stand
+	/delay 5
+	/e3bca /alt act 511
+	/delay 1s
+	/e3bca /alt act 511
 	/nav stop
 	/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 	/keypress x 
