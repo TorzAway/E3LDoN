@@ -248,6 +248,10 @@ Added BardSong INI section to define BardSong and BardSongSlot to play travel in
 	
 This will be updated after Rekka pushes Exposed E3 ini settings to E3Bots to be captured via mono queries.
 
+E3LDON.mac v6.4 by Kroaking
+Incorporated many fixes from testing.
+Cut over fully to E3 communication system, removal of UseE3BCS and UseDannet
+
 ****************************************************************************************************************|
 #event Magical_Presence "strange magical presence"
 #event Sealed_Off "sealed off to you"											   
@@ -281,7 +285,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.3
+	/declare version			string		outer	6.4
 
 	/message ==================================================================
  	/call Declares
