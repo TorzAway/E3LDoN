@@ -319,28 +319,28 @@ Sub Main
 	/if (${Debugging}) /echo \at/E3LDoN \ar***\at \agDebugging \arCode Tracing: \ayis set to \at[\ag${Debugging}}\at]
 	
 	/if (${HardMode}) {
-		/echo \at/E3LDoN \ar***\at \agHardMode \arHigh Risk Task: \ayis set to \at[\ar${HardMode}\at] 
+		/message \ar***\at \agHardMode \arHigh Risk Task: \ayis set to \at[\ar${HardMode}\at] 
 	} else {
-		/echo \at/E3LDoN \ar***\at \agHardMode \arHigh Risk Task: \ayis set to \at[\ag${HardMode}\at] 
+		/message \ar***\at \agHardMode \arHigh Risk Task: \ayis set to \at[\ag${HardMode}\at] 
 	}
 	
 	/if (${SwarmPull}) {
-		/echo \at/E3LDoN \ar***\at \agSwarmPull \arHigh Risk PULLING: \ayis set to \at[\ar${SwarmPull}}\at] 
+		/message \ar***\at \agSwarmPull \arHigh Risk PULLING: \ayis set to \at[\ar${SwarmPull}}\at] 
 	} else {
-		/echo \at/E3LDoN \ar***\at \agSwarmPull \arHigh Risk PULLING: \ayis set to \at[\ag${SwarmPull}}\at] 
+		/message \ar***\at \agSwarmPull \arHigh Risk PULLING: \ayis set to \at[\ag${SwarmPull}}\at] 
 	}
 	
-	|/echo \at/E3LDoN \agUseClickBuffs \ayis set to \at[\ag${UseClickBuffs}\at]
-	|/echo \at/E3LDoN \agUseClickDamage \ayis set to \at[\ag${UseClickDamage}\at]
-	|/echo \at/E3LDoN \agUseMuleAssist \ayis set to \at[\ag${UseMuleAssist}\at]
-	|/echo \at/E3LDoN \agUseCWTN \ayis set to \at[\ag${UseCWTN}\at]
-	|/echo \at/E3LDoN \agUseCWTNHunterTankMode \ayis set to \at[\ag${UseCWTNHunterTankMode}\at]
-	|/echo \at/E3LDoN \agUseKissAssist \ayis set to \at[\ag${UseKissAssist}\at]
-	|/echo \at/E3LDoN \agDoBurns \ayis set to \at[\ag${DoBurns}\at]
-	|/echo \at/E3LDoN \agUseRGMercs \ayis set to \at[\ag${UseRGMercs}\at]
-	|/echo \at/E3LDoN \agUseBeep \atWhen Stuck \ayis set to \at[\ag${UseBeep}\at]
-	|/echo \at/E3LDoN \agBardMed \ayis set to \at[\ag${BardMed}\at]
-	|/echo \at/E3LDoN \agUseCastSpells \at(If Leader Can Cast) \ayis set to \at[\ag${UseCastSpells}\at]
+	|/message \ag- UseClickBuffs \ayis set to \at[\ag${UseClickBuffs}\at]
+	|/message \ag- UseClickDamage \ayis set to \at[\ag${UseClickDamage}\at]
+	|/message \ag- UseMuleAssist \ayis set to \at[\ag${UseMuleAssist}\at]
+	|/message \ag- UseCWTN \ayis set to \at[\ag${UseCWTN}\at]
+	|/message \ag- UseCWTNHunterTankMode \ayis set to \at[\ag${UseCWTNHunterTankMode}\at]
+	|/message \ag- UseKissAssist \ayis set to \at[\ag${UseKissAssist}\at]
+	|/message \ag- DoBurns \ayis set to \at[\ag${DoBurns}\at]
+	|/message \ag- UseRGMercs \ayis set to \at[\ag${UseRGMercs}\at]
+	|/message \ag- UseBeep \atWhen Stuck \ayis set to \at[\ag${UseBeep}\at]
+	|/message \ag- BardMed \ayis set to \at[\ag${BardMed}\at]
+	|/message \ag- UseCastSpells \at(If Leader Can Cast) \ayis set to \at[\ag${UseCastSpells}\at]
 	/message ==================================================================	
 
 	/message \at/E3LDoN \awfor help \ayor \at/mqp \awto pause...
@@ -350,12 +350,12 @@ Sub Main
 	|-----------------------------------------------	
 	/if (${Select[${Zone.ID},${GukTop},${Innothule},${AccursedSanctuary},${AncientAqua},${CauldronLostSouls},${ChapelOfTheWitnesses},${DrowningCrypt},${ForbodingPrison},${MushroomGrove},${RootGarden}]}) {
 		/varset startTask ${SouthRo}
-		/echo \aySetting Start Task Zone \ay[\agSouthRo\ay]
+		/message \aySetting Start Task Zone \ay[\agSouthRo\ay]
 		/message ==================================================================
 	}
 	/if (${Select[${Zone.ID},${GladiatorPits},${WindBridges},${BloodiedQuarries},${HallsOfWar},${HiddenVale},${DrudgeHollows},${Taskmasters},${BlazingForge},${ArenaOfChance},${BarracksOfWar}]}) {
 		/varset startTask ${Commonlands}
-		/echo \aySetting Start Task Zone \ay[\agCommonlands\ay]
+		/message \aySetting Start Task Zone \ay[\agCommonlands\ay]
 		/message ==================================================================
 	}
 	|-----------------------------------------------
@@ -378,7 +378,7 @@ Sub Main
 		|----------------------------
 		/if (${SwarmPull})  {
 			/message ==================================================================
-			/echo \at/E3LDoN \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \arSWARM PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
+			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \arSWARM PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
 			/popcustom 13 5 ---> ABOUT TO SWARM PULL . . . get ready! <---
 			/message ==================================================================
 			/delay 5s
@@ -394,7 +394,7 @@ Sub Main
 			}
 		} else {
 			/message ==================================================================
-			/echo \at/E3LDoN \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \agSINGLE PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
+			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \agSINGLE PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
 			/popcustom 15 5 ---> ABOUT TO SINGLE PULL . . . get ready! <---
 			/message ==================================================================
 			/delay 5s	
