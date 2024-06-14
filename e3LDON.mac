@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.4 by Kroaking
-June 14th, 2024 - 03:43:01 AM
+June 14th, 2024 - 05:55:01 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -1860,17 +1860,18 @@ Sub GotoTask
 		}
 		/call GroupWait
 		/if (${Me.XTarget[1].ID}) /call DoClearTargets
-		
 			/squelch /e3bca /face heading 95
-			/delay 5
+			/delay 2s
 			/squelch /e3bca /keypress forward hold
-			/delay 6s
+			/delay 5s
 			/squelch /e3bca /keypress forward
-			/squelch /face heading 95
 			/delay 1s
+			/squelch /face heading 95
+			/delay 2s
 			/squelch /keypress forward hold
-			/delay 6s
+			/delay 5s
 			/squelch /keypress forward
+			/delay 1s
 			/call Zoning
 			/varcalc ZoneCount 1
 	}
@@ -3645,6 +3646,7 @@ Sub GroupManaChk
 		|--- If Me LowMana
 		/if ((${Me.PctMana} < ${MedAt} && !${Me.State.Equal[DEAD]} && !${Select[${Me.Class.ShortName},WAR,BER,ROG,MNK,BRD]}) || (${BardMed} && ${Me.PctMana} < ${MedAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 			/echo \arYOU are low on mana!
+			/call Group2Me
 			|------   If No Target ID
 			/if (!${Me.XTarget[1].ID}) {
 				|--------------------------------------
@@ -3667,6 +3669,7 @@ Sub GroupManaChk
 				|------   If Valid GroupMemeber
 				/if ((${Group.Member[${i}].PctMana} < ${MedAt} && ${Group.Member[${i}].Class.CanCast} && !${Group.Member[${i}].State.Equal[DEAD]} && !${Select[${Group.Member[${i}].Class.ShortName},BRD,WAR,MNK,BER,ROG]}) || (${BardMed} && (${Group.Member[${i}].PctMana} < ${MedAt}) && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 					/echo \ar${Group.Member[${i}].Name} is low on mana!
+					/call Group2Me
 					|--------------
 					| Make Them Sit
 					|--------------
@@ -3717,6 +3720,7 @@ Sub GroupEndChk
 		|--- If Me LowEnd
 		/if ((${Me.PctEndurance} < ${MedEndAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Me.PctEndurance} < ${MedEndAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 			/echo \arYOU are low on Endurance!
+			/call Group2Me
 			|------   If No Target ID
 			/if (!${Me.XTarget[1].ID}) {
 				|--------------------------------------
@@ -3741,6 +3745,7 @@ Sub GroupEndChk
 					|------   If GroupMember LowEnd
 					/if ((${Group.Member[${i}].PctEndurance} < ${MedEndAt} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${i}].PctEndurance} < ${MedEndAt} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 						/echo \ar${Group.Member[${i}].Name} is low on Endurance!
+						/call Group2Me
 						|--------------
 						| Make Them Sit
 						|--------------
