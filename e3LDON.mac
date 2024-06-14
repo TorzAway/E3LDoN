@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-June 13th, 2024 - 04:08:01 PM
+June 13th, 2024 - 08:59:01 PM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -254,13 +254,18 @@ Cut over fully to E3 communication system, removal of UseE3BCS and UseDannet
 
 ****************************************************************************************************************|
 #event Magical_Presence "strange magical presence"
-#event Sealed_Off "sealed off to you"											   
+#event Sealed_Off "sealed off to you"
+											   
 #event Cannot_See "You cannot see your target"
 #event Too_Far "Your target is too far away, get closer"
 #event Cant_Hit "You can't hit them from here"
+
 #event MissionFailed "#*#You failed to complete your adventure in time#*#"
 #event MissionOver "#*#You have left your adventure#*#"
 #event MissionSuccess "#*#You have sucessfully completed your adventure#*#"
+
+#Event BagsFull "#*#There was no place to put that#*#"
+#Event BagsFull "#*#There are no open slots for the held item in your inventory#*#"
 
 #define /message "/echo \ay[\atE3LDoN\ay]\aw "
 
@@ -290,6 +295,10 @@ Sub Main
 	/message ==================================================================
  	/call Declares
 	/message ==================================================================
+	/message \at${MacroName}.mac \aw- \atv${version} \awby \ag Kroaking
+
+	/delay 1s
+	/call CheckThings	
 
 	|-------------------------------------
 	|-- If No Adventure Time (no AdvRqst_CompleteTimeLeftLabel) Check the starting zone, reset to Marrs if not in Pok or Marrs.
@@ -311,11 +320,6 @@ Sub Main
         /echo MQ2Bucles detected! This macro doesn't like it! Unloading temporarily ...
     }
 	
-	/message ==================================================================
-	/message \atE3LDON.mac \aw- \atv${version} \awby \agCannonballdex + Kroaking
-	/delay 1s
-	/call CheckThings
-	
 	/if (${Debugging}) /echo \at/E3LDoN \ar***\at \agDebugging \arCode Tracing: \ayis set to \at[\ag${Debugging}}\at]
 	
 	/if (${HardMode}) {
@@ -329,19 +333,6 @@ Sub Main
 	} else {
 		/message \ar***\at \agSwarmPull \arHigh Risk PULLING: \ayis set to \at[\ag${SwarmPull}}\at] 
 	}
-	
-	|/message \ag- UseClickBuffs \ayis set to \at[\ag${UseClickBuffs}\at]
-	|/message \ag- UseClickDamage \ayis set to \at[\ag${UseClickDamage}\at]
-	|/message \ag- UseMuleAssist \ayis set to \at[\ag${UseMuleAssist}\at]
-	|/message \ag- UseCWTN \ayis set to \at[\ag${UseCWTN}\at]
-	|/message \ag- UseCWTNHunterTankMode \ayis set to \at[\ag${UseCWTNHunterTankMode}\at]
-	|/message \ag- UseKissAssist \ayis set to \at[\ag${UseKissAssist}\at]
-	|/message \ag- DoBurns \ayis set to \at[\ag${DoBurns}\at]
-	|/message \ag- UseRGMercs \ayis set to \at[\ag${UseRGMercs}\at]
-	|/message \ag- UseBeep \atWhen Stuck \ayis set to \at[\ag${UseBeep}\at]
-	|/message \ag- BardMed \ayis set to \at[\ag${BardMed}\at]
-	|/message \ag- UseCastSpells \at(If Leader Can Cast) \ayis set to \at[\ag${UseCastSpells}\at]
-	/message ==================================================================	
 
 	/message \at/E3LDoN \awfor help \ayor \at/mqp \awto pause...
 	/echo \agGetting things ready, sit back...
@@ -459,8 +450,8 @@ Sub Main
 | --------------------------------------------------------------------------------------------
 Sub Declares
 	/if (${Debugging}) /echo Sub Declares Entry
-	/declare FarmMob 			string outer 
-	/declare PullRange 			int outer 
+	/declare FarmMob 			string 	outer 
+	/declare PullRange 			int 	outer 
 	/declare MacroName			string	outer	E3LDoN
 	/declare Settings			string	outer	${MacroName}_${Me.CleanName}.ini
 	/declare FirstRun			int		outer	0
@@ -470,18 +461,19 @@ Sub Declares
 	|--------------------------------------
 	
 	/echo \ay${Settings} is the INI being used.
-	/declare MobIgnore			string outer E3LDoN_MobIgnored.ini
-	/declare Targets 			string outer
-	/declare myTargetID 		int outer 0
-	/declare reportTarget 		timer outer 5s
-	/declare startZone 			int outer ${Zone.ID}
-	/declare courseCorrection 	timer outer 1s
-	/declare CampY 				int outer ${Me.Y}
-	/declare CampX 				int outer ${Me.X}
-	/declare CampZ 				int outer ${Me.Z}
-	/declare DebugRepeatTimer 	timer outer 1s
-	/declare SitDelay 			timer outer 5s
-	/declare Endmac bool 		outer FALSE
+	/declare MobIgnore			string 	outer E3LDoN_MobIgnored.ini
+	/declare Targets 			string 	outer
+	/declare myTargetID 		int 	outer 0
+	/declare reportTarget 		timer 	outer 5s
+	/declare startZone 			int 	outer ${Zone.ID}
+	/declare courseCorrection 	timer 	outer 1s
+	/declare CampY 				int 	outer ${Me.Y}
+	/declare CampX 				int 	outer ${Me.X}
+	/declare CampZ 				int 	outer ${Me.Z}
+	/declare DebugRepeatTimer 	timer	outer 1s
+	/declare SitDelay 			timer 	outer 5s
+	/declare Endmac 			bool	outer FALSE
+	/declare BagsAreFull		bool 	outer FALSE
 	
 	|** SPECIFIC of E3LDON.mac/SwarmPull & Theme type declares **|
 	|----------------------------------------------------------
@@ -550,7 +542,9 @@ Sub Declares
 	/call CheckIni ${Settings} General UseClickDamage bool FALSE
 	/call CheckIni ${Settings} General ThemeCheck bool TRUE
 	/call CheckIni ${Settings} General LootCorpse bool FALSE
-	
+	/call CheckINI ${Settings} General LootMethod string DCONLY
+	/call CheckINI ${Settings} General MinItemValue  int 10
+
 	/call CheckIni ${Settings} Group UseMuleAssist bool FALSE
 	/call CheckIni ${Settings} Group UseCWTNHunterTankMode bool FALSE
 	/call CheckIni ${Settings} Group UseCWTN bool FALSE
@@ -697,20 +691,27 @@ Sub CheckThings
 	/call CheckPlugin MQ2Events
 	/call CheckPlugin MQ2MoveUtils
 	
-	/if (${LootCorpse}) {
+	/if (${LootCorpse}) {		
 		/message ==================================================================
-		/message \ay--- ENABLING E3 LOOTING, we will only loot [\atDiamond Coin\ay] 
-		/message        if configured in your E3 \agLoot Settings.ini\ax
+		/message \ay--- \atENABLING\ax \am${MacroName}\ax LOOTING, we will loot corpses.
+		/if (${LootMethod.Equal[DCONLY]}) {
+			/squelch /lootoff
+			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot [\atDiamond Coin\ay] and \arHIGH VALUE ITEMS.\ax
+			|------------------------------------------------
+		}  
+		/if (${LootMethod.Equal[E3]}) {
+			/squelch /looton
+			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot according to \amE3\ax settings.
+			/message \ay    [ if configured in your \amE3\ax config files. \ag(Loot Settings.ini)\ax ]
+		}
 		/message ==================================================================
-		/squelch /looton
-		/squelch /e3bca /squelch /lootoff
 	} else {
-		/message ==================================================================
-		/message \ar--- DISABLING E3 LOOTING, YOU WILL NOT LOOT CORPSES !
-		/message ==================================================================
 		/squelch /lootoff
-		/squelch /e3bca /squelch /lootoff
+		/message ==================================================================
+		/message \ar--- DISABLING ${MacroName} LOOTING, YOU WILL NOT LOOT CORPSES !
+		/message ==================================================================
 	}
+
 	
 	/if (${Endmac}) /end
 	/if (${Debugging}) /echo Sub CheckThings Exit
@@ -1049,9 +1050,9 @@ Sub SelectAdventureZone_TC
 	/declare TempCampWinsToGo	int local 0
 
 	|------------------------------------------------------
-	| Camp 1 *** Guk_Wins_Max				int		outer 	70
+	| Camp 1 *** Guk_Wins_Max			int		outer 	70
 	| Camp 2 *** Miragul_Wins_Max		int 	outer 	68
-	| Camp 3 *** Mistmoore_Wins_Max int 	outer 	76
+	| Camp 3 *** Mistmoore_Wins_Max 	int 	outer 	76
 	| Camp 4 *** Ruj_Wins_Max 			int 	outer 	74
 	| Camp 5 *** Tak_Wins_Max 			int 	outer 	78	
 	|------------------------------------------------------
@@ -2451,7 +2452,7 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]_7}) {
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}_7]}) {
 		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_7[1,7]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}_7[1,7]	string	outer
 		/delay 10
@@ -2491,7 +2492,7 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]_8}) {
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}_8]}) {
 		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_8[1,7]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}_8[1,7]	string	outer
 		/delay 10
@@ -4192,6 +4193,12 @@ Sub ReclaimAltDC
 	|-------------------------
 	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving}) /call LootMob_E3
 	|-------------------------
+
+	|--------------------------------------------------------------------------------
+	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
+	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
+	|--------------------------------------------------------------------------------
+	
 	
     /squelch /target clear
     /goto :CheckAgain
@@ -4207,8 +4214,8 @@ Sub ReclaimAltDC
 |SUB: LootMob_E3 -- Let E3 Looting handle your corpseloot.
 | --------------------------------------------------------------------------------------------
   Sub LootMob_E3
-	/if (${Debugging}) /echo Sub LootMob_E3 Entry  
-	
+	/if (${Debugging}) /echo Sub LootMob_E3 Entry
+
 	/if (${Target.ID}) /face nolook
 	/keypress forward
 	/keypress back
@@ -4217,15 +4224,203 @@ Sub ReclaimAltDC
 	/delay 1s
 	|---------------------------------------
 	| -- Let E3 Looting System handle this !
-	|---------------------------------------	
+	|---------------------------------------
 	/loot
 	|---------------------------------------
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
 	/delay 1s
 	/doevents
+	|-------------------------------------------------------------------------------------
+	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
+	|-------------------------------------------------------------------------------------
+
+	/if (${Debugging}) /echo Sub LootMob_E3 Exit
+  /return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+|SUB: LootMob_DC_Only: Standard coin and Diamond Coin
+| --------------------------------------------------------------------------------------------
+  Sub LootMob_DC_Only
+    /if (${Debugging}) /echo Sub LootMob_DC_Only Entry
 	
-	/if (${Debugging}) /echo Sub LootMob_E3 Exit  
+	/declare x  		 			int inner	1
+	/declare LootSlot    			int inner	0
+    /declare LootCheck  			int inner	0
+    /declare LootTotal   			int inner	0
+	/declare CursorItemValueInPlat	int inner	0
+
+	/if (${Target.ID}) /face nolook
+    /keypress forward
+    /keypress back
+    /fastdrop on
+    /lootn never
+    /delay 1s
+
+	|---------------------------------------
+	| -- HANDLE CONDITIONALY !
+	|---------------------------------------
+	/loot
+	|---------------------------------------
+	| -- HANDLE CONDITIONALY !
+	|---------------------------------------
+
+    /delay 2s ${Window[LootWnd].Open}
+    /doevents
+
+	|--------------------------------------
+	/if (!${Corpse.Items}) {
+		/echo \ar- NO LOOT! - Cheap Bastard !
+    } else {
+		/delay 1s ${Corpse.Items}!=NULL
+		/varset LootTotal ${Corpse.Items}
+		/echo \ay++ Corpse has (\at${LootTotal}\ay) item(s) on it to loot.
+		|---------------------------------------
+		/for LootSlot 1 to ${LootTotal}
+			/echo \ay-- Grabbing corpse item (\am${LootSlot}\ax) of (\am${LootTotal}\ax).
+			/nomodkey /shift /itemnotify Loot${LootSlot} leftmouseup
+			/delay 2s ${Cursor.ID}
+			/if (${Window[QuantityWnd].Open}) /notify QuantityWnd QTYW_Accept_Button leftmouseup
+			/delay 5
+
+			|----------------------------------------------------------------------------------------------
+			/varset CursorItemValueInPlat ${Math.Calc[${FindItem[=${Cursor.Name}].Value}/1000]}
+			|----------------------------------------------------------------------------------------------
+			
+			|/echo (${Cursor.Name}) -- CursorItemValueInPlat=(${CursorItemValueInPlat}) | {MinItemValue})=${MinItemValue})
+
+			|--------------------------------------------------------
+			|---- ALL VALUABLE STACKABLE LOOT THAT DROPS IN THIS ZONE
+			|--------------------------------------------------------	
+			/if (${Cursor.ID}) {			
+				/if (${Cursor.Name.Equal[Diamond Coin]}) {
+					/echo \at+\ax \agKeeping a\ax \ay(\atDiamond Coin\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
+					/autoinventory 
+					/delay 1s !${Cursor.ID}
+				} else /if (${CursorItemValueInPlat}>${MinItemValue}) {
+					/echo /if (${CursorItemValueInPlat}>${MinItemValue})
+					/echo \at+\ax \agKeeping a\ax \ay(\at${Cursor.Name}\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
+					/autoinventory 
+					/delay 1s !${Cursor.ID}
+				}
+			}
+			|--------------------------------------------------------
+
+			|--------------------------------------------------------
+			|---- DESTROY ANYTHING REMAINING
+			|--------------------------------------------------------
+			/if (${Cursor.ID}) {
+				/echo \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar ...\ax
+				/destroy
+				/delay 1s !${Cursor.ID}
+			}
+			|--------------------------------------------------------
+		/doevents
+		/next LootSlot
+		|---------------------------------------
+    }
+    |--------------------------------------
+
+  /notify LootWnd DoneButton leftmouseup
+  /delay 2s !${Window[LootWnd].Open}
+  /doevents
+  |-------------------------------------------------------------------------------------
+  /if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
+  |-------------------------------------------------------------------------------------
+
+  /if (${Debugging}) /echo Sub LootMob_DC_Only Exit
+  /return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+|SUB: CheckIfBagsFull
+| --------------------------------------------------------------------------------------------
+  Sub CheckIfBagsFull
+  /if (${Debugging}) /echo Sub CheckIfBagsFull Entry
+
+  |--------------------------------------------
+  /if (${BagsAreFull}) {
+		|--------------------------------------------
+		/if (${Me.AltAbilityReady[Summon Resupply Agent]}) {
+			/message ==================================================================
+			/message \ar +++ Your bags are full summoning a \ay[\atResupply Agent\ay]\ar to AutoSell.\ax
+			/message ==================================================================
+			/alt act ${Me.AltAbility[Summon Resupply Agent].ID}
+			/delay 2s
+			/call AutoSell_Loot_SupplyAgent
+			/delay 1s
+		} else {
+			message ==================================================================
+			/message \ar +++ Your bags are full and you can not summon a \ay[\atResupply Agent\ay]\ar to AutoSell.\ax
+			/message \ar --- DISABLING ${MacroName} LOOTING, YOU WILL NOT LOOT CORPSES !
+			/message ==================================================================
+			/squelch /lootoff
+		}
+		|--------------------------------------------
+		/varset BagsAreFull FALSE
+		|--------------------------------------------
+  }
+  |--------------------------------------------
+
+  /if (${Debugging}) /echo Sub CheckIfBagsFull Exit
+  /return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+|SUB: AutoSell_Loot_SupplyAgent
+| --------------------------------------------------------------------------------------------
+  Sub AutoSell_Loot_SupplyAgent
+  /if (${Debugging}) /echo Sub AutoSell_Loot_SupplyAgent Entry
+
+	/declare MerchName	string	local Merchant
+
+	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agAttempting to lacate a \ay[\at${MerchName}\ay]\ag to \ay[\atAutoSell\ay]\ag ! \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw>
+	/target clear
+	/delay 2s !${Target.ID}
+
+	/squelch /target ${MerchName}
+	/delay 2s ${Target.ID}
+
+	|-------------------------------------
+	/if (${Target.ID}) {
+		/squelch /nav id ${Target.ID}
+		/delay 5
+		/while (${Navigation.Active}) {
+			/call SetLoc
+			/call CheckStuck
+			/delay 5
+		}
+	}
+	/delay 5
+	|-------------------------------------
+
+	|------------------
+	/call ReclaimAltDC
+	|------------------
+
+	|-------------------------------------
+	/if (${Target.ID} && ${Target.Distance}<=20) {
+		/nomodkey /click right target
+		/delay 5s ${Window[MerchantWnd].Open}
+		/echo \ay Attempting to \amAutoSell\ax now.
+		/delay 1s
+		/call OpenPacks
+		/delay 1s
+		/autosell
+		|-----------------
+		/while (${Window[MerchantWnd].Open}) {
+			/delay 5
+		}
+		|-----------------
+		/call ClosePacks
+		/delay 1s
+	}
+	|-------------------------------------
+
+	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agDone Selling! \ag \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw>
+
+	/if (${Debugging}) /echo Sub AutoSell_Loot_SupplyAgent Exit
   /return
 | --------------------------------------------------------------------------------------------
 
