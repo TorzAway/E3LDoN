@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # E3LDoN based on LDoN.mac 1.0 by TreeHuginDruid
 
 Use /E3LDON HELP or /E3LDON while the macro is running for a list of commands.
