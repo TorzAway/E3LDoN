@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-June 14th, 2024 - 03:27:01 AM
+June 14th, 2024 - 03:36:01 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -4314,7 +4314,7 @@ Sub ReclaimAltDC
 			|---- DESTROY ANYTHING REMAINING
 			|--------------------------------------------------------
 			/if (${Cursor.ID}) {
-				/echo \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar that crap isn't even worth \ay(\at${MinItemValue}\ay)\ar plat...\ax
+				/echo \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar, that crap isn't even worth \ay(\at${MinItemValue}\ay)\ar plat!\ax
 				/destroy
 				/delay 1s !${Cursor.ID}
 			}
