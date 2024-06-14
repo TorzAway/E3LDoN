@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-June 13th, 2024 - 08:59:01 PM
+June 14th, 2024 - 12:20:01 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -4299,7 +4299,6 @@ Sub ReclaimAltDC
 					/autoinventory 
 					/delay 1s !${Cursor.ID}
 				} else /if (${CursorItemValueInPlat}>${MinItemValue}) {
-					/echo /if (${CursorItemValueInPlat}>${MinItemValue})
 					/echo \at+\ax \agKeeping a\ax \ay(\at${Cursor.Name}\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
 					/autoinventory 
 					/delay 1s !${Cursor.ID}
@@ -4311,7 +4310,7 @@ Sub ReclaimAltDC
 			|---- DESTROY ANYTHING REMAINING
 			|--------------------------------------------------------
 			/if (${Cursor.ID}) {
-				/echo \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar ...\ax
+				/echo \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar that crap isn't even worth \ay(\at${MinItemValue}\ay)\ar plat...\ax
 				/destroy
 				/delay 1s !${Cursor.ID}
 			}
