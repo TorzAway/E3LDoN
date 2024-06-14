@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-June 14th, 2024 - 12:20:01 AM
+June 14th, 2024 - 03:13:01 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -322,6 +322,7 @@ Sub Main
 	
 	/if (${Debugging}) /echo \at/E3LDoN \ar***\at \agDebugging \arCode Tracing: \ayis set to \at[\ag${Debugging}}\at]
 	
+	/message ==================================================================
 	/if (${HardMode}) {
 		/message \ar***\at \agHardMode \arHigh Risk Task: \ayis set to \at[\ar${HardMode}\at] 
 	} else {
@@ -333,6 +334,7 @@ Sub Main
 	} else {
 		/message \ar***\at \agSwarmPull \arHigh Risk PULLING: \ayis set to \at[\ag${SwarmPull}}\at] 
 	}
+	/message ==================================================================
 
 	/message \at/E3LDoN \awfor help \ayor \at/mqp \awto pause...
 	/echo \agGetting things ready, sit back...
@@ -340,11 +342,13 @@ Sub Main
 
 	|-----------------------------------------------	
 	/if (${Select[${Zone.ID},${GukTop},${Innothule},${AccursedSanctuary},${AncientAqua},${CauldronLostSouls},${ChapelOfTheWitnesses},${DrowningCrypt},${ForbodingPrison},${MushroomGrove},${RootGarden}]}) {
+		/message ==================================================================
 		/varset startTask ${SouthRo}
 		/message \aySetting Start Task Zone \ay[\agSouthRo\ay]
 		/message ==================================================================
 	}
 	/if (${Select[${Zone.ID},${GladiatorPits},${WindBridges},${BloodiedQuarries},${HallsOfWar},${HiddenVale},${DrudgeHollows},${Taskmasters},${BlazingForge},${ArenaOfChance},${BarracksOfWar}]}) {
+		/message ==================================================================
 		/varset startTask ${Commonlands}
 		/message \aySetting Start Task Zone \ay[\agCommonlands\ay]
 		/message ==================================================================
