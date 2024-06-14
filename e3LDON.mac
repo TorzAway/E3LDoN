@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac v6.3 by Kroaking
-June 14th, 2024 - 03:13:01 AM
+June 14th, 2024 - 03:27:01 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -2536,7 +2536,7 @@ Sub DoSwarmPull
 	|  Define The Array Variables so the dungeon can be Run
 	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
-	/if (!${Defined[LocalStepArray_${Zone.ShortName}]_9}) {
+	/if (!${Defined[LocalStepArray_${Zone.ShortName}_9]}) {
 		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_9[1,9]\am]\ax
 		/declare LocalStepArray_${Zone.ShortName}_9[1,9]	string	outer
 		/delay 10
