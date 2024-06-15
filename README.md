@@ -161,4 +161,3 @@ While the macro is running, To add mobs to ignore, target the mob and type
 /permignore -- permanently ignores all targets with your current targets name
 
 -----------------------------------------------------------------
->>>>>>> 4cb55afd933be5ec3e343431cd15db0b3a73f364
