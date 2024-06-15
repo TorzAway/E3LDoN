@@ -1,6 +1,6 @@
 |****************************************************************************************************************
-E3LDON.mac v6.4 by Kroaking
-June 14th, 2024 - 05:55:01 AM
+E3LDON.mac v6.5 by Kroaking
+June 15th, 2024 - 06:33:01 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -252,6 +252,9 @@ E3LDON.mac v6.4 by Kroaking
 Incorporated many fixes from testing.
 Cut over fully to E3 communication system, removal of UseE3BCS and UseDannet
 
+E3LDON.mac v6.5 by Kroaking
+Major improvements to the Looting system. 
+
 ****************************************************************************************************************|
 #event Magical_Presence "strange magical presence"
 #event Sealed_Off "sealed off to you"
@@ -290,7 +293,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.4
+	/declare version			string		outer	6.5
 
 	/message ==================================================================
  	/call Declares
