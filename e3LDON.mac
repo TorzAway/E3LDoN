@@ -1,6 +1,6 @@
 |****************************************************************************************************************
-E3LDON.mac v6.5 by Kroaking
-June 15th, 2024 - 06:33:01 AM
+E3LDON.mac v6.51 by Kroaking
+June 16th, 2024 - 10:55:01 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -254,6 +254,7 @@ Cut over fully to E3 communication system, removal of UseE3BCS and UseDannet
 
 E3LDON.mac v6.5 by Kroaking
 Major improvements to the Looting system. 
+Added AutoSellInPok option.
 
 ****************************************************************************************************************|
 #event Magical_Presence "strange magical presence"
@@ -550,7 +551,8 @@ Sub Declares
 	/call CheckIni ${Settings} General ThemeCheck bool TRUE
 	/call CheckIni ${Settings} General LootCorpse bool FALSE
 	/call CheckINI ${Settings} General LootMethod string DCONLY
-	/call CheckINI ${Settings} General MinItemValue  int 10
+	/call CheckINI ${Settings} General MinItemValue int 10
+	/call CheckINI ${Settings} General AutoSellInPok bool FALSE
 
 	/call CheckIni ${Settings} Group UseMuleAssist bool FALSE
 	/call CheckIni ${Settings} Group UseCWTNHunterTankMode bool FALSE
@@ -860,7 +862,7 @@ Sub GoPoKMagus
 	|--------------------------------------
 	
 	|--------------------------------------
-	/if (${LootCorpse}) /call AutoSell_Loot
+	/if (${AutoSellInPok}) /call AutoSell_Loot
 	|--------------------------------------
 	
 	/echo \ayFinding Magus . . .
