@@ -1,6 +1,6 @@
 |****************************************************************************************************************
-E3LDON.mac v6.51 by Kroaking
-June 16th, 2024 - 10:55:01 AM
+E3LDON.mac v6.52 by Kroaking
+June 16th, 2024 - 01:24:00 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -1151,7 +1151,7 @@ Sub SelectAdventureZone_TC
 		/message \ayCamp ${CampThemeArray[2,1]}: \ag${CampThemeArray[2,2]}\ay: \ag(\am${Miragul_Wins}\ay/\am${Miragul_Wins_Max}\ay) --- (\arCOMPLETED\ay)
 	}
 	
-	/if (${Ruj_WinsToGo}>0) {
+	/if (${Mistmoore_WinsToGo}>0) {
 		/message \ayCamp ${CampThemeArray[3,1]}: \ag${CampThemeArray[3,2]}\ay: \ag(\am${Mistmoore_Wins}\ay/\am${Mistmoore_Wins_Max}\ay) --- (\at${Mistmoore_WinsToGo} Remaining\ay)
 	}  else {
 		/message \ayCamp ${CampThemeArray[3,1]}: \ag${CampThemeArray[3,2]}\ay: \ag(\am${Mistmoore_Wins}\ay/\am${Mistmoore_Wins_Max}\ay) --- (\arCOMPLETED\ay)
