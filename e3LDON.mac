@@ -1,6 +1,6 @@
 |****************************************************************************************************************
-E3LDON.mac v6.52 by Kroaking
-June 16th, 2024 - 01:24:00 AM
+E3LDON.mac - by Kroaking
+June 21th, 2024 - 07:55:00 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -294,7 +294,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.5
+	/declare version			string		outer	6.5a
 
 	/message ==================================================================
  	/call Declares
@@ -2115,16 +2115,12 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 			|--------------------------------------------------------------
 			|/echo \agARRAY RETURNED DATA for step \ay[${x}]\ag: TempSpawnPull_Loc=(\am${TempSpawnPull_Loc})
 			|--------------------------------------------------------------
-			/if (!${Me.Combat} && !${Me.XTarget[1].ID} && !${Target.ID}) {				
-				|----------------------------------------------
-				|-- Just nav to loc, using NavToLoc function will cause you to engage mobs along the path !
-				/nav loc ${TempSpawnPull_Loc}
-				|----------------------------------------------
-				/squelch /e3bca /nav loc ${TempSpawnPull_Loc}
+			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) {				
+				/squelch /nav loc ${TempSpawnPull_Loc}
+				/delay 7
+				/squelch /e3bcga /nav loc ${TempSpawnPull_Loc}
 			}
 			|--------------------------------------------------------------
-			/squelch /e3bca /nav loc ${TempSpawnPull_Loc}
-			/delay 5
 			/while (${Navigation.Active}) {
 				/call SetLoc
 				/call CheckStuck
