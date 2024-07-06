@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-June 21th, 2024 - 07:55:00 AM
+July 6th, 2024 - 07:05:00 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -294,7 +294,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.5a
+	/declare version			string		outer	6.6
 
 	/message ==================================================================
  	/call Declares
@@ -3274,25 +3274,25 @@ Sub CheckInvis
 	|----------------------------------------------------------------------------
 	|--- REFERENCE ----
 	|----------------------------------------------------------------------------
-	|/squelch /e3bcg /alt act 280 	; -- Group Perfected Invisibility to Undead
-	|/squelch /e3bcg /alt act 8301 	; -- Improved Natural Invisibility
-	|/squelch /e3bcg /alt act 1212 	; -- Group Perfected Invisibility to Undead
-	|/squelch /e3bcg /alt act 630 	; -- Group Silent Presence
-	|/squelch /e3bcg /alt act 531 	; -- Cloak of Shadows
-	|/squelch /e3bcg /alt act 518 	; -- Shared Camouflage
-	|/squelch /e3bcg /alt act 1210 	; -- Group Perfect Invisibility
-	|/squelch /e3bcg /alt act 231 	; -- Shauri's Sonorious Clouding
+	|/squelch /e3bcg /alt act 8301 	; -- Improved Natural Invisibility -- Beastlord
+	|/squelch /e3bcg /alt act 630 	; -- Group Silent Presence -- Shaman
+	|/squelch /e3bcg /alt act 531 	; -- Cloak of Shadows -- Necromancer / Shadow Knight
+	|/squelch /e3bcg /alt act 518 	; -- Shared Camouflage -- Druid / Ranger
+	|/squelch /e3bcg /alt act 1210 	; -- Group Perfect Invisibility -- Magician / Enchanter / Wizard
+	|/squelch /e3bcg /alt act 231 	; -- Shauri's Sonorious Clouding -- Bard AA
+	|/squelch /e3bcg /alt act 1212 	; -- Group Perfected Invisibility to Undead  -- Cleric / Necromancer / Paladin / Shadowknight
+	|/squelch /e3bcg /alt act 280 	; -- Group Perfected Invisibility to Undead -- Magician / Enchanter / Wizard
 	|----------------------------------------------------------------------------
 
 	/if (!${Me.Invis}) {
-		/squelch /e3bcg /alt act 280
 		/squelch /e3bcg /alt act 8301
-		/squelch /e3bcg /alt act 1212
 		/squelch /e3bcg /alt act 630
 		/squelch /e3bcg /alt act 531
 		/squelch /e3bcg /alt act 518
 		/squelch /e3bcg /alt act 1210
 		/squelch /e3bcg /alt act 231
+		|/squelch /e3bcg /alt act 1212
+		|/squelch /e3bcg /alt act 280
 		/delay 5s
 	}
 
@@ -3399,6 +3399,7 @@ Sub CheckInvis
 	/if (${Debugging}) /echo Sub CheckInvis Exit
 /return
 | --------------------------------------------------------------------------------------------
+
 
 | --------------------------------------------------------------------------------------------
 | SUB: CheckPlugin
