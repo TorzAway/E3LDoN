@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-July 6th, 2024 - 07:05:00 AM
+July 13th, 2024 - 07:52:00 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -294,7 +294,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.6
+	/declare version			string		outer	6.7
 
 	/message ==================================================================
  	/call Declares
@@ -4187,30 +4187,25 @@ Sub ReclaimAltDC
   /if (${Target.ID} && ${Target.Type.Equal[Corpse]}) {
     /echo \at+++ \ayLooks like we have a corpse to loot!\ax
     /if (${Target.ID}) /face nolook
-	
-	|----------------------------------------------	
+
+	|----------------------------------------------
 	|-----
 	/if (${Navigation.PathExists[id ${Target.ID}]}) {
-		/if (${Target.ID} && !${Me.Casting.ID}) /nav id ${Target.ID} 
+		/if (${Target.ID} && !${Me.Casting.ID}) /nav id ${Target.ID}
 	} else {
-		 /if (${Target.ID} && !${Me.Casting.ID}) /moveto id ${Target.ID} mdist 10	
+		 /if (${Target.ID} && !${Me.Casting.ID}) /moveto id ${Target.ID} mdist 10
 	}
 	|-----
-    |----------------------------------------------	
-	
+    |----------------------------------------------
+
 	|-------------------------
 	/call CheckCasting
 	/delay 5 !${Me.Moving}
-	|-------------------------
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving}) /call LootMob_E3
-	|-------------------------
-
 	|--------------------------------------------------------------------------------
 	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
 	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
 	|--------------------------------------------------------------------------------
-	
-	
+
     /squelch /target clear
     /goto :CheckAgain
   } else {
@@ -4232,7 +4227,7 @@ Sub ReclaimAltDC
 	/keypress back
 	/fastdrop on
 	/lootn never
-	/delay 1s
+	/delay 5
 	|---------------------------------------
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
@@ -4240,7 +4235,7 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
-	/delay 1s
+	/delay 5
 	/doevents
 	|-------------------------------------------------------------------------------------
 	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
@@ -4291,7 +4286,7 @@ Sub ReclaimAltDC
 		/for LootSlot 1 to ${LootTotal}
 			/echo \ay-- Grabbing corpse item (\am${LootSlot}\ax) of (\am${LootTotal}\ax).
 			/nomodkey /shift /itemnotify Loot${LootSlot} leftmouseup
-			/delay 2s ${Cursor.ID}
+			/delay 1s ${Cursor.ID}
 			/if (${Window[QuantityWnd].Open}) /notify QuantityWnd QTYW_Accept_Button leftmouseup
 			/delay 5
 
@@ -4308,11 +4303,11 @@ Sub ReclaimAltDC
 				/if (${Cursor.Name.Equal[Diamond Coin]}) {
 					/echo \at+\ax \agKeeping a\ax \ay(\atDiamond Coin\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
 					/autoinventory 
-					/delay 1s !${Cursor.ID}
+					/delay 5 !${Cursor.ID}
 				} else /if (${CursorItemValueInPlat}>${MinItemValue}) {
 					/echo \at+\ax \agKeeping a\ax \ay(\at${Cursor.Name}\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
 					/autoinventory 
-					/delay 1s !${Cursor.ID}
+					/delay 5 !${Cursor.ID}
 				}
 			}
 			|--------------------------------------------------------
@@ -4323,9 +4318,10 @@ Sub ReclaimAltDC
 			/if (${Cursor.ID}) {
 				/echo \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar, that crap isn't even worth \ay(\at${MinItemValue}\ay)\ar plat!\ax
 				/destroy
-				/delay 1s !${Cursor.ID}
+				/delay 5 !${Cursor.ID}
 			}
 			|--------------------------------------------------------
+		/delay 5
 		/doevents
 		/next LootSlot
 		|---------------------------------------
