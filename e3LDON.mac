@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-July 13th, 2024 - 08:32:00 AM
+July 13th, 2024 - 09:03:00 AM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -294,7 +294,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.7.1
+	/declare version			string		outer	6.7.3
 
 	/message ==================================================================
  	/call Declares
@@ -541,8 +541,9 @@ Sub Declares
 
 	/call CheckINI ${Settings} General AssistMe bool TRUE
 	/call CheckINI ${Settings} General UseMerc bool FALSE
-	/call CheckIni ${Settings} General CheckBots bool FALSE
+	/call CheckIni ${Settings} General CheckBots bool TRUE
 	/call CheckINI ${Settings} General DoBurns bool FALSE
+	/call CheckINI ${Settings} General DoInvis bool TRUE	
 	/call CheckINI ${Settings} General HardMode bool FALSE
 	/call CheckINI ${Settings} General SwarmPull bool FALSE
 	/call CheckINI ${Settings} General GroupNavToMe bool TRUE
@@ -1488,7 +1489,7 @@ Sub GotoTask
 		/echo ${Zone.ID} vs Butcherblock: ${Butcherblock}
 		:getoutalive3
 		/call GroupWait
-		/call CheckInvis
+		/if (${DoInvis}) /call CheckInvis
 		
 		/if (${runcounter}==0) /squelch /e3bca /nav loc -1318.19 -3086.02 3.12
 		/delay 1s
@@ -1525,7 +1526,7 @@ Sub GotoTask
 /if (${Zone.ID} == ${GreaterFaydark}) {
 		/echo ${Zone.ID} vs Butcherblock: ${Butcherblock}
 		/call GroupWait
-		/call CheckInvis
+		/if (${DoInvis}) /call CheckInvis
 		
 		|----------------------
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {	
@@ -1562,7 +1563,7 @@ Sub GotoTask
 /if (${Zone.ID} == ${LesserFaydark} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Zone.ID} == ${LesserFaydark} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 	    /echo ${Zone.ID} vs Butcherblock: ${Butcherblock}
 		/call GroupWait
-		/call CheckInvis
+		/if (${DoInvis}) /call CheckInvis
 		
 		|----------------------
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
@@ -1649,7 +1650,7 @@ Sub GotoTask
 		/echo ${Zone.ID} vs Everfrost: ${Everfrost}				
 		:getoutalive61
 		/call GroupWait
-		/call CheckInvis
+		/if (${DoInvis}) /call CheckInvis
 		
 		|-----------------
 		|SHIMMERING PORTAL
@@ -1748,7 +1749,7 @@ Sub GotoTask
 		/echo ${Zone.ID} vs North Ro: ${NorthRo}
 		:getoutalive
 		/call GroupWait
-		/call CheckInvis
+		/if (${DoInvis}) /call CheckInvis
 				
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[quicksand pit in Northern Ro.]}) {
 			/echo \aoHeaded to a \at[\agquicksand pit\at]
@@ -1821,7 +1822,7 @@ Sub GotoTask
 		/echo ${Zone.ID} vs Commonlands: ${Commonlands}
 		:getoutalive2
 		/call GroupWait
-		/call CheckInvis
+		/if (${DoInvis}) /call CheckInvis
 
 		|----------------------	
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Through a cave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Through a cave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length}) {			
@@ -1878,7 +1879,7 @@ Sub GotoTask
 		/echo ${Zone.ID} vs South Ro: ${SouthRo}
 		:getoutalive7
 		/call GroupWait
-		/call CheckInvis
+		/if (${DoInvis}) /call CheckInvis
 		
 		/echo \aoAvoiding tent obtacles at \at[\agSro Camp\at]
 		/if (${runcounter}==0) /squelch /e3bca /nav loc -1487.19 998.12 -23.84
@@ -1921,7 +1922,7 @@ Sub GotoTask
 		/echo ${Zone.ID} vs South Ro: ${SouthRo}
 		:getoutalive8
 		/call GroupWait
-		/call CheckInvis
+		/if (${DoInvis}) /call CheckInvis
 		
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[rotting tree trunk]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[rotting tree trunk]} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			
@@ -2014,7 +2015,7 @@ Sub GotoTask
 		/echo ${Zone.ID} vs South Ro: ${SouthRo}
 		:getoutalive9
 		/call GroupWait
-		/call CheckInvis
+		/if (${DoInvis}) /call CheckInvis
 		
 		/echo \aoMoving to \at[\agbarricaded door\at]
 		/if (${runcounter}==0) /squelch /e3bca /nav loc 441.77 228.63 -9.13
