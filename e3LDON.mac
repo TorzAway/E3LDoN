@@ -3493,6 +3493,44 @@ Sub CheckInvis
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
+| SUB: DoGrpInvisByClass
+| --------------------------------------------------------------------------------------------
+Sub DoGrpInvisByClass(string InvisClassShortName, String GrpInvisAltAbilityID)
+	/if (${Debugging}) /echo Sub DoGrpInvisByClass Entry
+	
+	/declare x 					int 	local	0
+
+	|/echo Checking for class (${InvisClassShortName}) in group.
+	|/echo If Found, use ability (${GrpInvisAltAbilityID}).
+			
+	|-----------------------------
+	/for x 1 to ${Group.Members}
+		|/echo Checking for class (${InvisClassShortName}): (${Group.Member[${x}].CleanName}) - ${Group.Member[${x}].Class.ShortName.Equal[${InvisClassShortName}]} - to use ability: (${GrpInvisAltAbilityID})
+		/if (${Group.Member[${x}].Class.ShortName.Equal[${InvisClassShortName}]}) {
+			/echo \ay[\am${Group.Member[${x}].CleanName}\ay] is a [\at${InvisClassShortName}\ay], attempting to making them cast invis (\agAlt Ability \ay[\am${GrpInvisAltAbilityID}\ay]) !
+			|------------------------			
+			/if ((${GrpInvisAltAbilityID}==231) && (${Group.Member[1].Level}<91)) {
+				/echo \ay[\am${Group.Member[${x}].CleanName}\ay] is a [\at${InvisClassShortName}\ay], but can \arNOT\ay use (\agAlt Ability \ay[\am${GrpInvisAltAbilityID}\ay]) yet due to their level !
+			} else {
+				/squelch /e3bct ${Group.Member[${x}].CleanName} /alt act ${GrpInvisAltAbilityID}
+			}						
+			/delay 3s ${Me.Invis}			
+			/if (${Me.Invis}) {
+				/varset x ${Group.Members}
+			}
+			|------------------------
+		} else {
+			|/echo \ay[\am${Group.Member[${x}].CleanName}\ay] is NOT a [\at${InvisClassShortName}\ay].
+		}
+		|/delay 5
+	/next x
+	|-----------------------------
+
+	/if (${Debugging}) /echo Sub DoGrpInvisByClass Exit
+/return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
 | SUB: CheckPlugin
 | --------------------------------------------------------------------------------------------
   Sub CheckPlugin(string pluginname)
