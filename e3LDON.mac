@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-July 19th, 2024 - 10:16:00 AM
+July 24th, 2024 - 02:02:00 PM
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -294,7 +294,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.7.5
+	/declare version			string		outer	6.7.6
 
 	/message ==================================================================
  	/call Declares
@@ -3321,12 +3321,43 @@ Sub CheckInvis
 
 	/declare y 					int 	local	0
 
+	:CheckInvisNow
 	|------------
 	/call Group2Me
-	| -- DELAY TO MAKE SURE GROUP STOPPED BEFORE ATTEMPTING TO CAST INVIS !
-	/delay 3s !${Me.Moving}
-	| -- DELAY TO MAKE SURE GROUP STOPPED BEFORE ATTEMPTING TO CAST INVIS !
 	|------------
+		
+	|-----------------------------	
+	/for y 1 to ${Group.Members}
+		|/echo Checking if ${Group.Member[${y}].CleanName} is close.
+		/if (${Group.Member[${y}].Distance}>20) {			
+			:MemberDistanceInvisCheck
+			/echo \ay- \am[\ag${Group.Member[${y}].CleanName}\am]\ay is \am[\ao${Group.Member[${y}].Distance}\am]\ay paces away still.
+			|------------------------
+			/delay 5 ${Group.Member[${y}].Distance}<20
+			/if (${Group.Member[${y}].Distance}>20) /goto :MemberDistanceInvisCheck
+			|------------------------
+		}
+	/next y
+	|-----------------------------		
+	
+	|-----------------------------	
+	| -- DELAY TO MAKE SURE GROUP STOPPED BEFORE ATTEMPTING TO CAST INVIS !
+	|-----------------------------
+	/delay 1s
+	/for y 0 to ${Group.Members}
+		|/echo Checking if ${Group.Member[${y}].CleanName} is Moving.
+		/if (${Group.Member[${y}].Moving}) {
+			/echo \ay- \am[\ag${Group.Member[${y}].CleanName}\am]\ay is Moving.... waiting.
+			:MemberMovingInvisCheck
+			|------------------------
+			/delay 5 !${Group.Member[${y}].Moving}
+			/if (${Group.Member[${y}].Moving}) /goto :MemberMovingInvisCheck
+			|------------------------
+		}
+	/next y
+	|-----------------------------	
+	| -- DELAY TO MAKE SURE GROUP STOPPED BEFORE ATTEMPTING TO CAST INVIS !
+	|-----------------------------
 
 	|----------------------------------------------------------------------------
 	|--- REFERENCE ----
@@ -3357,11 +3388,6 @@ Sub CheckInvis
 		|/if (!${Me.Invis}) /call DoGrpInvisByClass MAG 280
 		|/if (!${Me.Invis}) /call DoGrpInvisByClass ENC 280
 		|/if (!${Me.Invis}) /call DoGrpInvisByClass WIZ 280
-		|------------- INDIVIDUAL ---------------
-		/if (!${Me.Invis}) /call DoGrpInvisByClass BRD 231
-		/if (!${Me.Invis}) /call DoGrpInvisByClass SHD 531
-		/if (!${Me.Invis}) /call DoGrpInvisByClass NEC 531
-		/if (!${Me.Invis}) /call DoGrpInvisByClass BST 8301
 		|------------- GROUP ---------------
 		/if (!${Me.Invis}) /call DoGrpInvisByClass SHM 630
 		|------------- GROUP ---------------
@@ -3371,7 +3397,13 @@ Sub CheckInvis
 		/if (!${Me.Invis}) /call DoGrpInvisByClass MAG 1210
 		/if (!${Me.Invis}) /call DoGrpInvisByClass ENC 1210
 		/if (!${Me.Invis}) /call DoGrpInvisByClass WIZ 1210
+		|------------- INDIVIDUAL ---------------
+		|/if (!${Me.Invis}) /call DoGrpInvisByClass BRD 231
+		/if (!${Me.Invis}) /call DoGrpInvisByClass SHD 531
+		/if (!${Me.Invis}) /call DoGrpInvisByClass NEC 531
+		/if (!${Me.Invis}) /call DoGrpInvisByClass BST 8301
 		|------------------------------------
+		/delay 3s ${Me.Invis}
 	}
 	|----------------------- IF ME !INVIS
 				
@@ -3402,6 +3434,7 @@ Sub CheckInvis
 			}
 		/next y
 		|-----------------------------
+		/delay 3s ${Me.Invis}
 	}
 	|----------------------- IF ME !INVIS				
 		
@@ -3485,8 +3518,11 @@ Sub CheckInvis
 			} else /if (${FindItemCount[Cloudy Potion]}) {
 				/casting "Cloudy Potion|Item"
 			}
+			/delay 3s ${Me.Invis}
 	}
 	|----------------------- IF ME !INVIS
+	
+	/if (!${Me.Invis}) /goto CheckInvisNow
 	
 	/if (${Debugging}) /echo Sub CheckInvis Exit
 /return
@@ -3522,7 +3558,6 @@ Sub DoGrpInvisByClass(string InvisClassShortName, String GrpInvisAltAbilityID)
 		} else {
 			|/echo \ay[\am${Group.Member[${x}].CleanName}\ay] is NOT a [\at${InvisClassShortName}\ay].
 		}
-		|/delay 5
 	/next x
 	|-----------------------------
 
