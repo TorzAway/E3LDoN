@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 2nd, 2024 - 01:57:00 PM
+October 2nd, 2024 - 02:18:00 PM
 
-v6.8.2
+v6.8.3
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -2860,7 +2860,7 @@ Sub DoSinglePull(string Enemy)
 	}
 	:navto
 	/if (${Debugging}) /echo DoSinglePull NAVTO
-	|/if (${Target.ID}) /squelch /target clear
+	/if (${Target.ID}) /squelch /target clear
 	/if (${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && ${PullRequiresLineOfSight} || ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[${myTargetID}].ID}) {
 			/squelch /target clear
