@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 2nd, 2024 - 10:59:00 AM
+October 2nd, 2024 - 01:57:00 PM
 
-v6.8.1 
+v6.8.2
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -3537,7 +3537,7 @@ Sub CheckInvis
 	}
 	|----------------------- IF ME !INVIS
 	
-	/if (!${Me.Invis}) /goto CheckInvisNow
+	/if (!${Me.Invis}) /goto :CheckInvisNow
 	
 	/if (${Debugging}) /echo Sub CheckInvis Exit
 /return
