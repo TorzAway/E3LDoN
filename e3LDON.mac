@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 2nd, 2024 - 12:58:00 AM
+October 2nd, 2024 - 09:43:00 AM
 
-v6.7.9
+v6.8.0
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -4115,7 +4115,7 @@ Sub WaitNav(NavTargetID)
 		/delay 5s
 		/return
 	}
-	/while (${Spawn[id ${NavTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},30]} || !${Spawn[${myTargetID}].LineOfSight}) {
+	/while ((${Spawn[id ${NavTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},30]}) || !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[id ${NavTargetID}].ID}) {
 			/delay 5s
 			/return
@@ -4143,7 +4143,7 @@ Sub WaitNav(NavTargetID)
 			/if (!${courseCorrection}) {
 				|------  ALL GO TO TARGET - staggered
 				/nav id ${NavTargetID}
-				/delay 5
+				/delay 10
 				/squelch /e3bca /nav id ${NavTargetID}
 				|------  ALL GO TO TARGET - staggered
 				/varset courseCorrection ${courseCorrection.OriginalValue}
@@ -4187,6 +4187,7 @@ Sub WaitNav(NavTargetID)
 	/if (!${Target.CleanName.Equal[${Spawn[id ${NavTargetID}].CleanName}]} && ${Spawn[id ${NavTargetID}].ID} && !${Me.XTarget[1].ID}) {
 		/goto :target
 	}
+	
 	/if (${Debugging}) /echo Sub WaitNav Exit
 /return
 | --------------------------------------------------------------------------------------------
