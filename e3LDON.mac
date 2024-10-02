@@ -4214,7 +4214,7 @@ Sub WaitNav(NavTargetID)
 
 	/declare MerchName	string	local Merabo
 
-	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agAttempting to lacate a \ay[\at${MerchName}\ay]\ag to \ay[\atAutoSell\ay]\ag ! \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw>
+	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agAttempting to locate a \ay[\at${MerchName}\ay]\ag to \ay[\atAutoSell\ay]\ag ! \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw>
 	/target clear
 	/delay 2s !${Target.ID}
 
@@ -4561,7 +4561,7 @@ Sub ReclaimAltDC
 
 	/declare MerchName	string	local Merchant
 
-	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agAttempting to lacate a \ay[\at${MerchName}\ay]\ag to \ay[\atAutoSell\ay]\ag ! \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw>
+	/echo \aw<\ar$\ao$\ay$\ag$\at$\au$\am$\ap$\aw> \agAttempting to locate a \ay[\at${MerchName}\ay]\ag to \ay[\atAutoSell\ay]\ag ! \aw<\ap$\am$\au$\at$\ag$\ay$\ao$\ar$\aw>
 	/target clear
 	/delay 2s !${Target.ID}
 
