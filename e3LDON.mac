@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 2nd, 2024 - 02:18:00 PM
+October 14th, 2024 - 07:45:00 PM
 
-v6.8.4
+v6.8.5
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -296,7 +296,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.7.8
+	/declare version			string		outer	6.8.5
 
 	/message ==================================================================
  	/call Declares
@@ -1605,6 +1605,7 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/call GenerateList
+			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1646,6 +1647,7 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/call GenerateList
+			/call SetPetNoAlert			
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1695,7 +1697,8 @@ Sub GotoTask
 			/squelch /click left door
 			|-----------------------
 			/call Zoning
-			/call GenerateList
+			/call GenerateList			
+			/call SetPetNoAlert			
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1745,6 +1748,7 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/call GenerateList
+			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1790,6 +1794,7 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/call GenerateList
+			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1874,6 +1879,7 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/call GenerateList
+			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1965,6 +1971,7 @@ Sub GotoTask
 			/call Zoning
 			/if (${Zone.ID} == ${Innothule} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive8
 			/call GenerateList
+			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -2056,6 +2063,7 @@ Sub GotoTask
 		/call Zoning
 		/if (${Zone.ID} == ${GukTop} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive9
 		/call GenerateList
+		/call SetPetNoAlert
 		/call ForeceSpawnStepReset
 		/call ResetBard
 		/delay 2s
@@ -2860,7 +2868,7 @@ Sub DoSinglePull(string Enemy)
 	}
 	:navto
 	/if (${Debugging}) /echo DoSinglePull NAVTO
-	/if (${Target.ID}) /squelch /target clear
+	|/if (${Target.ID}) /squelch /target clear
 	/if (${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && ${PullRequiresLineOfSight} || ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[${myTargetID}].ID}) {
 			/squelch /target clear
@@ -2877,7 +2885,7 @@ Sub DoSinglePull(string Enemy)
 		/call CheckStuck
 		/delay 5
 		/goto :navto
-	} else /if (!${Target.ID} || ${Target.ID} != ${myTargetID} && ${Target.ID} != ${Me.ID} && ${myTargetID} != 0 && !${Me.XTarget[1].ID}) {
+	} else /if (!${Target.ID} || ((${Target.ID}!=${myTargetID}) && (${Target.ID}!=${Me.ID}) && (${myTargetID}!=0) && !${Me.XTarget[1].ID})) {
 		/target id ${myTargetID}
 		/if (${Navigation.Active}) /nav stop
 	}
@@ -2915,7 +2923,7 @@ Sub TargetShortest
 		/for MobCounter 1 to ${MobsInRadius}
 		/varset MobID ${NearestSpawn[${MobCounter},npc targetable radius ${CampRadius} zradius ${ZRadius} alert 10 noalert 1].ID}
 
-		/if (${Select[${Spawn[ID ${MobID}].Type},AURA,BANNER,CAMPFIRE,CORPSE,CHEST,ITEM,TRIGGER,TRAP,TIMER,MOUNT,MERCENARY,OBJECT]} && !${Ini[${MobIgnore},${Zone.ShortName},Ignored].Find[ID ${MobID}]}) /continue
+		/if (${Select[${Spawn[ID ${MobID}].Type},PET,AURA,BANNER,CAMPFIRE,CORPSE,CHEST,ITEM,TRIGGER,TRAP,TIMER,MOUNT,MERCENARY,OBJECT]} && !${Ini[${MobIgnore},${Zone.ShortName},Ignored].Find[ID ${MobID}]}) /continue
 		/if (${Spawn[ID ${MobID}].Surname.Length}) /continue
 		
 		|------- HARD CODED EXCEPTIONS
@@ -4117,6 +4125,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 | --------------------------------------------------------------------------------------------
 Sub WaitNav(NavTargetID)
 	/if (${Debugging}) /echo \agEntering Sub WaitNav for ${Spawn[id ${NavTargetID}].Y} ${Spawn[id ${NavTargetID}].X} ${Spawn[id ${NavTargetID}].Z} at Line: ${Macro.CurLine}
+	
 	/if (!${Spawn[id ${NavTargetID}].ID}) {
 		/delay 5s
 		/return
@@ -4150,11 +4159,11 @@ Sub WaitNav(NavTargetID)
 				|------  ALL GO TO TARGET - staggered
 				/nav id ${NavTargetID}
 				/delay 10
-				/squelch /e3bca /nav id ${NavTargetID}
+				/squelch /e3bca /nav id ${NavTargetID}				
 				|------  ALL GO TO TARGET - staggered
 				/varset courseCorrection ${courseCorrection.OriginalValue}
 			}
-			/if (${GroupNavToMe}) {
+			/if (${GroupNavToMe} && (${Spawn[id ${NavTargetID}].Distance}<30)) {
                 /call Group2Me
             }
 			/delay 10
@@ -4798,7 +4807,9 @@ Sub DoorClick
 |--------------------------------------------------------
 Sub Group2Me
 /if (${Debugging}) /echo Sub Group2Me Entry
-	/e3bcaa /nav id ${Me.ID}
+	|------------ KEEP AS SINGLE NOT GROUP COMMAND 	!
+	/e3bca /nav id ${Me.ID}
+	|------------ KEEP AS SINGLE NOT GROUP
 /if (${Debugging}) /echo Sub Group2Me Exit
 /return
 |--------------------------------------------------------
@@ -4924,6 +4935,14 @@ Sub Refresh
 | --------------------------------------------------------------------------------------------
 Sub GenerateList
 	/if (${Debugging}) /echo Sub GenerateList Entry
+	
+	| --- CLEAR ALERT list ---|
+	/if (${Alert[1].Size}>0) {
+		/echo \ayClearing ALERTLIST 1
+		/alert clear 1
+	}
+	| --- CLEAR ALERT list ---|
+		
 	/declare i int local
 	/echo \ayGetting \am[\atNamed Mobs\am]\ay currently up in: \am[\at${Zone}\am]\ay.
 	/if (!${Ini[E3LDoN_MobIgnored.ini,${Zone.ShortName},Ignored].Length}) /ini "E3LDoN_MobIgnored.ini" "${Zone.ShortName}" "Ignored" "|"
@@ -4969,6 +4988,31 @@ Sub GenerateList
 	/next i
 	/echo \agDone, list is stored in E3LDoN_MobIgnored.ini
 	/if (${Debugging}) /echo Sub GenerateList Exit
+/return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: SetPetNoAlert
+| --------------------------------------------------------------------------------------------
+Sub SetPetNoAlert
+	/if (${Debugging}) /echo Sub SetPetNoAlert Entry
+
+	/declare x 								int local
+
+	|-----
+    /for x 1 to ${Group.Members}
+		/if (${Group.Member[${x}].Pet.ID}>0) {
+			/echo \atAdding \am${Group.Member[${x}].CleanName}'s \agpet \ay(\ao${Group.Member[${x}].Pet.CleanName} \ayID:${Group.Member[${x}].Pet.ID}\ay) \atto \arNOALERT \atlist.
+			/alert add 1 id ${Group.Member[${x}].Pet.ID}
+		}
+    /next x
+	|-----
+	
+	/if (${Alert[1].Size}>0) {
+		/echo \arAlertlist has \ay(\at${Alert[1].Size}\ay) \arentries in it.
+	}
+
+	/if (${Debugging}) /echo Sub SetPetNoAlert Exit
 /return
 | --------------------------------------------------------------------------------------------
 
