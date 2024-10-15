@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 14th, 2024 - 07:45:00 PM
+October 15th, 2024 - 07:08:00 AM
 
-v6.8.5
+v6.8.6
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -296,12 +296,13 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.8.5
-
+	/declare version			string		outer	6.8.6
+	
 	/message ==================================================================
  	/call Declares
 	/message ==================================================================
 	/message \at${MacroName}.mac \aw- \atv${version} \awby \ag Kroaking
+	/message ==================================================================
 
 	/delay 1s
 	/call CheckThings	
@@ -367,7 +368,7 @@ Sub Main
 	
 	|-----------------------------------------------
 	/call GetAdventureStatus
-	|-----------------------------------------------
+	|-----------------------------------------------	
 	
 	|---------------------------------------------------------------------------
 	|-------------- ONLY DO LOGIC IF WE --HAVE-- AN ACTIVE ADVENTURE ASSIGNED !!!!!!
@@ -1605,7 +1606,6 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/call GenerateList
-			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1646,8 +1646,7 @@ Sub GotoTask
 			/squelch /click left door
 			|-----------------------
 			/call Zoning
-			/call GenerateList
-			/call SetPetNoAlert			
+			/call GenerateList		
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1697,8 +1696,7 @@ Sub GotoTask
 			/squelch /click left door
 			|-----------------------
 			/call Zoning
-			/call GenerateList			
-			/call SetPetNoAlert			
+			/call GenerateList				
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1748,7 +1746,6 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/call GenerateList
-			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1794,7 +1791,6 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/call GenerateList
-			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1879,7 +1875,6 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/call GenerateList
-			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -1971,7 +1966,6 @@ Sub GotoTask
 			/call Zoning
 			/if (${Zone.ID} == ${Innothule} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive8
 			/call GenerateList
-			/call SetPetNoAlert
 			/call ForeceSpawnStepReset
 			/call ResetBard
 			/delay 2s
@@ -2063,7 +2057,6 @@ Sub GotoTask
 		/call Zoning
 		/if (${Zone.ID} == ${GukTop} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive9
 		/call GenerateList
-		/call SetPetNoAlert
 		/call ForeceSpawnStepReset
 		/call ResetBard
 		/delay 2s
@@ -4935,13 +4928,6 @@ Sub Refresh
 | --------------------------------------------------------------------------------------------
 Sub GenerateList
 	/if (${Debugging}) /echo Sub GenerateList Entry
-	
-	| --- CLEAR ALERT list ---|
-	/if (${Alert[1].Size}>0) {
-		/echo \ayClearing ALERTLIST 1
-		/alert clear 1
-	}
-	| --- CLEAR ALERT list ---|
 		
 	/declare i int local
 	/echo \ayGetting \am[\atNamed Mobs\am]\ay currently up in: \am[\at${Zone}\am]\ay.
@@ -4987,6 +4973,13 @@ Sub GenerateList
 		}
 	/next i
 	/echo \agDone, list is stored in E3LDoN_MobIgnored.ini
+	
+	|------------------
+	/message ==================================================================
+	/call SetPetNoAlert
+	/message ==================================================================
+	|------------------
+	
 	/if (${Debugging}) /echo Sub GenerateList Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -4997,19 +4990,28 @@ Sub GenerateList
 Sub SetPetNoAlert
 	/if (${Debugging}) /echo Sub SetPetNoAlert Entry
 
+	| --- CLEAR ALERT list ---|
+	/if (${Alert[1].Size}>0) {
+		/message \ayClearing ALERTLIST \am[\ay1\am]
+		/squelch /alert clear 1
+		/message ==================================================================	
+	}
+	| --- CLEAR ALERT list ---|
+
 	/declare x 								int local
 
 	|-----
     /for x 1 to ${Group.Members}
 		/if (${Group.Member[${x}].Pet.ID}>0) {
-			/echo \atAdding \am${Group.Member[${x}].CleanName}'s \agpet \ay(\ao${Group.Member[${x}].Pet.CleanName} \ayID:${Group.Member[${x}].Pet.ID}\ay) \atto \arNOALERT \atlist.
-			/alert add 1 id ${Group.Member[${x}].Pet.ID}
+			/message \atAdding \am${Group.Member[${x}].CleanName}'s \agpet \ay(\ao${Group.Member[${x}].Pet.CleanName} \ayID:${Group.Member[${x}].Pet.ID}\ay) \atto \arNOALERT \atlist \am[\ay1\am]\at.
+			/squelch /alert add 1 id ${Group.Member[${x}].Pet.ID}
 		}
     /next x
 	|-----
 	
 	/if (${Alert[1].Size}>0) {
-		/echo \arAlertlist has \ay(\at${Alert[1].Size}\ay) \arentries in it.
+		/message ==================================================================	
+		/message \arALERTLIST \am[\ay1\am] \arhas \ay(\at${Alert[1].Size}\ay) \arentries in it.
 	}
 
 	/if (${Debugging}) /echo Sub SetPetNoAlert Exit
