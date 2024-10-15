@@ -2874,7 +2874,11 @@ Sub DoSinglePull(string Enemy)
 	}
 	:navto
 	/if (${Debugging}) /echo DoSinglePull NAVTO
-	|/if (${Target.ID}) /squelch /target clear
+	
+	|-----------------------------------------
+	/if (${Target.ID}) /squelch /target clear
+	|-----------------------------------------
+	
 	/if (${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && ${PullRequiresLineOfSight} || ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[${myTargetID}].ID}) {
 			/squelch /target clear
