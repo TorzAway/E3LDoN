@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 15th, 2024 - 12:36:00 PM
+October 15th, 2024 - 01:47:00 PM
 
-v6.8.8
+v6.8.9
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -296,7 +296,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.8.8
+	/declare version			string		outer	6.8.9
 	
 	/message ==================================================================
  	/call Declares
@@ -1507,7 +1507,7 @@ Sub GotoTask
 		
 		/if (${runcounter}==0) /squelch /e3bca /nav loc -1318.19 -3086.02 3.12
 		/delay 1s
-		/call NavToLoc2 -1318.19 -3086.02 3.12
+		/call NavToLoc2 -1314.01 -3058.35 5.90
 		/delay 5
 		/while (${Navigation.Active}) {
 			/call SetLoc
@@ -1517,14 +1517,14 @@ Sub GotoTask
 		/call GroupWait
 		/if (${Me.XTarget[1].ID}) /call DoClearTargets
 		/if (${runcounter}==0) {
-			/squelch /e3bca /face heading 290
+			/squelch /e3bca /face heading 260
 			/delay 2s
 			/squelch /e3bca /keypress forward hold
 			/delay 3s
 			/squelch /e3bca /keypress forward
 			/delay 1s
 		} 
-		/squelch /face heading 290
+		/squelch /face heading 260
 		/delay 2s
 		/squelch /keypress forward hold
 		/delay 3s
@@ -1546,7 +1546,7 @@ Sub GotoTask
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {	
 			/if (${runcounter}==0) /squelch /e3bca /nav loc -2624.00 -1113.00 3.12			
 			/delay 1s
-			/call NavToLoc2 -2624.00 -1113.00 3.12
+			/call NavToLoc2 -2610.80 -1113.13 3.12
 			/delay 5
 			/while (${Navigation.Active}) {
 				/call SetLoc
@@ -1555,13 +1555,13 @@ Sub GotoTask
 			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
-			/squelch /e3bca /face heading 155
+			/squelch /e3bca /face heading 175
 			/delay 2s
 			/squelch /e3bca /keypress forward hold
 			/delay 3s
 			/squelch /e3bca /keypress forward
 			/delay 1s
-			/squelch /face heading 155
+			/squelch /face heading 175
 			/delay 2s
 			/squelch /keypress forward hold
 			/delay 3s
