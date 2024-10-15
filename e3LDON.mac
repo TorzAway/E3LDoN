@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 15th, 2024 - 07:08:00 AM
+October 15th, 2024 - 12:21:00 PM
 
-v6.8.6
+v6.8.7
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -296,7 +296,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.8.6
+	/declare version			string		outer	6.8.7
 	
 	/message ==================================================================
  	/call Declares
@@ -1596,6 +1596,7 @@ Sub GotoTask
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
 			/squelch /e3bca /removelev
+			/squelch /e3bca /dropinvis
 			/squelch /e3bca /doortarget MISTPORT701
 			/delay 2s
 			/squelch /e3bca /click left door
@@ -1633,6 +1634,7 @@ Sub GotoTask
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
 			/squelch /e3bca /removelev
+			/squelch /e3bca /dropinvis
 			|Corrected Door
 			/squelch /e3bca /doortarget MISTFCFN700
 			/delay 2s
@@ -1686,6 +1688,7 @@ Sub GotoTask
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
 			/squelch /e3bca /removelev
+			/squelch /e3bca /dropinvis
 			/squelch /e3bca /doortarget MIRPORTAL700
 			/delay 2s
 			/squelch /e3bca /click left door
@@ -1735,6 +1738,7 @@ Sub GotoTask
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
 			/squelch /e3bca /removelev
+			/squelch /e3bca /dropinvis
 			/squelch /e3bca /doortarget MIRPORTAL701
 			/delay 2s
 			/squelch /e3bca /click left door
@@ -1863,6 +1867,7 @@ Sub GotoTask
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents			
 			/squelch /e3bca /removelev
+			/squelch /e3bca /dropinvis
 			|Corrected Door
 			/squelch /e3bca /doortarget RUJPORTAL701
 			/delay 2s
@@ -1955,6 +1960,7 @@ Sub GotoTask
 			
 		    /echo \agEveryone is here. \ayGoing in to task...
 		    /squelch /e3bca /removelev
+			/squelch /e3bca /dropinvis
 		    /squelch /e3bca  /doortarget GKPORTAL700
 		    /delay 2s
 		    /squelch /e3bca /click left door
@@ -2046,6 +2052,7 @@ Sub GotoTask
 		
 		/echo \agEveryone is here. \ayGoing in to task...
 		/squelch /e3bca /removelev
+		/squelch /e3bca /dropinvis
 		/squelch /e3bca /doortarget GKPORTAL701
 		/delay 2s
 		/squelch /e3bca /click left door
