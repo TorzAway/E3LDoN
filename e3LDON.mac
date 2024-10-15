@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 15th, 2024 - 12:21:00 PM
+October 15th, 2024 - 12:36:00 PM
 
-v6.8.7
+v6.8.8
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -296,7 +296,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.8.7
+	/declare version			string		outer	6.8.8
 	
 	/message ==================================================================
  	/call Declares
@@ -1593,6 +1593,7 @@ Sub GotoTask
 			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
 			/squelch /e3bca /removelev
@@ -1601,6 +1602,7 @@ Sub GotoTask
 			/delay 2s
 			/squelch /e3bca /click left door
 			/squelch /removelev
+			/squelch /dropinvis
 			/squelch /doortarget MISTPORT701
 			/delay 2s
 			/squelch /click left door
@@ -1631,18 +1633,16 @@ Sub GotoTask
 			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
 			/squelch /e3bca /removelev
 			/squelch /e3bca /dropinvis
-			|Corrected Door
 			/squelch /e3bca /doortarget MISTFCFN700
 			/delay 2s
 			/squelch /e3bca /click left door
 			/squelch /removelev
-			|--------------
-			|Corrected Door
-			|--------------
+			/squelch /dropinvis
 			/squelch /doortarget MISTFCFN700
 			/delay 2s
 			/squelch /click left door
@@ -1685,6 +1685,7 @@ Sub GotoTask
 			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
 			/squelch /e3bca /removelev
@@ -1692,8 +1693,8 @@ Sub GotoTask
 			/squelch /e3bca /doortarget MIRPORTAL700
 			/delay 2s
 			/squelch /e3bca /click left door
-			|I goe in now.
 			/squelch /removelev
+			/squelch /dropinvis
 			/squelch /doortarget MIRPORTAL700
 			/delay 2s
 			/squelch /click left door
@@ -1735,6 +1736,7 @@ Sub GotoTask
 			/call NavToLoc2 2772.21 -4726.54 -97.27
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents
 			/squelch /e3bca /removelev
@@ -1742,11 +1744,11 @@ Sub GotoTask
 			/squelch /e3bca /doortarget MIRPORTAL701
 			/delay 2s
 			/squelch /e3bca /click left door
-			|I goe in now.
-			/removelev
-			/doortarget MIRPORTAL701
+			/squelch /removelev
+			/squelch /dropinvis
+			/squelch /doortarget MIRPORTAL701
 			/delay 2s
-			/click left door
+			/squelch /click left door
 			|-----------------------
 			/call Zoning
 			/call GenerateList
@@ -1864,16 +1866,16 @@ Sub GotoTask
 			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			
 			/echo \agEveryone is here. \ayGoing in to task...
 			/doevents			
 			/squelch /e3bca /removelev
 			/squelch /e3bca /dropinvis
-			|Corrected Door
 			/squelch /e3bca /doortarget RUJPORTAL701
 			/delay 2s
 			/squelch /e3bca /click left door
 			/squelch /removelev
-			|Corrected Door
+			/squelch /dropinvis
 			/squelch /doortarget RUJPORTAL701
 			/delay 2s
 			/squelch /click left door
@@ -1959,15 +1961,17 @@ Sub GotoTask
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			
 		    /echo \agEveryone is here. \ayGoing in to task...
+			/doevents
 		    /squelch /e3bca /removelev
 			/squelch /e3bca /dropinvis
-		    /squelch /e3bca  /doortarget GKPORTAL700
+		    /squelch /e3bca /doortarget GKPORTAL700
 		    /delay 2s
 		    /squelch /e3bca /click left door
-			/removelev
-			/doortarget GKPORTAL700
+			/squelch /removelev
+			/squelch /dropinvis
+			/squelch /doortarget GKPORTAL700
 			/delay 2s
-			/click left door			
+			/squelch /click left door
 			|-----------------------
 			/call Zoning
 			/if (${Zone.ID} == ${Innothule} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive8
@@ -2051,15 +2055,17 @@ Sub GotoTask
 		/if (${Me.XTarget[1].ID}) /call DoClearTargets
 		
 		/echo \agEveryone is here. \ayGoing in to task...
+		/doevents
 		/squelch /e3bca /removelev
 		/squelch /e3bca /dropinvis
 		/squelch /e3bca /doortarget GKPORTAL701
 		/delay 2s
 		/squelch /e3bca /click left door
-		/removelev
-		/doortarget GKPORTAL701
+		/squelch/removelev
+		/squelch /dropinvis
+		/squelch /doortarget GKPORTAL701
 		/delay 2s
-		/click left door
+		/squelch /click left door
 		|-----------------------
 		/call Zoning
 		/if (${Zone.ID} == ${GukTop} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive9
