@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 16th, 2024 - 10:59:00 AM
+October 16th, 2024 - 05:19:00 PM
 
-v6.9.1
+v6.9.3
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -298,15 +298,18 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.9.1
+	/declare version			string		outer	6.9.3
 	
 	/message ==================================================================
  	/call Declares
 	/message ==================================================================
 	/message \at${MacroName}.mac \aw- \atv${version} \awby \ag Kroaking
 	/message ==================================================================
-
-	/delay 1s
+	/delay 1s		
+	
+	/squelch /e3bcg /multiline ; /followoff ; /nav stop ; /stand
+	/delay 5
+		
 	/call CheckThings	
 
 	|-------------------------------------
@@ -370,6 +373,11 @@ Sub Main
 	
 	|-----------------------------------------------
 	/call GetAdventureStatus
+	|------------------
+	/message ==================================================================
+	/call SetPetNoAlert
+	/message ==================================================================
+	|------------------
 	|-----------------------------------------------	
 	
 	|---------------------------------------------------------------------------
@@ -1308,6 +1316,7 @@ Sub GetTask
 	/if (${Zone.ID} == ${Commonlands}) {
 		:getTaskCommon
 		|-- /squelch /e3bcaa /removelev
+		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Periac Windfell
 			/declare RecruiterLoc string local ${Spawn[${Recruiter}].Y} ${Spawn[${Recruiter}].X} ${Spawn[${Recruiter}].Z}
@@ -1786,6 +1795,7 @@ Sub GotoTask
 			}
 			/call GroupWait
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			
 			/echo \agEveryone is here. \ayGoing in to task...
 			/squelch /e3bcaa /removelev
 			/squelch /e3bcaa /dropinvis
@@ -2869,19 +2879,26 @@ Sub DoSinglePull(string Enemy)
 	} else {
 		/if (${Debugging}) /echo \ayI have an XTarget so I'm going to set that as my target.
 		/if (${Me.XTarget[1].ID}) {
-		/varset myTargetID ${Me.XTarget[1].ID}
-		|---------------------------------------
-		/if (${Debugging}) /echo CALL COMBAT
-		/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) /call combat
-		/if (${Debugging}) /echo END CALL COMBAT
-		|---------------------------------------
+			/varset myTargetID ${Me.XTarget[1].ID}
+			|---------------------------------------
+			/if (${Debugging}) /echo CALL COMBAT
+			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) /call combat
+			/if (${Debugging}) /echo END CALL COMBAT
+			|---------------------------------------
 		}
 	}
 	:navto
 	/if (${Debugging}) /echo DoSinglePull NAVTO
 	
 	|-----------------------------------------
-	/if (${Target.ID}) /squelch /target clear
+	| CLEAR MY TARGET
+	|-----------------------------------------	
+	/if ((${Target.ID}!=${myTargetID}) || (${Me.Combat} && (${Target.Type.Equal[pc]} || ${Target.Type.Equal[pet]}))) {
+		/squelch /target clear
+		/backoff
+		|-- /popcustom 18 5 ### BACKING OFF ###
+		/doevents flush BackOffNow
+	}
 	|-----------------------------------------
 	
 	/if (${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && ${PullRequiresLineOfSight} || ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && !${Spawn[${myTargetID}].LineOfSight}) {
@@ -5012,6 +5029,8 @@ Sub GenerateList
 Sub SetPetNoAlert
 	/if (${Debugging}) /echo Sub SetPetNoAlert Entry
 
+	/declare x 								int local
+
 	| --- CLEAR ALERT list ---|
 	/if (${Alert[1].Size}>0) {
 		/message \ayClearing ALERTLIST \am[\ay1\am]
@@ -5019,18 +5038,25 @@ Sub SetPetNoAlert
 		/message ==================================================================	
 	}
 	| --- CLEAR ALERT list ---|
-
-	/declare x 								int local
+	
+	|-----
+    /for x 0 to ${Group.Members}
+		/if (${Group.Member[${x}].ID}>0) {
+			/message \atAdding \am${Group.Member[${x}].CleanName} \ay(\aoID:${Group.Member[${x}].ID}\ay) \atto \arNOALERT \atlist \am[\ay1\am]\at.
+			/squelch /alert add 1 id ${Group.Member[${x}].ID}
+		}
+    /next x
+	|-----
 
 	|-----
-    /for x 1 to ${Group.Members}
+    /for x 0 to ${Group.Members}
 		/if (${Group.Member[${x}].Pet.ID}>0) {
 			/message \atAdding \am${Group.Member[${x}].CleanName}'s \agpet \ay(\ao${Group.Member[${x}].Pet.CleanName} \ayID:${Group.Member[${x}].Pet.ID}\ay) \atto \arNOALERT \atlist \am[\ay1\am]\at.
 			/squelch /alert add 1 id ${Group.Member[${x}].Pet.ID}
 		}
     /next x
 	|-----
-	
+
 	/if (${Alert[1].Size}>0) {
 		/message ==================================================================	
 		/message \arALERTLIST \am[\ay1\am] \arhas \ay(\at${Alert[1].Size}\ay) \arentries in it.
@@ -5416,8 +5442,9 @@ Sub Event_Sealed_Off
 |--------------------------------------------------------  
 |--------------------------------------------------------
   Sub Event_BackOffNow
-	  /popcustom 5 5 ### BACKING OFF ###
+	  /squelch /target clear
 	  /backoff
+	  |-- /popcustom 5 5 ### BACKING OFF ###
       /doevents flush BackOffNow
   /return  
 |--------------------------------------------------------  
