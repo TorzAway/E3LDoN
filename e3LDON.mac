@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 15th, 2024 - 01:47:00 PM
+October 16th, 2024 - 08:16:00 AM
 
-v6.8.9
+v6.9.0
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -296,7 +296,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.8.9
+	/declare version			string		outer	6.9.0
 	
 	/message ==================================================================
  	/call Declares
@@ -1269,7 +1269,7 @@ Sub GetTask
 	|----------- NORTH RO ------------
 	/if (${Zone.ID} == ${NorthRo}) {
 		:getTaskNRo
-		/removelev
+		|-- /squelch /e3bcaa /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Escon Quickbow
@@ -1305,7 +1305,7 @@ Sub GetTask
 	|----------- COMMONLANDS ------------   && ${Zone.ID}==${startTask}
 	/if (${Zone.ID} == ${Commonlands}) {
 		:getTaskCommon
-		/removelev
+		|-- /squelch /e3bcaa /removelev
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Periac Windfell
 			/declare RecruiterLoc string local ${Spawn[${Recruiter}].Y} ${Spawn[${Recruiter}].X} ${Spawn[${Recruiter}].Z}
@@ -1329,7 +1329,7 @@ Sub GetTask
 	|----------- BUTCHERBLOCK ------------
 	/if (${Zone.ID} == ${Butcherblock}) {
 		:getTaskButcher
-		/removelev
+		|-- /squelch /e3bcaa /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Xyzelauna Tu`Valzir
@@ -1353,7 +1353,7 @@ Sub GetTask
 	|----------- EVERFROST ------------
 	/if (${Zone.ID} == ${Everfrost}) {
 		:getTaskEFP
-		/removelev
+		|-- /squelch /e3bcaa /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Mannis McGuyett
@@ -1377,7 +1377,7 @@ Sub GetTask
 	|----------- SOUTH RO ------------  && ${Zone.ID}==${startTask}
 	/if (${Zone.ID} == ${SouthRo}) { 
 		:getTaskSRo
-		/removelev
+		|-- /squelch /e3bcaa /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Kallei Ribblok
@@ -1786,10 +1786,13 @@ Sub GotoTask
 			/if (${Me.XTarget[1].ID}) /call DoClearTargets
 			/echo \agEveryone is here. \ayGoing in to task...
 			/squelch /e3bcaa /removelev
+			/squelch /e3bcaa /dropinvis
 			/squelch /e3bcaa /doortarget
 			/delay 2s
 			/squelch /e3bcaa /click left door			
-			/removelev
+			/squelch /removelev
+			/squelch /dropinvis
+			/squelch /dropinvis
 			/doortarget
 			/delay 2s
 			/click left door
@@ -2061,7 +2064,7 @@ Sub GotoTask
 		/squelch /e3bca /doortarget GKPORTAL701
 		/delay 2s
 		/squelch /e3bca /click left door
-		/squelch/removelev
+		/squelch /removelev
 		/squelch /dropinvis
 		/squelch /doortarget GKPORTAL701
 		/delay 2s
@@ -3495,7 +3498,7 @@ Sub CheckInvis
 				/if (${Me.AltAbility[Shauri's Sonorous Clouding]}) {
 					/alt act ${Me.AltAbility[Shauri's Sonorous Clouding]}
 					/delay 5
-					/removelev
+					/squelch /removelev
 				} else /if (${FindItemCount[Cloudy Potion]}) {
 					/casting "Cloudy Potion|Item"
 				} else {
