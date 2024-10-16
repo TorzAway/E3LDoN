@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 16th, 2024 - 08:16:00 AM
+October 16th, 2024 - 10:59:00 AM
 
-v6.9.0
+v6.9.1
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -273,6 +273,8 @@ Added AutoSellInPok option.
 #Event BagsFull "#*#There was no place to put that#*#"
 #Event BagsFull "#*#There are no open slots for the held item in your inventory#*#"
 
+#Event BackOffNow "#*#Try attacking someone other than yourself, it's more productive#*#"
+
 #define /message "/echo \ay[\atE3LDoN\ay]\aw "
 
 #bind AddToIgnore /ignorethese
@@ -296,7 +298,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.9.0
+	/declare version			string		outer	6.9.1
 	
 	/message ==================================================================
  	/call Declares
@@ -5411,6 +5413,15 @@ Sub Event_Sealed_Off
 	  /call FinishAdventure
       /doevents flush MissionOver
   /return
+|--------------------------------------------------------  
+|--------------------------------------------------------
+  Sub Event_BackOffNow
+	  /popcustom 5 5 ### BACKING OFF ###
+	  /backoff
+      /doevents flush BackOffNow
+  /return  
+|--------------------------------------------------------  
+  
 |--------------------------------------------------------
 | --------------------------------------------------------------------------------------------
 | SECTION: -- Events   --   END
