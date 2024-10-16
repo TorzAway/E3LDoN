@@ -2893,7 +2893,7 @@ Sub DoSinglePull(string Enemy)
 	|-----------------------------------------
 	| CLEAR MY TARGET
 	|-----------------------------------------	
-	/if ((${Target.ID}!=${myTargetID}) || (${Me.Combat} && (${Target.Type.Equal[pc]} || ${Target.Type.Equal[pet]}))) {
+	/if (${Target.ID} || (${Target.ID}!=${myTargetID}) || (${Me.Combat} && (${Target.Type.Equal[pc]} || ${Target.Type.Equal[pet]}))) {
 		/squelch /target clear
 		/backoff
 		|-- /popcustom 18 5 ### BACKING OFF ###
