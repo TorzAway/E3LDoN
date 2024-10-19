@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 19th, 2024 - 09:29:00 AM
+October 19th, 2024 - 05:20:00 PM
 
-v6.9.7
+v7.0.0
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -258,6 +258,13 @@ E3LDON.mac v6.5 by Kroaking
 Major improvements to the Looting system. 
 Added AutoSellInPok option.
 
+E3LDON.mac v7.0.0 by Kroaking
+Complete revision of Single pull system to be in alignment with SwarmPull. 
+Now uses Mob location to nav to.
+OLD Combat system removed since E3 should handle all combat,
+now in alignment with using DoClearTargets sub like SwarmPull does.
+Cleaned up old code and INI call references for unused variables and procedures.
+
 ****************************************************************************************************************|
 #event Magical_Presence "strange magical presence"
 #event Sealed_Off "sealed off to you"
@@ -298,7 +305,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.9.7
+	/declare version			string		outer	7.0.0
 	
 	/message ==================================================================
  	/call Declares
@@ -553,12 +560,6 @@ Sub Declares
 	/call CheckIni ${Settings} General ThemeCheck bool TRUE
 	/call CheckIni ${Settings} General UseClickBuffs bool FALSE
 	/call CheckIni ${Settings} General UseClickDamage bool FALSE
-
-	/call CheckIni ${Settings} Group UseCWTN bool FALSE
-	/call CheckIni ${Settings} Group UseCWTNHunterTankMode bool FALSE
-	/call CheckIni ${Settings} Group UseKissAssist bool FALSE
-	/call CheckIni ${Settings} Group UseMuleAssist bool FALSE
-	/call CheckIni ${Settings} Group UseRGMercs bool FALSE
 	
 	/declare BRDTravelSong string  outer "Selo's Song of Travel"
 	/call CheckINI ${Settings} BardSong BRDMelodyName string base
@@ -691,7 +692,6 @@ Sub CheckThings
 	
 	/call CheckPlugin MQ2Nav
 	/call CheckMesh
-	/if (!${UseCWTNHunterTankMode}) /call CheckPlugin MQ2Melee
 	/call CheckPlugin MQ2Events
 	|-----------------------------
 	/if (${UseMq2Melee}) {
@@ -2161,7 +2161,10 @@ Sub SinglePullMove(string SinglePull_Loc)
 				/call CheckStuck
 				/delay 5
 			}
-			/squelch /e3bca /nav id ${Me.ID}
+			|----------------------------------------------------
+			| DO NOT CHANGE MOVEMENT METHOD FROM /NAV ID ${Me.ID}
+			|----------------------------------------------------
+			/squelch /e3bca /nav id ${Me.ID}			
 			/delay 5
 			|----------------------------------------------------------		
 
@@ -2980,7 +2983,7 @@ Sub DoSingleMob(string Enemy)
 		/call CheckStuck
 		/delay 5
 		/goto :navto
-	} else /if (!${Target.ID} || ${Target.ID} != ${myTargetID} && ${Target.ID} != ${Me.ID} && ${myTargetID} != 0 && !${Me.XTarget[1].ID}) {
+	} else /if (!${Target.ID} || ((${Target.ID}!=${myTargetID}) && (${Target.ID}!=${Me.ID}) && (${myTargetID}!=0) && !${Me.XTarget[1].ID})) {
 		/target id ${myTargetID}
 		/if (${Navigation.Active}) /nav stop
 	}
@@ -3094,7 +3097,7 @@ Sub Combat_OLD
 		/if (${Navigation.Active}) /squelch /nav stop
 		/stick uw loose moveback 8
 		|/setchattitle Killing ${Target.CleanName}
-		/if (${AssistMe} && !${UseCWTN} && !${UseRGMercs}) {
+		/if (${AssistMe}) {
 			/if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
 			/squelch /e3bcg /nav id ${Me.ID}
 			/squelch /e3bcg /target id ${Me.XTarget[1].ID}
@@ -3221,7 +3224,7 @@ Sub Combat_OLD
 			}
 		}
 		|----------------------
-        /if (${AssistMe} && !${UseCWTN} && !${UseRGMercs}) {
+        /if (${AssistMe}) {
             /if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
 			/squelch /e3bcg /nav id ${Me.ID}
             /squelch /e3bcg /target id ${Me.XTarget[1].ID}
@@ -3882,7 +3885,7 @@ Sub GMMode
 		/if (${UseBeep}) /beep
 		/popcustom 13 5 Warning! GMMode: GM is Present!
 		/message ==================================================================
-		/message \ar***** GM IN ZONE, PAUUSING MACRO *****\ax
+		/message \ar***** GM IN ZONE, PAUSING MACRO *****\ax
 		/message ==================================================================
 		/mqp
 
@@ -4279,9 +4282,13 @@ Sub WaitNav(NavTargetID)
 				|------  ALL GO TO TARGET - staggered
 				/varset courseCorrection ${courseCorrection.OriginalValue}
 			}
+			|----------------------------------
+			| Should group come to me on pulls. 
+			|----------------------------------
 			/if (${GroupNavToMe}) {
                 /call Group2Me
             }
+			|----------------------------------
 			/delay 10
 		} else {
 			/if (${Me.XTarget[1].ID}) {
@@ -4439,41 +4446,6 @@ Sub ReclaimAltDC
 /if (${Debugging}) /echo Sub ReclaimAltDC Exit
 
 /return
-| --------------------------------------------------------------------------------------------
-
-| --------------------------------------------------------------------------------------------
-|SUB: OpenInvWindow
-| --------------------------------------------------------------------------------------------
-  Sub OpenInvWindow
- /if (${Debugging}) /echo Sub OpenInvWindow Entry
-	/if (!${Window[InventoryWindow].Open}) {
-	:OpenInventoryWindow
-		/nomodkey /keypress inventory
-		/delay 5
-		/if (${Window[InventoryWindow].Open}) /echo Inventory Window (Open).
-		/if (!${Window[InventoryWindow].Open}) /goto :OpenInventoryWindow
-	}
- /if (${Debugging}) /echo Sub OpenInvWindow Exit
-  /return
-| --------------------------------------------------------------------------------------------		
-
-
-| --------------------------------------------------------------------------------------------
-|SUB: CloseInvWindow
-| --------------------------------------------------------------------------------------------
-  Sub CloseInvWindow
-  /if (${Debugging}) /echo Sub CloseInvWindow Entry
-
-	/if (${Window[InventoryWindow].Open}) {
-	:CloseInventoryWindow
-		/nomodkey /keypress inventory
-		/delay 5
-		/if (!${Window[InventoryWindow].Open}) /echo Inventory Window (Closed).
-		/if (${Window[InventoryWindow].Open}) /goto :CloseInventoryWindow
-	}
-	
-  /if (${Debugging}) /echo Sub CloseInvWindow Exit
-  /return
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
@@ -4735,6 +4707,40 @@ Sub ReclaimAltDC
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
+|SUB: OpenInvWindow
+| --------------------------------------------------------------------------------------------
+  Sub OpenInvWindow
+ /if (${Debugging}) /echo Sub OpenInvWindow Entry
+	/if (!${Window[InventoryWindow].Open}) {
+	:OpenInventoryWindow
+		/nomodkey /keypress inventory
+		/delay 5
+		/if (${Window[InventoryWindow].Open}) /echo Inventory Window (Open).
+		/if (!${Window[InventoryWindow].Open}) /goto :OpenInventoryWindow
+	}
+ /if (${Debugging}) /echo Sub OpenInvWindow Exit
+  /return
+| --------------------------------------------------------------------------------------------		
+
+| --------------------------------------------------------------------------------------------
+|SUB: CloseInvWindow
+| --------------------------------------------------------------------------------------------
+  Sub CloseInvWindow
+  /if (${Debugging}) /echo Sub CloseInvWindow Entry
+
+	/if (${Window[InventoryWindow].Open}) {
+	:CloseInventoryWindow
+		/nomodkey /keypress inventory
+		/delay 5
+		/if (!${Window[InventoryWindow].Open}) /echo Inventory Window (Closed).
+		/if (${Window[InventoryWindow].Open}) /goto :CloseInventoryWindow
+	}
+	
+  /if (${Debugging}) /echo Sub CloseInvWindow Exit
+  /return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
 | SUB: OpenPacks
 | --------------------------------------------------------------------------------------------
 	Sub OpenPacks
@@ -4749,7 +4755,6 @@ Sub ReclaimAltDC
 	/next bag
 	/return
 |--------------------------------------------------------------------------------------------
-
 
 | --------------------------------------------------------------------------------------------
 | SUB: ClosePacks
@@ -4766,7 +4771,6 @@ Sub ReclaimAltDC
 	/delay 3s !${Window[InventoryWindow].Open}
   /return
 |--------------------------------------------------------------------------------------------
-
 
 | --------------------------------------------------------------------------------------------
 | SUB: SetLoc
@@ -4962,65 +4966,6 @@ Sub MoveFwd
 	/keypress forward
 	/delay 1s
 /if (${Debugging}) /echo Sub MoveFwd Exit
-/return
-|--------------------------------------------------------
-
-|--------------------------------------------------------
-| GroupPlugin
-|--------------------------------------------------------
-Sub GroupPlugin
-	/if (${UseKissAssist}) {
-		/delay 30s
-		/if (${Debugging}) /echo Starting KissAssist if enabled
-		/squelch /e3bcg /mac kissassist ${Me.CleanName}
-		/echo \atWaiting a minute for KissAssist to load...
-		/delay 60s
-		/echo \agGet Ready!
-	}
-	/if (${UseRGMercs}) {
-		/delay 30s
-		/if (${Debugging}) /echo Starting RGMercs if enabled
-		/squelch /e3bcg /rgstart
-		/delay 5s
-		/squelch /e3bcg /rg chaseon
-		/echo \atWaiting a minute for RGMercs to load...
-		/delay 60s
-		/echo \agGet Ready!
-	}
-	/if (${UseCWTN}) {
-		/delay 30s
-		/if (${Debugging}) /echo Starting CWTN if enabled
-		/noparse /e3bcg /docommand /${Me.Class.ShortName} mode 2
-		/echo \atWaiting a minute for CWTN to load...
-		/delay 60s
-		/echo \agGet Ready!
-	}
-	/if (${UseMuleAssist}) {
-		/delay 30s
-		/if (${Debugging}) /echo Starting MuleAssist if enabled
-		/squelch /e3bcg /mac muleassist ${Me.CleanName} assist 98
-		/echo \atWaiting a minute for MuleAssist to load...
-		/delay 60s
-		/echo \agGet Ready!
-	}
-/return
-|--------------------------------------------------------
-
-|--------------------------------------------------------
-| EndGroupPlugin
-|--------------------------------------------------------
-Sub EndGroupPlugin
-	/if (${Debugging}) /echo Ending Group Plugin
-		/if (${UseKissAssist} || ${UseMuleAssist} || ${RGMercs}) {
-		/squelch /e3bcg /end
-		}
-		/if (${UseCWTN}) {
-			/noparse /e3bcg /docommand /${Me.Class.ShortName} mode 0
-		}
-		/if (${UseCWTNHunterTankMode}) {
-			/docommand /${Me.Class.ShortName} mode 0
-		}
-	/delay 15s
 /return
 |--------------------------------------------------------
 
