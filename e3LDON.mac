@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 16th, 2024 - 05:19:00 PM
+October 18th, 2024 - 09:02:00 PM
 
-v6.9.3
+v6.9.5
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -298,7 +298,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.9.3
+	/declare version			string		outer	6.9.5
 	
 	/message ==================================================================
  	/call Declares
@@ -306,9 +306,6 @@ Sub Main
 	/message \at${MacroName}.mac \aw- \atv${version} \awby \ag Kroaking
 	/message ==================================================================
 	/delay 1s		
-	
-	/squelch /e3bcg /multiline ; /followoff ; /nav stop ; /stand
-	/delay 5
 		
 	/call CheckThings	
 
@@ -398,55 +395,42 @@ Sub Main
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------
 			/while (!${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Left[2].NotEqual[${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Right[2]}]} || ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
-				
+
+				|-----------------------------------------------
+				| Before we Swarm pull ...   Check if we should loot Corpses.
+				/if (${LootCorpse} && !${Me.XTarget[1].ID}) /call CheckForCorpses
+				|-----------------------------------------------
+				|----------------------------
 				| -- Call check mission zone.
+				|----------------------------
 				/call CheckInADungeon
 				/if (${InADungeon}==1) /call DoSwarmPull
 				/call GMCheck			
 			}
+			|-----------------------------------
+			|-- WHILE !(killcount=totalkillcount||No time left)
+			|-----------------------------------			
 		} else {
 			/message ==================================================================
 			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \agSINGLE PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
 			/popcustom 15 5 ---> ABOUT TO SINGLE PULL . . . get ready! <---
 			/message ==================================================================
-			/delay 5s	
-			/varset PullRange ${CampRadius}		
-			|-----------
-			|No Load CWTN on RNG,WIZ,BRD,PAL,NEC,DRU
-			/if (${UseCWTNHunterTankMode} && ${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Left[2].NotEqual[${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Right[2]}]} || ${UseCWTNHunterTankMode} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
-					/if (${Select[${Me.Class.ShortName},NEC,DRU,PAL,RNG,WIZ,BRD]}) {
-						/echo \ayYour class does not have the option for a CWTN Plugin. Disable UseCWTNHunterTankMode and try again...
-						/end
-					}
-					/docommand /${Me.Class.ShortName} mode 8
-					/delay 30
-					/docommand /${Me.Class.ShortName} Radius 2500
-					/delay 30
-					/docommand /${Me.Class.ShortName} zRadius 250
-					/delay 5s
-			}
-			|-----------
+			/delay 5s
+			|-----------------------------------
+			|-- WHILE !(killcount=totalkillcount||No time left)
+			|-----------------------------------			
 			/while (!${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Left[2].NotEqual[${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Right[2]}]} || ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
-				/if (!${UseCWTNHunterTankMode} && ${Me.Combat} && ${Me.XTarget[1].ID} != ${myTargetID} && ${myTargetID} == ${Target.ID} && ${Target.PctHPs}>0 && !${Me.Moving}) /varcalc notkillable ${notkillable}+1
-				/if (${notkillable} >=20) /call Bind_PermIgnore
+
 				|-----------------------------------------------
-				| Before we single pull ...   Check if we should loot Corpses.
+				| Before we Single pull ...   Check if we should loot Corpses.
 				/if (${LootCorpse} && !${Me.XTarget[1].ID}) /call CheckForCorpses
 				|-----------------------------------------------
-				|-- Check I'm in the Dungeon!
+				|----------------------------
+				| -- Call check mission zone.
+				|----------------------------
 				/call CheckInADungeon
-				/if ((${InADungeon}==1) && (!${UseCWTNHunterTankMode})) /call DoSinglePull
-				/if ((${InADungeon}==1) && (!${UseCWTNHunterTankMode})) /Call DoClearTargets
-				/if (!${Me.Combat} && !${Me.XTarget[1].ID}) /call CheckMissionSuccess
+				/if (${InADungeon}==1) /call DoSinglePull
 				/call GMCheck
-			}
-			/if (${UseCWTNHunterTankMode}) {
-				/docommand /${Me.Class.ShortName} mode 0
-				/delay 30
-				/docommand /${Me.Class.ShortName} Radius 100
-				/delay 30
-				/docommand /${Me.Class.ShortName} zRadius 25
-				/delay 5s
 			}
 			|-----------------------------------
 			|-- WHILE !(killcount=totalkillcount||No time left)
@@ -485,6 +469,7 @@ Sub Declares
 	/declare MobIgnore			string 	outer E3LDoN_MobIgnored.ini
 	/declare Targets 			string 	outer
 	/declare myTargetID 		int 	outer 0
+	/declare myTargetIDLoc 		string 	outer 0
 	/declare reportTarget 		timer 	outer 5s
 	/declare startZone 			int 	outer ${Zone.ID}
 	/declare courseCorrection 	timer 	outer 1s
@@ -2140,6 +2125,72 @@ Sub CheckMissionSuccess
 | --------------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------------
+| SUB: SinglePullMove   Receive: SinglePull_Loc from TARGETSHORTEST
+| --------------------------------------------------------------------------------------------------
+Sub SinglePullMove(string SinglePull_Loc)
+
+	/if (${Debugging}) /echo Sub SinglePullMove Entry
+		
+	|----------------------------------------------------------------------------------------------
+		
+		|------------------------------------------
+		/if (!${Me.XTarget[1].ID} && ${CheckBots}) {
+			/call GroupDeathChk
+			/call GroupManaChk
+			/call GroupEndChk
+			/if (${UseMerc}) /call CheckMerc
+		}		
+		|------------------------------------------		
+		
+		|------------------------------------------
+		| Move group to me before next step
+		|------------------------------------------
+		/echo \at - Calling the group to me before moving to the next step . . . . 
+		/call GroupWait
+		/delay 1s
+		|------------------------------------------
+
+		|-----------------------------------------------
+		|/echo \arSinglePullMove: \ayTempSpawnPull_Loc=(${SinglePull_Loc})
+		|-----------------------------------------------
+		/if (${SinglePull_Loc.Length}>0) {
+			|--------------------------------------------------------------
+			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) {				
+				/squelch /nav loc ${SinglePull_Loc}
+				/delay 7
+				/squelch /e3bcga /nav loc ${SinglePull_Loc}
+			}
+			|--------------------------------------------------------------
+			/while (${Navigation.Active}) {
+				/call SetLoc
+				/call CheckStuck
+				/delay 5
+			}
+			/squelch /e3bca /nav id ${Me.ID}
+			/delay 5
+			|----------------------------------------------------------		
+
+			|---------------------------------------------------------------
+			| Use the DoClearTargets for SinglePull system instead, of COMBAT
+			|---------------------------------------------------------------
+			/call DoClearTargets
+			/doevents
+			/call CheckMissionSuccess
+			/delay 10
+		}
+		|-----------------------------------------------
+		| Before we go to next step ...   ECheck if we should loot Corpses.
+		/if (${LootCorpse} && !${Me.XTarget[1].ID}) /call CheckForCorpses
+		| Before we go to next step ...   EXIT the loop if we have mission success !
+		|-----------------------------------------------		
+	|/echo Completed all SinglePullMove steps.
+	|----------------------------------------------------------------------------------------------
+	/delay 10
+	/if (${Debugging}) /echo Sub SinglePullMove Exit
+/return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------------
 | SUB: SwarmPullStepMove   Receive: SpawnPull_Step from Go2LastSwarmLoc
 | --------------------------------------------------------------------------------------------------
 Sub SwarmPullStepMove(string SpawnPull_Step)
@@ -2500,6 +2551,7 @@ Sub DoSwarmPull
 	/echo \atLoading steps for: \ay[Eternal Affliction]\at.
 	|------------------------------------------------------
 	|  Define The Array Variables so the dungeon can be Run
+	|------------------------------------------------------
 	/echo \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}_6]}) {
 		/echo \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_6[1,8]\am]\ax
@@ -2806,14 +2858,33 @@ Sub FinishAdventure
 | --------------------------------------------------------------------------------------------
 | SUB: DoSinglePull
 | --------------------------------------------------------------------------------------------
-Sub DoSinglePull(string Enemy)
+Sub DoSinglePull
 	/if (${Debugging}) /echo DoSinglePull Sub Entry
+	
+	|-------------------
+	/call TargetShortest	
+	|/message \atMy Target: \ay[\ap${Spawn[id ${myTargetID}].Name}\ay] [\ap${myTargetIDLoc}\ay]
+	|-------------------	
+	
+	/call SinglePullMove ${myTargetIDLoc}
+	/delay 5
+	
+	/if (${Debugging}) /echo DoSinglePull Sub Exit
+/return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: DoSinglePull_OLD
+| --------------------------------------------------------------------------------------------
+Sub DoSinglePull_OLD(string Enemy)
+	/if (${Debugging}) /echo DoSinglePull_OLD Sub Entry
 	|-------------------------
 	/call CheckCasting
 	|-------------------------
 	/varset CampX ${Me.X}
 	/varset CampY ${Me.Y}
 	/varset CampZ ${Me.Z}
+	|--------------------
 	/if (${Bool[${Enemy}]}) {
 		/varset FarmMob ${Enemy}
 		/if (${Debugging} && !${reportTarget}) {
@@ -2825,9 +2896,11 @@ Sub DoSinglePull(string Enemy)
 		/varset reportTarget ${reportTarget.OriginalValue}
 		|--------------------
 		/if (${myTargetID} && !${Target.Type.Equal[Corpse]} && !${Target.Type.Equal[Pet]} && !${Target.Type.Equal[PC]}) {
-			/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
+			/if (${Spawn[id ${myTargetID}].Distance} > 30) /squelch /nav id ${Target.ID}
 			|--------------------
-			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
+			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Me.XTarget[1].ID}].Distance} < 30) {
+				/target ${Me.XTarget[1].ID}
+				/delay 5
 				/if (${Target.ID}) /face
 				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
@@ -2837,24 +2910,28 @@ Sub DoSinglePull(string Enemy)
 			}
 			|--------------------
 			/varcalc BackUpTimer (${BackUpTimer})+1
-				/if (${BackUpTimer}>7) {
-					/echo \ayHaving trouble getting to a target.. Attempting to get back on mesh.
-					/if (${Debugging}) /echo Setting BackUpTimer Plus 1
-					/call BackUp
-					/varset BackUpTimer 0
+			|--------------------
+			/if (${BackUpTimer}>7) {
+				/echo \ayHaving trouble getting to a target.. Attempting to get back on mesh.
+				/if (${Debugging}) /echo Setting BackUpTimer Plus 1
+				/call BackUp
+				/varset BackUpTimer 0
+			}
+			|--------------------
+			/if (${AssistMe}) {
+				/if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
+				/squelch /e3bcg /nav id ${Me.ID}
+				/squelch /e3bcg /target id ${Me.XTarget[1].ID}
+				/timed 10 /squelch /e3bcg /pet attack
+				/timed 15 /squelch /e3bcg /pet swarm
+				/timed 20 /squelch /e3bcg /assistme
+			}
+			|--------------------
 		}
 		|--------------------
-		/if (${AssistMe}) {
-			/if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
-			/squelch /e3bcg /nav id ${Me.ID}
-			/squelch /e3bcg /target id ${Me.XTarget[1].ID}
-			/timed 10 /squelch /e3bcg /pet attack
-			/timed 15 /squelch /e3bcg /pet swarm
-			/timed 20 /squelch /e3bcg /assistme
-		}
-		}
 
 	}
+	|--------------------
 	:findMob
 	/if (${Debugging}) /echo FindMob DoSinglePull
 	/if (${Target.Type.Equal[corpse]}) {
@@ -2867,40 +2944,42 @@ Sub DoSinglePull(string Enemy)
 		/call GroupManaChk
 		/call GroupEndChk
 	}
+	
 	/if (${Debugging}) /echo \aymyTargetID has an ID: ${Spawn[id ${myTargetID}].ID} - is a corpse: ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} - I have an XTarget: !${Me.XTarget[1].ID}
+	
+	|--------------------
 	/if (!${Spawn[id ${myTargetID}].ID} || ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) {
 		/echo \ay"Looking for a target!"
 		/varset myTargetID 0
+		
 		|-------------------
 		/call TargetShortest
+		/varset TempSpawnPull_Loc "${Spawn[id ${myTargetID}].Y} ${Spawn[id ${myTargetID}].X} ${Spawn[id ${myTargetID}].Z}"	
+		|-- /message \atMy Target: \ay[\ap${Spawn[id ${myTargetID}].Name}\ay] [\ap${TempSpawnPull_Loc}\ay]
 		|-------------------
-		/delay 1s
-		/echo \atMy Target: \ay[\ap${Spawn[id ${myTargetID}].Name}\ay]
+
 	} else {
 		/if (${Debugging}) /echo \ayI have an XTarget so I'm going to set that as my target.
-		/if (${Me.XTarget[1].ID}) {
+		|--------------------
+		/if (${Me.XTarget[1].ID} && ${Spawn[id ${Me.XTarget[1].ID}].Distance} < 30) {
 			/varset myTargetID ${Me.XTarget[1].ID}
-			|---------------------------------------
-			/if (${Debugging}) /echo CALL COMBAT
-			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) /call combat
-			/if (${Debugging}) /echo END CALL COMBAT
-			|---------------------------------------
+			/target ${Me.XTarget[1].ID}
+			/delay 5
+			/if (${Target.ID}) /face
+			/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
+			/squelch /attack on
+			/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) /pet attack
+			/doevents
+			/if (${UseClickDamage}) /call Clickies_Damage
 		}
+		|--------------------
 	}
+	|--------------------
+	
 	:navto
 	/if (${Debugging}) /echo DoSinglePull NAVTO
-	
-	|-----------------------------------------
-	| CLEAR MY TARGET
-	|-----------------------------------------	
-	/if (${Target.ID} || (${Target.ID}!=${myTargetID}) || (${Me.Combat} && (${Target.Type.Equal[pc]} || ${Target.Type.Equal[pet]}))) {
-		/squelch /target clear
-		/backoff
-		|-- /popcustom 18 5 ### BACKING OFF ###
-		/doevents flush BackOffNow
-	}
-	|-----------------------------------------
-	
+	/if (${Target.ID}) /squelch /target clear
+	|--------------------
 	/if (${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && ${PullRequiresLineOfSight} || ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[${myTargetID}].ID}) {
 			/squelch /target clear
@@ -2910,21 +2989,28 @@ Sub DoSinglePull(string Enemy)
 		/varset BackUpTimer 0
 		/echo \agNavigating to: \ay[\ap${Spawn[${myTargetID}].CleanName}\ay] \agID: \ay[\ap${myTargetID}\ay] \agDistance: \ay[\ap${Spawn[${myTargetID}].Distance}\ay]
 		/if (${Debugging}) /echo \ayNavigating to ${Spawn[${myTargetID}].Name} ID: ${myTargetID} Distance: ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},30]} - Line of Sight: ${Spawn[${myTargetID}].LineOfSight}
-		/call WaitNav ${myTargetID}
+		
+		|---------------------------
+		|/call WaitNav ${myTargetID}
+		/squelch /nav id ${myTargetID}
+		|/call SinglePullMove ${TempSpawnPull_Loc}
+		|---------------------------
+	
 		/delay 10
 		/if (${Debugging}) /echo Navigating to the enemy.
 		/call SetLoc
 		/call CheckStuck
 		/delay 5
 		/goto :navto
-	} else /if (!${Target.ID} || ((${Target.ID}!=${myTargetID}) && (${Target.ID}!=${Me.ID}) && (${myTargetID}!=0) && !${Me.XTarget[1].ID})) {
+	} else /if (!${Target.ID} || ${Target.ID} != ${myTargetID} && ${Target.ID} != ${Me.ID} && ${myTargetID} != 0 && !${Me.XTarget[1].ID}) {
 		/target id ${myTargetID}
 		/if (${Navigation.Active}) /nav stop
 	}
+	|--------------------
 	/delay 5
 	/docommand ${If[${PullAbilityRange}>30,/stop,/stick moveback uw 10]}
 	|-----------------------------------------------
-	/if (${Debugging}) /echo DoSinglePull Sub Exit
+	/if (${Debugging}) /echo DoSinglePull_OLD Sub Exit
 /return
 | --------------------------------------------------------------------------------------------
 
@@ -2932,11 +3018,11 @@ Sub DoSinglePull(string Enemy)
 | SUB: TargetShortest
 | --------------------------------------------------------------------------------------------
 Sub TargetShortest
+
 	/if (${Debugging}) /echo Sub TargetShortest Entry
 	/if (${UseClickBuffs}) /call Clickies_Buffs
 	/declare MobsInRadius 	int 	local 	${SpawnCount[npc noalert 1 targetable radius ${CampRadius} zradius ${ZRadius} alert 10]}
 	
-
 	|- Makes scanning in big zones super efficient.
 	/if (${MobsInRadius} > 5) {
 		/varset MobsInRadius 5
@@ -2969,16 +3055,18 @@ Sub TargetShortest
 		/if (${PathLength} > 0) {
 			/if (${PathCount}==1) {
 				/varset myTargetID ${MobID}
+				/varset myTargetIDLoc "${Spawn[id ${myTargetID}].Y} ${Spawn[id ${myTargetID}].X} ${Spawn[id ${myTargetID}].Z}"
 				/varset PathShortest ${PathLength}
 			} else /if (${PathLength} <= ${PathShortest}) {
 				/varset myTargetID ${MobID}
+				/varset myTargetIDLoc "${Spawn[id ${myTargetID}].Y} ${Spawn[id ${myTargetID}].X} ${Spawn[id ${myTargetID}].Z}"
 				/varset PathShortest ${PathLength}
 			}
 			/varcalc PathCount ${PathCount}+1 
 		}
 		
 		/next MobCounter
-		/if (${myTargetID}) /message \agPulling \ay[\ap${Spawn[${myTargetID}].CleanName}\ay] \agNPCID:\ay[\ap${myTargetID}\ay] \awat \ay[\at${PathShortest}\ay] \awfeet.
+		/if (${myTargetID}) /message \agPulling:\ay[\ap${Spawn[${myTargetID}].CleanName}\ay] \agNPCID:\ay[\ap${myTargetID}\ay] \ar| \awat \ay[\at${PathShortest}\ay] \awfeet \ar| \agLOC:\ay[\ap${Spawn[id ${myTargetID}].Y} ${Spawn[id ${myTargetID}].X} ${Spawn[id ${myTargetID}].Z}\ay]
 		/varset Announce FALSE
 		/varset notkillable 0
 	} else {
@@ -2995,26 +3083,29 @@ Sub TargetShortest
 		/if (${Me.XTarget}) /return
 	}
 	/delay 1
-	/if (${Debugging}) /echo Sub TargetShortest exit
+	
 	/varcalc BackUpTimer (${BackUpTimer})+1
 	/if (${Debugging}) /echo Setting BackUpTimer +1 to ${BackUpTimer}
 	/if (${Debugging} && ${BackUpTimer}>1) /echo \arCould Be Stuck ${BackUpTimer}
+	|-----------------------
 	/if (${BackUpTimer}>10) {
-	/echo \ayHaving trouble getting to a target.. Attempting to get back on mesh.
-	/if (${Debugging}) /echo Setting BackUpTimer Plus 1
-	/call BackUp
-	/varset BackUpTimer 0
+		/echo \ayHaving trouble getting to a target.. Attempting to get back on mesh.
+		/if (${Debugging}) /echo Setting BackUpTimer Plus 1
+		/call BackUp
+		/varset BackUpTimer 0
 	}
+	|-----------------------
 	/if (${Debugging}) /echo Sub TargetShortest Exit
 /return
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
-| SUB: Combat
+| SUB: Combat_OLD
 | --------------------------------------------------------------------------------------------
-Sub Combat
-	/if (${Debugging}) /echo Sub Combat Entry
-	/if (${Target.ID} && (${Target.Type.Equal[npc]} || ${Target.Type.Equal[pet]})) {
+Sub Combat_OLD
+	/if (${Debugging}) /echo Sub Combat_OLD Entry
+	
+	/if (${Target.ID} && ${Target.Type.Equal[npc]}) {
 		/if (${Navigation.Active}) /squelch /nav stop
 		/stick uw loose moveback 8
 		|/setchattitle Killing ${Target.CleanName}
@@ -3160,7 +3251,7 @@ Sub Combat
 		/goto :waitTillDead
 		/varset notkillable 0
 	}
-	/if (${Debugging}) /echo Sub Combat Exit
+	/if (${Debugging}) /echo Sub Combat_OLD Exit
 /return
 | --------------------------------------------------------------------------------------------
 
@@ -4157,12 +4248,11 @@ Sub NavToLoc2(int Y,int X,int Z)
 | --------------------------------------------------------------------------------------------
 Sub WaitNav(NavTargetID)
 	/if (${Debugging}) /echo \agEntering Sub WaitNav for ${Spawn[id ${NavTargetID}].Y} ${Spawn[id ${NavTargetID}].X} ${Spawn[id ${NavTargetID}].Z} at Line: ${Macro.CurLine}
-	
 	/if (!${Spawn[id ${NavTargetID}].ID}) {
 		/delay 5s
 		/return
 	}
-	/while ((${Spawn[id ${NavTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},30]}) || !${Spawn[${myTargetID}].LineOfSight}) {
+	/while (${Spawn[id ${NavTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},30]} || !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[id ${NavTargetID}].ID}) {
 			/delay 5s
 			/return
@@ -4190,12 +4280,12 @@ Sub WaitNav(NavTargetID)
 			/if (!${courseCorrection}) {
 				|------  ALL GO TO TARGET - staggered
 				/nav id ${NavTargetID}
-				/delay 10
-				/squelch /e3bca /nav id ${NavTargetID}				
+				/delay 5
+				/squelch /e3bca /nav id ${NavTargetID}
 				|------  ALL GO TO TARGET - staggered
 				/varset courseCorrection ${courseCorrection.OriginalValue}
 			}
-			/if (${GroupNavToMe} && (${Spawn[id ${NavTargetID}].Distance}<30)) {
+			/if (${GroupNavToMe}) {
                 /call Group2Me
             }
 			/delay 10
@@ -4234,7 +4324,6 @@ Sub WaitNav(NavTargetID)
 	/if (!${Target.CleanName.Equal[${Spawn[id ${NavTargetID}].CleanName}]} && ${Spawn[id ${NavTargetID}].ID} && !${Me.XTarget[1].ID}) {
 		/goto :target
 	}
-	
 	/if (${Debugging}) /echo Sub WaitNav Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -5444,7 +5533,7 @@ Sub Event_Sealed_Off
   Sub Event_BackOffNow
 	  /squelch /target clear
 	  /backoff
-	  |-- /popcustom 5 5 ### BACKING OFF ###
+	  /popcustom 5 5 ### BACKING OFF ###
       /doevents flush BackOffNow
   /return  
 |--------------------------------------------------------  
