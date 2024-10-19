@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 18th, 2024 - 09:02:00 PM
+October 19th, 2024 - 06:28:00 AM
 
-v6.9.5
+v6.9.6
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -298,7 +298,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	6.9.5
+	/declare version			string		outer	6.9.6
 	
 	/message ==================================================================
  	/call Declares
@@ -480,6 +480,8 @@ Sub Declares
 	/declare SitDelay 			timer 	outer 5s
 	/declare Endmac 			bool	outer FALSE
 	/declare BagsAreFull		bool 	outer FALSE
+	/declare CampRadius 		int 	outer 2500
+	/declare ZRadius 			int 	outer 500
 	
 	|** SPECIFIC of E3LDON.mac/SwarmPull & Theme type declares **|
 	|----------------------------------------------------------
@@ -533,49 +535,42 @@ Sub Declares
 	
 	|** SPECIFIC of E3LDON.mac/PullFarm.mac type declares **|
 	/call CheckINI ${Settings} General Debugging bool TRUE
-	/call CheckINI ${Settings} Camp CampRadius int 2500
-	/call CheckINI ${Settings} Pull ZRadius int 500
 	|** SPECIFIC of E3LDON.mac/PullFarm.mac type declares **|
 
 	/call CheckINI ${Settings} General AssistMe bool TRUE
-	/call CheckINI ${Settings} General UseMerc bool FALSE
-	/call CheckIni ${Settings} General CheckBots bool TRUE
+	/call CheckINI ${Settings} General AutoSellInPok bool FALSE
 	/call CheckINI ${Settings} General DoBurns bool FALSE
 	/call CheckINI ${Settings} General DoInvis bool TRUE	
-	/call CheckINI ${Settings} General HardMode bool FALSE
-	/call CheckINI ${Settings} General SwarmPull bool FALSE
 	/call CheckINI ${Settings} General GroupNavToMe bool TRUE
-	/call CheckIni ${Settings} General UseClickBuffs bool FALSE
-	/call CheckIni ${Settings} General UseClickDamage bool FALSE
-	/call CheckINI ${Settings} General UseMq2Melee bool FALSE
-	/call CheckIni ${Settings} General ThemeCheck bool TRUE
-	/call CheckIni ${Settings} General LootCorpse bool FALSE
+	/call CheckINI ${Settings} General HardMode bool FALSE
 	/call CheckINI ${Settings} General LootMethod string DCONLY
 	/call CheckINI ${Settings} General MinItemValue int 10
-	/call CheckINI ${Settings} General AutoSellInPok bool FALSE
+	/call CheckINI ${Settings} General SwarmPull bool FALSE
+	/call CheckINI ${Settings} General UseMerc bool FALSE
+	/call CheckINI ${Settings} General UseMq2Melee bool FALSE
+	/call CheckIni ${Settings} General CheckBots bool TRUE
+	/call CheckIni ${Settings} General LootCorpse bool FALSE
+	/call CheckIni ${Settings} General ThemeCheck bool TRUE
+	/call CheckIni ${Settings} General UseClickBuffs bool FALSE
+	/call CheckIni ${Settings} General UseClickDamage bool FALSE
 
-	/call CheckIni ${Settings} Group UseMuleAssist bool FALSE
-	/call CheckIni ${Settings} Group UseCWTNHunterTankMode bool FALSE
 	/call CheckIni ${Settings} Group UseCWTN bool FALSE
+	/call CheckIni ${Settings} Group UseCWTNHunterTankMode bool FALSE
 	/call CheckIni ${Settings} Group UseKissAssist bool FALSE
+	/call CheckIni ${Settings} Group UseMuleAssist bool FALSE
 	/call CheckIni ${Settings} Group UseRGMercs bool FALSE
 	
 	/declare BRDTravelSong string  outer "Selo's Song of Travel"
-	/call CheckINI ${Settings} BardSong BRDTravelSongSlot string 11
 	/call CheckINI ${Settings} BardSong BRDMelodyName string base
-	
-	/call CheckINI ${Settings} Pull PullAbility string ReplaceMeWithYourSkill
-	/call CheckINI ${Settings} Pull PullAbilityRange int 30
-	/call CheckINI ${Settings} Pull PullRequiresLineOfSight bool TRUE
-	/call CheckINI ${Settings} Pull UseCastSpells bool FALSE
+	/call CheckINI ${Settings} BardSong BRDTravelSongSlot string 11
 	
 	/call CheckINI ${Settings} Endurance MedEndAt int 8
 	/call CheckINI ${Settings} Endurance MedEndTill int 100
 	
+	/call CheckINI ${Settings} Mana BardMed bool TRUE
 	/call CheckINI ${Settings} Mana MedAt int 30
 	/call CheckINI ${Settings} Mana MedTill int 100
-	/call CheckINI ${Settings} Mana BardMed bool TRUE
-		
+			
 	/call CheckIni ${Settings} Alerts AFKGM bool TRUE
 	/call CheckIni ${Settings} Alerts UseBeep bool TRUE
 	
@@ -2874,10 +2869,10 @@ Sub DoSinglePull
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
-| SUB: DoSinglePull_OLD
+| SUB: DoSingleMob
 | --------------------------------------------------------------------------------------------
-Sub DoSinglePull_OLD(string Enemy)
-	/if (${Debugging}) /echo DoSinglePull_OLD Sub Entry
+Sub DoSingleMob(string Enemy)
+	/if (${Debugging}) /echo DoSingleMob Sub Entry
 	|-------------------------
 	/call CheckCasting
 	|-------------------------
@@ -2896,11 +2891,9 @@ Sub DoSinglePull_OLD(string Enemy)
 		/varset reportTarget ${reportTarget.OriginalValue}
 		|--------------------
 		/if (${myTargetID} && !${Target.Type.Equal[Corpse]} && !${Target.Type.Equal[Pet]} && !${Target.Type.Equal[PC]}) {
-			/if (${Spawn[id ${myTargetID}].Distance} > 30) /squelch /nav id ${Target.ID}
+			/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 			|--------------------
-			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Me.XTarget[1].ID}].Distance} < 30) {
-				/target ${Me.XTarget[1].ID}
-				/delay 5
+			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
 				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
@@ -2925,15 +2918,15 @@ Sub DoSinglePull_OLD(string Enemy)
 				/timed 10 /squelch /e3bcg /pet attack
 				/timed 15 /squelch /e3bcg /pet swarm
 				/timed 20 /squelch /e3bcg /assistme
-			}
+			}	
 			|--------------------
 		}
 		|--------------------
-
 	}
 	|--------------------
+	
 	:findMob
-	/if (${Debugging}) /echo FindMob DoSinglePull
+	/if (${Debugging}) /echo FindMob DoSingleMob
 	/if (${Target.Type.Equal[corpse]}) {
 		/if (${Target.ID} == ${myTargetID}) /varset myTargetID 0
 		/squelch /target clear
@@ -2944,43 +2937,34 @@ Sub DoSinglePull_OLD(string Enemy)
 		/call GroupManaChk
 		/call GroupEndChk
 	}
-	
 	/if (${Debugging}) /echo \aymyTargetID has an ID: ${Spawn[id ${myTargetID}].ID} - is a corpse: ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} - I have an XTarget: !${Me.XTarget[1].ID}
-	
-	|--------------------
 	/if (!${Spawn[id ${myTargetID}].ID} || ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) {
 		/echo \ay"Looking for a target!"
 		/varset myTargetID 0
-		
 		|-------------------
 		/call TargetShortest
-		/varset TempSpawnPull_Loc "${Spawn[id ${myTargetID}].Y} ${Spawn[id ${myTargetID}].X} ${Spawn[id ${myTargetID}].Z}"	
-		|-- /message \atMy Target: \ay[\ap${Spawn[id ${myTargetID}].Name}\ay] [\ap${TempSpawnPull_Loc}\ay]
+		|-- /message \atMy Target: \ay[\ap${Spawn[id ${myTargetID}].Name}\ay] [\ap${myTargetIDLoc}\ay]
 		|-------------------
-
+		/delay 1s
+		/echo \atMy Target: \ay[\ap${Spawn[id ${myTargetID}].Name}\ay]
 	} else {
 		/if (${Debugging}) /echo \ayI have an XTarget so I'm going to set that as my target.
-		|--------------------
-		/if (${Me.XTarget[1].ID} && ${Spawn[id ${Me.XTarget[1].ID}].Distance} < 30) {
+		|---------------------------------------
+		/if (${Me.XTarget[1].ID}) {
 			/varset myTargetID ${Me.XTarget[1].ID}
-			/target ${Me.XTarget[1].ID}
-			/delay 5
-			/if (${Target.ID}) /face
-			/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
-			/squelch /attack on
-			/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) /pet attack
-			/doevents
-			/if (${UseClickDamage}) /call Clickies_Damage
+			/if (${Debugging}) /echo CALL COMBAT
+			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) /call combat
+			/if (${Debugging}) /echo END CALL COMBAT			
 		}
-		|--------------------
+		|---------------------------------------
 	}
-	|--------------------
-	
 	:navto
-	/if (${Debugging}) /echo DoSinglePull NAVTO
+	/if (${Debugging}) /echo DoSingleMob NAVTO
 	/if (${Target.ID}) /squelch /target clear
-	|--------------------
-	/if (${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && ${PullRequiresLineOfSight} || ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && !${Spawn[${myTargetID}].LineOfSight}) {
+	|---------------
+	|/if (${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && ${PullRequiresLineOfSight} || ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},1]} && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && !${Spawn[${myTargetID}].LineOfSight}) {
+	|---------------
+	/if (${Spawn[${myTargetID}].Distance} > 30 && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID}) {
 		/if (!${Spawn[${myTargetID}].ID}) {
 			/squelch /target clear
 			/if (${Debugging}) /echo \ar My target ID was null, so I'm returning out of the sub.
@@ -2988,14 +2972,8 @@ Sub DoSinglePull_OLD(string Enemy)
 		}
 		/varset BackUpTimer 0
 		/echo \agNavigating to: \ay[\ap${Spawn[${myTargetID}].CleanName}\ay] \agID: \ay[\ap${myTargetID}\ay] \agDistance: \ay[\ap${Spawn[${myTargetID}].Distance}\ay]
-		/if (${Debugging}) /echo \ayNavigating to ${Spawn[${myTargetID}].Name} ID: ${myTargetID} Distance: ${Spawn[${myTargetID}].Distance} > ${If[${PullAbilityRange},${PullAbilityRange},30]} - Line of Sight: ${Spawn[${myTargetID}].LineOfSight}
-		
-		|---------------------------
-		|/call WaitNav ${myTargetID}
-		/squelch /nav id ${myTargetID}
-		|/call SinglePullMove ${TempSpawnPull_Loc}
-		|---------------------------
-	
+		/if (${Debugging}) /echo \ayNavigating to ${Spawn[${myTargetID}].Name} ID: ${myTargetID} Distance: ${Spawn[${myTargetID}].Distance} > 30 - Line of Sight: ${Spawn[${myTargetID}].LineOfSight}
+		/call WaitNav ${myTargetID}
 		/delay 10
 		/if (${Debugging}) /echo Navigating to the enemy.
 		/call SetLoc
@@ -3006,11 +2984,12 @@ Sub DoSinglePull_OLD(string Enemy)
 		/target id ${myTargetID}
 		/if (${Navigation.Active}) /nav stop
 	}
-	|--------------------
 	/delay 5
-	/docommand ${If[${PullAbilityRange}>30,/stop,/stick moveback uw 10]}
+	|---------------
+	|/docommand ${If[${PullAbilityRange}>30,/stop,/stick moveback uw 10]}
+	|---------------
 	|-----------------------------------------------
-	/if (${Debugging}) /echo DoSinglePull_OLD Sub Exit
+	/if (${Debugging}) /echo DoSingleMob Sub Exit
 /return
 | --------------------------------------------------------------------------------------------
 
@@ -4147,8 +4126,8 @@ Sub NavToLoc(int Y,int X,int Z)
 			/call GMCheck
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
-				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc
-				/call DoSinglePull
+				/if (${Debugging}) /echo CALL DoSingleMob NavToLoc
+				/call DoSingleMob
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
 				/if (${CheckBots}) /call GroupManaChk
@@ -4161,7 +4140,7 @@ Sub NavToLoc(int Y,int X,int Z)
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II
-				/call DoSinglePull
+				/call DoSingleMob
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
 			}
@@ -4268,7 +4247,7 @@ Sub WaitNav(NavTargetID)
 				/if (${Navigation.Active}) /nav stop
 				/varset NavTargetID ${Me.XTarget[1].ID}
 				/if (${Debugging}) /echo CALL FARM STUFF WaitNAV
-				/call DoSinglePull
+				/call DoSingleMob
 			} else {
 				/if (${Debugging}) /echo \ayWaitNav Moving
 				/if (${CheckBots}) /call GroupDeathChk
@@ -4294,8 +4273,8 @@ Sub WaitNav(NavTargetID)
 				/if (${Navigation.Active}) /nav stop
 				/e3bcga /target id ${Me.XTarget[1].ID}
 				/varset NavTargetID ${Me.XTarget[1].ID}
-				/if (${Debugging}) /echo CALL DoSinglePull WaitNav II
-				/call DoSinglePull
+				/if (${Debugging}) /echo CALL DoSingleMob WaitNav II
+				/call DoSingleMob
 			} else {
 				/varcalc BackUpTimer (${BackUpTimer})+1
 				/if (${BackUpTimer}>7) {
