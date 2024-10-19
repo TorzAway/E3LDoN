@@ -56,8 +56,12 @@ Tips: Set MQ2Nav window, Debug Tools, Door Handler Debug to 25.000 if you have i
 
 -----------------------------------------------------------------
 While the macro is running, To add mobs to ignore, target the mob and type
+
 /ignorethis -- temporarily ignores your current target
+
 /ignorethese -- temporarily ignores all targets with your current targets name
+
 /permignore -- permanently ignores all targets with your current targets name
+
 -----------------------------------------------------------------
 
