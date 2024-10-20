@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 20th, 2024 - 10:08:00 AM
+October 20th, 2024 - 10:25:00 AM
 
 v7.0.0
 
@@ -2151,26 +2151,34 @@ Sub SinglePullMove(string SinglePull_Loc)
 		|-----------------------------------------------
 		/if (${SinglePull_Loc.Length}>0) {
 			|--------------------------------------------------------------
-			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) {			
+			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) {
 				|-------------------------------------------------
 				|-- USE COMBAT AND AGRO AWARE NavToLoc2 MOVEMENT TO MOB LOCATION FOR SINGLE PULLS !!!
 				|-- USE /nav MOVEMENT TO MOB LOCATION FOR SWARM PULLS !!!
 				|------------------------------------------------------------------------------------
 				/if (${SwarmPull}) {
 					/squelch /nav loc ${SinglePull_Loc}
+					/delay 5
+					/while (${Navigation.Active}) {
+						/call SetLoc
+						/call CheckStuck
+						/delay 5
+					}
 				} else {
 					/call NavToLoc2 ${SinglePull_Loc}
+					/delay 5
+					/while (${Navigation.Active}) {
+						/call SetLoc
+						/call CheckStuck
+						/delay 5
+					}					
 				}
 				/delay 7
 				/squelch /e3bcga /nav loc ${SinglePull_Loc}				
-				|---------------------------------------------
+				|------------------------------------------------------------------------------------
 			}
 			|--------------------------------------------------------------
-			/while (${Navigation.Active}) {
-				/call SetLoc
-				/call CheckStuck
-				/delay 5
-			}
+			
 			|------------------------------------------------------------------
 			| DO NOT CHANGE MOVEMENT METHOD FROM /NAV ID ${Me.ID} FOR BOTS ~!!!
 			|------------------------------------------------------------------
@@ -2266,19 +2274,27 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 				|------------------------------------------------------------------------------------
 				/if (${SwarmPull}) {
 					/squelch /nav loc ${TempSpawnPull_Loc}
+					/delay 5
+					/while (${Navigation.Active}) {
+						/call SetLoc
+						/call CheckStuck
+						/delay 5
+					}
 				} else {
 					/call NavToLoc2 ${TempSpawnPull_Loc}
+					/delay 5
+					/while (${Navigation.Active}) {
+						/call SetLoc
+						/call CheckStuck
+						/delay 5
+					}					
 				}
 				/delay 7
 				/squelch /e3bcga /nav loc ${TempSpawnPull_Loc}				
-				|---------------------------------------------
+				|------------------------------------------------------------------------------------
 			}
 			|--------------------------------------------------------------
-			/while (${Navigation.Active}) {
-				/call SetLoc
-				/call CheckStuck
-				/delay 5
-			}
+
 			|------------------------------------------------------------------
 			| DO NOT CHANGE MOVEMENT METHOD FROM /NAV ID ${Me.ID} FOR BOTS ~!!!
 			|------------------------------------------------------------------
