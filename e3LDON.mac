@@ -3327,13 +3327,12 @@ Sub ResetBard
 | --------------------------------------------------------------------------------------------
 Sub CheckInvis
 	/if (${Debugging}) /echo Sub CheckInvis Entry
-	/if (!${Me.Combat} && !${Me.XTarget[1].ID}) /call Group2Me
 
 	/declare y 					int 	local	0
 
 	:CheckInvisNow
 	|------------
-	/call Group2Me
+	/if (!${Me.Combat} && !${Me.XTarget[1].ID}) /call Group2Me
 	|------------
 		
 	|-----------------------------	
