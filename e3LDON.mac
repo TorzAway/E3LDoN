@@ -4049,7 +4049,7 @@ Sub NavToLoc(int Y,int X,int Z)
 Sub NavToLoc2(int Y,int X,int Z)
 	/if (${Debugging}) /echo Entering Sub NavToLoc2 for ${Y} ${X} ${Z} at Line: ${Macro.CurLine}
 	/varset GroupWaitTimer 0
-	/echo \at -- NavToLoc2 \ay[\amNo Combat & Agro aware movement\ay] \atto \ay[\am${Y} ${X} ${Z}\ay]\at.
+	/echo \at -- NavToLoc2 \ay[\amCombat & Agro aware movement\ay] \atto \ay[\am${Y} ${X} ${Z}\ay]\at.
 	/while (${Math.Distance[${Me.Y}, ${Me.X}, ${Me.Z}: ${Y}, ${X}, ${Z}]} > 20) {
 		/if (${Navigation.Active}) {
 			/if (${Debugging}) /echo WaitNav Moving ELSE
