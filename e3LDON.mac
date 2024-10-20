@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 20th, 2024 - 08:31:00 AM
+October 20th, 2024 - 09:14:00 AM
 
-v7.0.2
+v7.0.0
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -305,7 +305,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.0.2
+	/declare version			string		outer	7.0.0
 	
 	/message ==================================================================
  	/call Declares
@@ -2151,16 +2151,19 @@ Sub SinglePullMove(string SinglePull_Loc)
 		|-----------------------------------------------
 		/if (${SinglePull_Loc.Length}>0) {
 			|--------------------------------------------------------------
-			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) {				
-				
+			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) {			
 				|-------------------------------------------------
-				|-- COMBAT AND AGRO AWARE MOVEMENT TO MOB LOCATION
-				|-------------------------------------------------
-				/call NavToLoc2 ${SinglePull_Loc}
-				|/squelch /nav loc ${SinglePull_Loc}
-				|---------------------------------------------
+				|-- USE COMBAT AND AGRO AWARE NavToLoc2 MOVEMENT TO MOB LOCATION FOR SINGLE PULLS !!!
+				|-- USE /nav MOVEMENT TO MOB LOCATION FOR SWARM PULLS !!!
+				|------------------------------------------------------------------------------------
+				/if (${SwarmPull}) {
+					/squelch /nav loc ${SinglePull_Loc}
+				} else {
+					/call NavToLoc2 ${SinglePull_Loc}
+				}
 				/delay 7
-				/squelch /e3bcga /nav loc ${SinglePull_Loc}
+				/squelch /e3bcga /nav loc ${SinglePull_Loc}				
+				|---------------------------------------------
 			}
 			|--------------------------------------------------------------
 			/while (${Navigation.Active}) {
@@ -2258,13 +2261,17 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 			|--------------------------------------------------------------
 			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) {
 				|-------------------------------------------------
-				|-- COMBAT AND AGRO AWARE MOVEMENT TO MOB LOCATION
-				|-------------------------------------------------
-				/call NavToLoc2 ${TempSpawnPull_Loc}
-				|/squelch /nav loc ${TempSpawnPull_Loc}
-				|-------------------------------------------------
+				|-- USE COMBAT AND AGRO AWARE NavToLoc2 MOVEMENT TO MOB LOCATION FOR SINGLE PULLS !!!
+				|-- USE /nav MOVEMENT TO MOB LOCATION FOR SWARM PULLS !!!
+				|------------------------------------------------------------------------------------
+				/if (${SwarmPull}) {
+					/squelch /nav loc ${TempSpawnPull_Loc}
+				} else {
+					/call NavToLoc2 ${TempSpawnPull_Loc}
+				}
 				/delay 7
-				/squelch /e3bcga /nav loc ${TempSpawnPull_Loc}
+				/squelch /e3bcga /nav loc ${TempSpawnPull_Loc}				
+				|---------------------------------------------
 			}
 			|--------------------------------------------------------------
 			/while (${Navigation.Active}) {
