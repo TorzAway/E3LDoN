@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-October 20th, 2024 - 10:25:00 AM
+Last Updated: October 24th, 2024 - 05:24:00 PM
 
-v7.0.0
+v7.0.1
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -305,7 +305,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.0.0
+	/declare version			string		outer	7.0.1
 	
 	/message ==================================================================
  	/call Declares
