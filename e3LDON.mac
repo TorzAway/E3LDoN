@@ -4434,7 +4434,7 @@ Sub ReclaimAltDC
 			/nomodkey /shift /itemnotify Loot${LootSlot} leftmouseup
 			/delay 1s ${Cursor.ID}
 			/if (${Window[QuantityWnd].Open}) /notify QuantityWnd QTYW_Accept_Button leftmouseup
-			/delay 5
+			/delay 1s
 
 			|----------------------------------------------------------------------------------------------
 			/varset CursorItemValueInPlat ${Math.Calc[${FindItem[=${Cursor.Name}].Value}/1000]}
@@ -4453,7 +4453,7 @@ Sub ReclaimAltDC
 				} else /if (${CursorItemValueInPlat}>${MinItemValue}) {
 					/echo \at+\ax \agKeeping a\ax \ay(\at${Cursor.Name}\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
 					/autoinventory 
-					/delay 5 !${Cursor.ID}
+					/delay 1s !${Cursor.ID}
 				}
 			}
 			|--------------------------------------------------------
@@ -4464,7 +4464,7 @@ Sub ReclaimAltDC
 			/if (${Cursor.ID}) {				
 				/echo \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar, that crap is woth less than \ay(\at${MinItemValue}\ay)\ar plat!\ax --(${CursorItemValueInPlat})--
 				/destroy
-				/delay 5 !${Cursor.ID}
+				/delay 1s !${Cursor.ID}
 			}
 			|--------------------------------------------------------
 		/doevents
