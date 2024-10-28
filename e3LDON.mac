@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: October 24th, 2024 - 05:24:00 PM
+Last Updated: October 28th, 2024 - 05:01:00 PM
 
-v7.0.1
+v7.0.2
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -305,7 +305,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.0.1
+	/declare version			string		outer	7.0.2
 	
 	/message ==================================================================
  	/call Declares
@@ -393,6 +393,9 @@ Sub Main
 		| ENGINE SELECT -- START
 		|----------------------------
 		/if (${SwarmPull})  {
+			|----- CHECK MISSION SUCCESS IF WE JUST RESTARTED MACRO ------------
+			/call CheckMissionSuccess
+			|----- CHECK MISSION SUCCESS IF WE JUST RESTARTED MACRO ------------
 			/message ==================================================================
 			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \arSWARM PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
 			/popcustom 13 5 ---> ABOUT TO SWARM PULL . . . get ready! <---
@@ -418,6 +421,9 @@ Sub Main
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------			
 		} else {
+			|----- CHECK MISSION SUCCESS IF WE JUST RESTARTED MACRO ------------
+			/call CheckMissionSuccess
+			|----- CHECK MISSION SUCCESS IF WE JUST RESTARTED MACRO ------------		
 			/message ==================================================================
 			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \agSINGLE PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
 			/popcustom 15 5 ---> ABOUT TO SINGLE PULL . . . get ready! <---
@@ -2116,6 +2122,7 @@ Sub CheckMissionSuccess
 			/call FinishAdventure
 		}
 		|-----------------------------------------------
+		
 	/if (${Debugging}) /echo Sub CheckMissionSuccess Exit
 /return
 | --------------------------------------------------------------------------------------------------
@@ -4382,6 +4389,9 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
+	|--------------------------------------------
+	/if (${Me.XTarget[1].ID}) /call DoClearTargets
+	|--------------------------------------------
 	/doevents
 	|-------------------------------------------------------------------------------------
 	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
@@ -4420,6 +4430,10 @@ Sub ReclaimAltDC
 
     /delay 2s ${Window[LootWnd].Open}
     /doevents
+	
+	|--------------------------------------------
+	/if (${Me.XTarget[1].ID}) /call DoClearTargets
+	|--------------------------------------------
 
 	|--------------------------------------
 	/if (!${Corpse.Items}) {
@@ -4468,6 +4482,9 @@ Sub ReclaimAltDC
 			}
 			|--------------------------------------------------------
 		/doevents
+		|--------------------------------------------
+		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		|--------------------------------------------
 		/next LootSlot
 		|---------------------------------------
     }
@@ -4475,6 +4492,9 @@ Sub ReclaimAltDC
 
   /notify LootWnd DoneButton leftmouseup
   /delay 2s !${Window[LootWnd].Open}
+  |--------------------------------------------
+  /if (${Me.XTarget[1].ID}) /call DoClearTargets
+  |--------------------------------------------
   /doevents
   |-------------------------------------------------------------------------------------
   /if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
