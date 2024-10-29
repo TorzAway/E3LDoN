@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: October 28th, 2024 - 05:01:00 PM
+Last Updated: October 29th, 2024 - 08:40:00 AM
 
-v7.0.2
+v7.0.3
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -305,7 +305,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.0.2
+	/declare version			string		outer	7.0.3
 	
 	/message ==================================================================
  	/call Declares
@@ -4385,7 +4385,17 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
-	/loot
+	|---------------------------------------
+	| -- HANDLE CONDITIONALY !
+	|---------------------------------------
+	/if (!${Me.XTarget[1].ID}) {
+		/loot
+	} else {
+		/call DoClearTargets
+	}
+	|---------------------------------------
+	| -- HANDLE CONDITIONALY !
+	|---------------------------------------
 	|---------------------------------------
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
@@ -4423,17 +4433,17 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
-	/loot
+	/if (!${Me.XTarget[1].ID}) {
+		/loot
+	} else {
+		/call DoClearTargets
+	}
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
 
     /delay 2s ${Window[LootWnd].Open}
     /doevents
-	
-	|--------------------------------------------
-	/if (${Me.XTarget[1].ID}) /call DoClearTargets
-	|--------------------------------------------
 
 	|--------------------------------------
 	/if (!${Corpse.Items}) {
