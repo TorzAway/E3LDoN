@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: October 29th, 2024 - 08:40:00 AM
+Last Updated: October 30th, 2024 - 11:21:00 AM
 
-v7.0.3
+v7.0.4
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -305,7 +305,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.0.3
+	/declare version			string		outer	7.0.4
 	
 	/message ==================================================================
  	/call Declares
@@ -1292,8 +1292,14 @@ Sub GetTask
 			}
 		}
 		|- Move to avoid getting trapped in a tent  onroute to task.
-		/squelch /e3bcaa /nav loc 2661.87 976.10 -20.15
-		/call GroupWait		
+		|---------------------------------------------
+		/echo \aoAvoiding tent obtacles at \at[\agNro Camp\at]
+		/if (${runcounter}==0) /squelch /e3bca /nav loc 2661.87 976.10 -20.15
+		/delay 5s
+		/call NavToLoc2 2661.87 976.10 -20.15
+		/call GroupWait
+		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		|---------------------------------------------		
 		/delay 5
 	}
 	|----------- NORTH RO ------------
