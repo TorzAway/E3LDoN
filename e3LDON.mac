@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: October 30th, 2024 - 02:10:00 PM
+Last Updated: November 1st, 2024 - 07:57:00 AM
 
-v7.0.5
+v7.0.6
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -305,7 +305,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.0.5
+	/declare version			string		outer	7.0.6
 	
 	/message ==================================================================
  	/call Declares
@@ -4051,7 +4051,7 @@ Sub NavToLoc(int Y,int X,int Z)
 	}
 	|-------------------------------------------------------------------------------
 	/delay 2s
-	|/if (${Navigation.Active}) /nav stop
+	/if (${Navigation.Active}) /nav stop
 	/if (${Debugging}) /echo Sub NavToLoc Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -4073,16 +4073,19 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc
+				|------  CALL GROUP TO ME To FIGHT
+				/call Group2Me
+				|------  CALL GROUP TO ME To FIGHT							
 				/target ${Me.XTarget[1].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 				/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
-				/if (${Target.ID}) /face
-				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
-				/squelch /attack on
-				/call DoClearTargets
-				/doevents
-				/if (${UseClickDamage}) /call Clickies_Damage
-			}
+					/if (${Target.ID}) /face
+					/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
+					/squelch /attack on
+					/call DoClearTargets
+					/doevents
+					/if (${UseClickDamage}) /call Clickies_Damage
+				}
 			} else {
 				/if (${Debugging}) /echo WaitNav Moving ELSE
 				/if (${CheckBots}) /call GroupDeathChk
@@ -4096,6 +4099,9 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II
+				|------  CALL GROUP TO ME To FIGHT
+				/call Group2Me
+				|------  CALL GROUP TO ME To FIGHT					
 				/target ${Me.XTarget[1].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 				/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
@@ -4116,7 +4122,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 		}
 	}
 	/delay 2s
-	|/if (${Navigation.Active}) /nav stop
+	/if (${Navigation.Active}) /nav stop
 	/if (${Debugging}) /echo Sub NavToLoc2 Exit
 /return
 | --------------------------------------------------------------------------------------------
