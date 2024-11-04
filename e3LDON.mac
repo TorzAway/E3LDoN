@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: November 1st, 2024 - 07:57:00 AM
+Last Updated: November 4th, 2024 - 03:43:00 PM
 
-v7.0.6
+v7.0.8
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -282,6 +282,8 @@ Cleaned up old code and INI call references for unused variables and procedures.
 
 #Event BackOffNow "#*#Try attacking someone other than yourself, it's more productive#*#"
 
+#event NavMeshReload "#*#Could not locate destination on navmesh#*#"
+
 #define /message "/echo \ay[\atE3LDoN\ay]\aw "
 
 #bind AddToIgnore /ignorethese
@@ -305,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.0.6
+	/declare version			string		outer	7.0.8
 	
 	/message ==================================================================
  	/call Declares
@@ -4072,17 +4074,19 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/call GMCheck
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
-				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc
-				|------  CALL GROUP TO ME To FIGHT
-				/call Group2Me
-				|------  CALL GROUP TO ME To FIGHT							
+				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc						
 				/target ${Me.XTarget[1].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 				/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
+					|------  CALL GROUP TO ME To FIGHT
+					/call Group2Me
+					|------  CALL GROUP TO ME To FIGHT					
 					/if (${Target.ID}) /face
 					/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 					/squelch /attack on
 					/call DoClearTargets
+					/call CheckForCorpses
+					/call CheckMissionSuccess
 					/doevents
 					/if (${UseClickDamage}) /call Clickies_Damage
 				}
@@ -4098,17 +4102,19 @@ Sub NavToLoc2(int Y,int X,int Z)
 		} else {
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
-				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II
-				|------  CALL GROUP TO ME To FIGHT
-				/call Group2Me
-				|------  CALL GROUP TO ME To FIGHT					
+				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II				
 				/target ${Me.XTarget[1].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 				/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
+				|------  CALL GROUP TO ME To FIGHT
+				/call Group2Me
+				|------  CALL GROUP TO ME To FIGHT					
 				/if (${Target.ID}) /face
 				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				/call DoClearTargets
+				/call CheckForCorpses
+				/call CheckMissionSuccess
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
 			}
@@ -5390,7 +5396,16 @@ Sub Event_Sealed_Off
       /doevents flush BackOffNow
   /return  
 |--------------------------------------------------------  
-  
+|--------------------------------------------------------
+  Sub Event_NavMeshReload
+	/echo \agReloading navmesh for zone: \ay(\am${Zone.Name}\ay)\ag on all toons.
+	/squelch /e3bcaa /nav reload
+	/delay 1s
+    /doevents flush NavMeshReload
+  /return  
+|-------------------------------------------------------- 
+
+ 
 |--------------------------------------------------------
 | --------------------------------------------------------------------------------------------
 | SECTION: -- Events   --   END
