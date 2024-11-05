@@ -2173,7 +2173,8 @@ Sub SinglePullMove(string SinglePull_Loc)
 				|------------------------------------------------------------------------------------
 				/if (${SwarmPull}) {
 					/squelch /nav loc ${SinglePull_Loc}
-					/delay 5
+					/delay 7
+					/squelch /e3bcga /nav loc ${SinglePull_Loc}	
 					/while (${Navigation.Active}) {
 						/call SetLoc
 						/call CheckStuck
