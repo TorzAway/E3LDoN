@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: November 5th, 2024 - 09:19:00 AM
+Last Updated: November 5th, 2024 - 12:01:00 PM
 
-v7.0.9
+v7.1.0
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.0.9
+	/declare version			string		outer	7.1.0
 	
 	/message ==================================================================
  	/call Declares
@@ -849,12 +849,20 @@ Sub GoPoKMagus
 	}
 	/call GroupWait
 	/delay 2s
-	/bark poknowledge
-		/delay 2s
-		/while (${Zone.ID} == ${TempleofMarr}) {
-			/delay 5s
-		}
-		/delay 20s
+
+	:BarkPoK
+	/if (${Target.CleanName.Equal[Klonopin]}) {
+		/e3bark poknowledge	
+	} else {
+		/squelch /e3bcaa /tar Klonopin
+		/delay 5
+		/goto :BarkPoK
+	}
+	/delay 2s
+	/while (${Zone.ID} == ${TempleofMarr}) {
+		/delay 5s
+	}
+	/delay 20s
 }
 |------------------------------
 |------------------------------
@@ -912,7 +920,14 @@ Sub GoPoKMagus
 		
 		/echo \ayHeaded to: \ar[\at${NextCamp_Bark}\ar]\ax
 		|--------------------------
-		/bark ${NextCamp_Bark}
+		:BarkMagus
+		/if (${Target.CleanName.Equal[Magus Alaria]}) {
+			/e3bark ${NextCamp_Bark}	
+		} else {
+			/squelch /e3bcaa /tar Magus Alaria
+			/delay 5
+			/goto :BarkMagus
+		}
 		|--------------------------
 		/delay 5s
 		/while (${Zone.ID} == ${PlaneofKnowledge}) {
