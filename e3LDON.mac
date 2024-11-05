@@ -2289,7 +2289,8 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 				|------------------------------------------------------------------------------------
 				/if (${SwarmPull}) {
 					/squelch /nav loc ${TempSpawnPull_Loc}
-					/delay 5
+					/delay 7
+					/squelch /e3bcga /nav loc ${TempSpawnPull_Loc}
 					/while (${Navigation.Active}) {
 						/call SetLoc
 						/call CheckStuck
