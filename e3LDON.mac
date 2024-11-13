@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: November 5th, 2024 - 12:01:00 PM
+Last Updated: November 13th, 2024 - 10:59:00 AM
 
-v7.1.0
+v7.1.1
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.1.0
+	/declare version			string		outer	7.1.1
 	
 	/message ==================================================================
  	/call Declares
@@ -2793,14 +2793,14 @@ Sub DoClearTargets
 		/delay 5
 		|/keypress º
 		/delay 5
-		/ClearTargets
+		/ClearTargets stick
 		:gotoloopkeepfighting
 		/if (${Me.Sitting}) /stand
 		/if (!${Target.ID} && ${Me.XTarget[1].ID}) {
 			/squelch /e3bca /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
-			/ClearTargets
+			/ClearTargets stick
 			/delay 20
 			/xtarget set 1 ${Me.Name}
 			/delay 3
@@ -2811,13 +2811,12 @@ Sub DoClearTargets
 			/squelch /e3bca /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
-			/ClearTargets
+			/ClearTargets stick
 			/keypress esc
 			/delay 20
 			}
 		/if (${Target.Type.Find[corpse]}) {
 			/keypress esc
-			/ClearTargets stick
 			}
 		/if (${Target.Distance.Int} > 20) /stick 15
 		|-------------------------------------------------------------------
