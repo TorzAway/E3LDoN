@@ -3011,7 +3011,7 @@ Sub DoSingleMob(string Enemy)
 	}
 	/if (${Debugging}) /echo \aymyTargetID has an ID: ${Spawn[id ${myTargetID}].ID} - is a corpse: ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} - I have an XTarget: !${Me.XTarget}
 	/if (!${Spawn[id ${myTargetID}].ID} || ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} && !${Me.XTarget} && !${Me.Casting.ID}) {
-		/message \ay"Looking for a target!"
+		/message \ayLooking for a target!
 		/varset myTargetID 0
 		|-------------------
 		/call TargetShortest_LDON
