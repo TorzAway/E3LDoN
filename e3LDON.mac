@@ -1,6 +1,6 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: January 3rd, 2025 - 09:11:00 PM
+Last Updated: January 3rd, 2025 - 09:33:00 PM
 
 v7.1.5
 
@@ -410,7 +410,7 @@ Sub Main
 
 				|-----------------------------------------------
 				| Before we Swarm pull ...   Check if we should loot Corpses.
-				/if (${LootCorpse} && !${Me.XTarget[1].ID}) /call CheckForCorpses
+				/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
 				|-----------------------------------------------
 				|----------------------------
 				| -- Call check mission zone.
@@ -438,7 +438,7 @@ Sub Main
 
 				|-----------------------------------------------
 				| Before we Single pull ...   Check if we should loot Corpses.
-				/if (${LootCorpse} && !${Me.XTarget[1].ID}) /call CheckForCorpses
+				/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
 				|-----------------------------------------------
 				|----------------------------
 				| -- Call check mission zone.
@@ -1315,7 +1315,7 @@ Sub GetTask
 		/delay 5s
 		/call NavToLoc2 2661.87 976.10 -20.15
 		/call GroupWait
-		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		/if (${Me.XTarget}) /call DoClearTargets
 		|---------------------------------------------		
 		/delay 5
 	}
@@ -1535,7 +1535,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait
-		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		/if (${Me.XTarget}) /call DoClearTargets
 		/if (${runcounter}==0) {
 			/squelch /e3bca /face heading 260
 			/delay 2s
@@ -1574,7 +1574,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			/squelch /e3bca /face heading 175
 			/delay 2s
 			/squelch /e3bca /keypress forward hold
@@ -1612,7 +1612,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -1652,7 +1652,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -1704,7 +1704,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -1749,13 +1749,13 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 				
 			|Go Inside Entrance Stage2
 			/squelch /e3bcaa /nav loc 2772.21 -4726.54 -97.27
 			/call NavToLoc2 2772.21 -4726.54 -97.27
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -1804,7 +1804,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			|---------------------------------------------
 			/message \agEveryone is here. \ayGoing in to task...
 			/squelch /e3bcaa /removelev
@@ -1849,7 +1849,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			|---------------------------------------------
 			/squelch /e3bcaa /tar Magus_Zeir
 			/delay 2s
@@ -1878,7 +1878,7 @@ Sub GotoTask
 			/delay 5s
 			/call NavToLoc2 -1470.44 1119.92 -23.86
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			|---------------------------------------------
 			/message \aoHeaded to \at[\aga cave\at]
 			/if (${runcounter}==0) /squelch /e3bca /nav loc -2131.66 1321.46 -75.30
@@ -1891,7 +1891,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			|---------------------------------------------
 			
 			/message \agEveryone is here. \ayGoing in to task...
@@ -1933,7 +1933,7 @@ Sub GotoTask
 		/if (${runcounter}==0) /squelch /e3bca /nav loc -1487.19 998.12 -23.84
 		/call NavToLoc2 -1487.19 998.12 -23.84
 		/call GroupWait
-		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		/if (${Me.XTarget}) /call DoClearTargets
 		|---------------------------------------------
 		/message \aoMoving to \at[\agInnothule Swamp\at]
 		/if (${runcounter}==0) /squelch /e3bca /nav loc -3190.48 1113.44 -24.93
@@ -1944,7 +1944,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait
-		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		/if (${Me.XTarget}) /call DoClearTargets
 		|---------------------------------------------
 		/squelch /e3bca /face heading 110
 		/delay 2s
@@ -1983,7 +1983,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget[1].ID}) /call DoClearTargets
+			/if (${Me.XTarget}) /call DoClearTargets
 			
 		    /message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -2026,7 +2026,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait
-		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		/if (${Me.XTarget}) /call DoClearTargets
 		
 		/message \aoMoving to \at[\agUpper Guk - Entrancet\at]
 		/if (${runcounter}==0) /squelch /e3bca /nav loc 142.63 -817.07 -6.21
@@ -2039,7 +2039,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait	
-		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		/if (${Me.XTarget}) /call DoClearTargets
 		
 		/squelch /e3bca /face heading 275
 		/delay 2s
@@ -2077,7 +2077,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait
-		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		/if (${Me.XTarget}) /call DoClearTargets
 		
 		/message \agEveryone is here. \ayGoing in to task...
 		/doevents
@@ -2160,7 +2160,7 @@ Sub SinglePullMove(string SinglePull_Loc)
 	|----------------------------------------------------------------------------------------------
 		
 		|------------------------------------------
-		/if (!${Me.XTarget[1].ID} && ${CheckBots}) {
+		/if (!${Me.XTarget} && ${CheckBots}) {
 			/call GroupDeathChk
 			/call GroupManaChk
 			/call GroupEndChk
@@ -2181,7 +2181,7 @@ Sub SinglePullMove(string SinglePull_Loc)
 		|-----------------------------------------------
 		/if (${SinglePull_Loc.Length}>0) {
 			|--------------------------------------------------------------
-			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) {
+			/if (!${Me.Combat} && !${Me.XTarget}) {
 				|-------------------------------------------------
 				|-- USE COMBAT AND AGRO AWARE NavToLoc2 MOVEMENT TO MOB LOCATION FOR SINGLE PULLS !!!
 				|-- USE /nav MOVEMENT TO MOB LOCATION FOR SWARM PULLS !!!
@@ -2227,7 +2227,7 @@ Sub SinglePullMove(string SinglePull_Loc)
 		}
 		|-----------------------------------------------
 		| Before we go to next step ...   ECheck if we should loot Corpses.
-		/if (${LootCorpse} && !${Me.XTarget[1].ID}) /call CheckForCorpses
+		/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
 		| Before we go to next step ...   EXIT the loop if we have mission success !
 		|-----------------------------------------------		
 	|/echo Completed all SinglePullMove steps.
@@ -2274,7 +2274,7 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 		|-----------------------------
 		
 		|------------------------------------------
-		/if (!${Me.XTarget[1].ID} && ${CheckBots}) {
+		/if (!${Me.XTarget} && ${CheckBots}) {
 			/call GroupDeathChk
 			/call GroupManaChk
 			/call GroupEndChk
@@ -2298,7 +2298,7 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 			|--------------------------------------------------------------
 			|/echo \agARRAY RETURNED DATA for step \ay[${x}]\ag: TempSpawnPull_Loc=(\am${TempSpawnPull_Loc})
 			|--------------------------------------------------------------
-			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) {
+			/if (!${Me.Combat} && !${Me.XTarget}) {
 				|-------------------------------------------------
 				|-- USE COMBAT AND AGRO AWARE NavToLoc2 MOVEMENT TO MOB LOCATION FOR SINGLE PULLS !!!
 				|-- USE /nav MOVEMENT TO MOB LOCATION FOR SWARM PULLS !!!
@@ -2351,7 +2351,7 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 		}
 		|-----------------------------------------------
 		| Before we go to next step ...   ECheck if we should loot Corpses.
-		/if (${LootCorpse} && !${Me.XTarget[1].ID}) /call CheckForCorpses
+		/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
 		| Before we go to next step ...   EXIT the loop if we have mission success !
 		|-----------------------------------------------
 		
@@ -2789,14 +2789,14 @@ Sub DoSwarmPull
 | --------------------------------------------------------------------------------------------
 Sub DoClearTargets
 	/if (${Debugging}) /echo Sub DoClearTargets Entry
-	/if (${Me.XTarget[1].ID} || ${Target.ID}) {
+	/if (${Me.XTarget} || ${Target.ID}) {
 		/delay 5
 		|/keypress º
 		/delay 5
 		/ClearTargets stick
 		:gotoloopkeepfighting
 		/if (${Me.Sitting}) /stand
-		/if (!${Target.ID} && ${Me.XTarget[1].ID}) {
+		/if (!${Target.ID} && ${Me.XTarget}) {
 			/squelch /e3bca /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
@@ -2856,7 +2856,7 @@ Sub DoClearTargets
             /goto :gotoloopkeepfighting
         }
 		|-------------------------------------------------------------------
-		/if (${Me.XTarget[1].ID} || ${Target.ID}) /goto :gotoloopkeepfighting
+		/if (${Me.XTarget} || ${Target.ID}) /goto :gotoloopkeepfighting
 	}
 	/delay 20
 	/if (${Debugging}) /echo Sub DoClearTargets Exit
@@ -2909,7 +2909,7 @@ Sub FinishAdventure
 	
 	|-----------------------------------------------
 	| Before we leave ...   Check if we should loot Corpses.
-	/if (${LootCorpse} && !${Me.XTarget[1].ID}) /call CheckForCorpses
+	/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
 	|-----------------------------------------------	
 	
 	| -- *** --
@@ -2965,7 +2965,7 @@ Sub DoSingleMob(string Enemy)
 		/if (${myTargetID} && !${Target.Type.Equal[Corpse]} && !${Target.Type.Equal[Pet]} && !${Target.Type.Equal[PC]}) {
 			/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 			|--------------------
-			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
+			/if (${Me.XTarget} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
 				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
@@ -2986,7 +2986,7 @@ Sub DoSingleMob(string Enemy)
 			/if (${AssistMe}) {
 				/if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
 				/squelch /e3bcg /nav id ${Me.ID}
-				/squelch /e3bcg /target id ${Me.XTarget[1].ID}
+				/squelch /e3bcg /target id ${Me.XTarget}
 				/timed 10 /squelch /e3bcg /pet attack
 				/timed 15 /squelch /e3bcg /pet swarm
 				/timed 20 /squelch /e3bcg /assistme
@@ -3004,13 +3004,13 @@ Sub DoSingleMob(string Enemy)
 		/squelch /target clear
 	}
 	/if (${Window[RespawnWnd].Open}) /call GroupDeathChk
-	/if (!${Me.XTarget[1].ID} && ${CheckBots}) {
+	/if (!${Me.XTarget} && ${CheckBots}) {
 		/call GroupDeathChk
 		/call GroupManaChk
 		/call GroupEndChk
 	}
-	/if (${Debugging}) /echo \aymyTargetID has an ID: ${Spawn[id ${myTargetID}].ID} - is a corpse: ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} - I have an XTarget: !${Me.XTarget[1].ID}
-	/if (!${Spawn[id ${myTargetID}].ID} || ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} && !${Me.XTarget[1].ID} && !${Me.Casting.ID}) {
+	/if (${Debugging}) /echo \aymyTargetID has an ID: ${Spawn[id ${myTargetID}].ID} - is a corpse: ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} - I have an XTarget: !${Me.XTarget}
+	/if (!${Spawn[id ${myTargetID}].ID} || ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} && !${Me.XTarget} && !${Me.Casting.ID}) {
 		/message \ay"Looking for a target!"
 		/varset myTargetID 0
 		|-------------------
@@ -3022,10 +3022,10 @@ Sub DoSingleMob(string Enemy)
 	} else {
 		/if (${Debugging}) /echo \ayI have an XTarget so I'm going to set that as my target.
 		|---------------------------------------
-		/if (${Me.XTarget[1].ID}) {
-			/varset myTargetID ${Me.XTarget[1].ID}
+		/if (${Me.XTarget}) {
+			/varset myTargetID ${Me.XTarget}
 			/if (${Debugging}) /echo CALL DoClearTargets
-			/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) /call DoClearTargets
+			/if (${Me.XTarget} && ${Spawn[id ${Target.ID}].Distance} < 30) /call DoClearTargets
 			/if (${Debugging}) /echo END CALL DoClearTargets			
 		}
 		|---------------------------------------
@@ -3033,7 +3033,7 @@ Sub DoSingleMob(string Enemy)
 	:navto
 	/if (${Debugging}) /echo DoSingleMob NAVTO
 	/if (${Target.ID}) /squelch /target clear
-	/if (${Spawn[${myTargetID}].Distance} > 30 && !${Target.Type.Equal[corpse]} && !${Me.XTarget[1].ID} && !${Spawn[${myTargetID}].LineOfSight}) {
+	/if (${Spawn[${myTargetID}].Distance} > 30 && !${Target.Type.Equal[corpse]} && !${Me.XTarget} && !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[${myTargetID}].ID}) {
 			/squelch /target clear
 			/if (${Debugging}) /echo \ar My target ID was null, so I'm returning out of the sub.
@@ -3049,7 +3049,7 @@ Sub DoSingleMob(string Enemy)
 		/call CheckStuck
 		/delay 5
 		/goto :navto
-	} else /if (!${Target.ID} || ((${Target.ID}!=${myTargetID}) && (${Target.ID}!=${Me.ID}) && (${myTargetID}!=0) && !${Me.XTarget[1].ID})) {
+	} else /if (!${Target.ID} || ((${Target.ID}!=${myTargetID}) && (${Target.ID}!=${Me.ID}) && (${myTargetID}!=0) && !${Me.XTarget})) {
 		/target id ${myTargetID}
 		/if (${Navigation.Active}) /nav stop
 	}
@@ -3247,7 +3247,7 @@ Sub Zoning
 	|---------------------------------------------
 	| Cleartargets if I have agro on zoning.
 	|---------------------------------------------
-	/if (${Me.XTarget[1].ID}) /Call DoClearTargets
+	/if (${Me.XTarget}) /Call DoClearTargets
 	/call Refresh
 	/if (${Debugging}) /echo Sub Zoning Exit
 /return
@@ -3259,7 +3259,7 @@ Sub Zoning
 Sub GroupWait
 /if (${Debugging}) /echo Sub GroupWait Entry
 :WaitForGroup
-/if (${Me.XTarget[1].ID}) {
+/if (${Me.XTarget}) {
 	/if (${Navigation.Active}) /nav stop
 	/call Group2Me
 	/call DoClearTargets
@@ -3363,7 +3363,7 @@ Sub CheckInvis
 
 	:CheckInvisNow
 	|------------
-	/if (!${Me.Combat} && !${Me.XTarget[1].ID}) /call Group2Me
+	/if (!${Me.Combat} && !${Me.XTarget}) /call Group2Me
 	|------------
 		
 	|-----------------------------	
@@ -3809,7 +3809,7 @@ Sub GroupDeathChk
 		|----------
 	}
 	|--- If ImDead
-	/if (${Me.XTarget[1].ID}) /return
+	/if (${Me.XTarget}) /return
 	|--- If Group --
 	/if (${Group}) {
 		/declare i int local
@@ -3819,9 +3819,9 @@ Sub GroupDeathChk
 			/if (${Group.Member[${i}].State.Equal[DEAD]} ) {
 				/message ${Group.Member[${i}].Name} has died. Waiting for them to get off their face.
 				|------   If No Target ID
-				/if (!${Me.XTarget[1].ID}) {
+				/if (!${Me.XTarget}) {
 					|----------------------------------
-					/while (${Group.Member[${i}].State.Equal[DEAD]} && !${Me.XTarget[1].ID}) {
+					/while (${Group.Member[${i}].State.Equal[DEAD]} && !${Me.XTarget}) {
 						/call GMCheck
 						/if ((${Me.Standing}) && (!${Me.Casting.ID}) && (!${Me.Mount.ID})) /sit
 						/beep
@@ -3846,7 +3846,7 @@ Sub GroupDeathChk
 | --------------------------------------------------------------------------------------------
 Sub GroupManaChk
 	/if (${Debugging}) /echo Sub GroupManaChk Entry
-	/if (${Me.XTarget[1].ID}) /return
+	/if (${Me.XTarget}) /return
 
 	|------------------- If NoCombat
 	/if (!${Me.Combat}) {
@@ -3856,9 +3856,9 @@ Sub GroupManaChk
 			/message \arYOU are low on mana!
 			/call Group2Me
 			|------   If No Target ID
-			/if (!${Me.XTarget[1].ID}) {
+			/if (!${Me.XTarget}) {
 				|--------------------------------------
-				/while ((${Me.PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]} && !${Select[${Me.Class.ShortName},WAR,BER,ROG,MNK,BRD]}) || (${BardMed} && ${Me.PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
+				/while ((${Me.PctMana} < ${MedTill} && !${Me.XTarget} && !${Me.State.Equal[DEAD]} && !${Select[${Me.Class.ShortName},WAR,BER,ROG,MNK,BRD]}) || (${BardMed} && ${Me.PctMana} < ${MedTill} && !${Me.XTarget} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 					/message \agYour \am[\atMana\am]\ag is currently at \am[\at${Me.PctMana}\am]\ag%, medding to \am[\at${MedTill}\am]\ag%.
 					/call GMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
@@ -3885,9 +3885,9 @@ Sub GroupManaChk
 					|----
 					/call Refresh
 					|------   If No Target ID
-					/if (!${Me.XTarget[1].ID}) {
+					/if (!${Me.XTarget}) {
 						|--------------------------------------
-						/while ((${Group.Member[${i}].PctMana} < ${MedTill} && ${Group.Member[${i}].Class.CanCast} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && !${Select[${Group.Member[${i}].Class.ShortName},BRD,WAR,MNK,BER,ROG]}) || (${BardMed} && ${Group.Member[${i}].PctMana} < ${MedTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
+						/while ((${Group.Member[${i}].PctMana} < ${MedTill} && ${Group.Member[${i}].Class.CanCast} && !${Me.XTarget} && !${Group.Member[${i}].State.Equal[DEAD]} && !${Select[${Group.Member[${i}].Class.ShortName},BRD,WAR,MNK,BER,ROG]}) || (${BardMed} && ${Group.Member[${i}].PctMana} < ${MedTill} && !${Me.XTarget} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 							/message \ag${Group.Member[${i}].CleanName}'s \am[\atMana\am]\ag is currently at \am[\at${Group.Member[${i}].PctMana}\am]\ag%, medding to \am[\at${MedTill}\am]\ag%.
 							/call GMCheck
 							/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
@@ -3920,7 +3920,7 @@ Sub GroupManaChk
 | --------------------------------------------------------------------------------------------
 Sub GroupEndChk
 	/if (${Debugging}) /echo Sub GroupEndChk Entry
-	/if (${Me.XTarget[1].ID}) /return
+	/if (${Me.XTarget}) /return
 
 	|------------------- If NoCombat
 	/if (!${Me.Combat}) {
@@ -3930,9 +3930,9 @@ Sub GroupEndChk
 			/message \arYOU are low on Endurance!
 			/call Group2Me
 			|------   If No Target ID
-			/if (!${Me.XTarget[1].ID}) {
+			/if (!${Me.XTarget}) {
 				|--------------------------------------
-				/while ((${Me.PctEndurance} < ${MedEndTill} && !${Me.XTarget[1].ID} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Me.PctEndurance} < ${MedEndAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
+				/while ((${Me.PctEndurance} < ${MedEndTill} && !${Me.XTarget} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Me.PctEndurance} < ${MedEndAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 					/message \agYour \am[\atEndurance\am]\ag is currently at \am[\at${Me.PctEndurance}\am]\ag%, medding to \am[\at${MedEndTill}\am]\ag%.
 					/call GMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
@@ -3960,9 +3960,9 @@ Sub GroupEndChk
 						/squelch /e3bct ${Group.Member[${i}].CleanName} /sit
 						/call Refresh
 						|------   If No Target ID
-						/if (!${Me.XTarget[1].ID}) {
+						/if (!${Me.XTarget}) {
 							|---------------------------------------
-							/while ((${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget[1].ID} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
+							/while ((${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 								/message \ag${Group.Member[${i}].CleanName}'s \am[\atEndurance\am]\ag is currently at \am[\at${Group.Member[${i}].PctEndurance}\am]\ag%, medding to \am[\at${MedEndTill}\am]\ag%.
 								/call GMCheck
 								/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
@@ -4002,7 +4002,7 @@ Sub CheckMerc
 		/message Your mercenary has died. Waiting to be able to revive them. 
 		:waitForMerc
 		/if (${Group} && ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Tooltip.Equal[Revive your current mercenary.]} && ${Window[MMGW_ManageWnd].Child[MMGW_SuspendButton].Enabled}) /notify MMGW_ManageWnd MMGW_SuspendButton leftmouseup
-		/if (${Mercenary.State.Equal[DEAD]} && !${Me.XTarget[1].ID}) /goto :waitForMerc
+		/if (${Mercenary.State.Equal[DEAD]} && !${Me.XTarget}) /goto :waitForMerc
 		
 	}
 	/varset MercClass ${Mercenary.Class}
@@ -4040,7 +4040,7 @@ Sub NavToLoc(int Y,int X,int Z)
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
 			/call GMCheck
-			/if (${Me.XTarget[1].ID}) {
+			/if (${Me.XTarget}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL DoSingleMob NavToLoc
 				/call DoSingleMob
@@ -4050,18 +4050,18 @@ Sub NavToLoc(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupEndChk
 				/call GMCheck
 			}
-			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
+			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/delay 10
 		} else {
-			/if (${Me.XTarget[1].ID}) {
+			/if (${Me.XTarget}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II
 				/call DoSingleMob
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
 			}
-			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
-			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) /call Group2Me
+			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
+			/if (!${Me.Combat} && !${Me.XTarget}) /call Group2Me
 			/if (!${Me.Moving}) /squelch /e3bcgza /nav loc ${Y} ${X} ${Z}
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
@@ -4088,13 +4088,13 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
 			/call GMCheck
-			/if (${Me.XTarget[1].ID}) {
+			/if (${Me.XTarget}) {
 				/popcustom 13 5 ---> GOT AGGRO ON ROUTE <---
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc						
-				/target ${Me.XTarget[1].ID}
+				/target ${Me.XTarget}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-				/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
+				/if (${Me.XTarget} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 					|------  CALL GROUP TO ME To FIGHT
 					/call Group2Me
 					|------  CALL GROUP TO ME To FIGHT					
@@ -4114,16 +4114,16 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupEndChk
 				/call GMCheck
 			}
-			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
+			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/delay 10
 		} else {
-			/if (${Me.XTarget[1].ID}) {
+			/if (${Me.XTarget}) {
 				/popcustom 13 5 ---> GOT AGGRO ON ROUTE <---
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II				
-				/target ${Me.XTarget[1].ID}
+				/target ${Me.XTarget}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-				/if (${Me.XTarget[1].ID} && ${Spawn[id ${Target.ID}].Distance} < 30) {
+				/if (${Me.XTarget} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				|------  CALL GROUP TO ME To FIGHT
 				/call Group2Me
 				|------  CALL GROUP TO ME To FIGHT					
@@ -4139,8 +4139,8 @@ Sub NavToLoc2(int Y,int X,int Z)
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
 			}
-			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
-			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /e3bcgza /nav loc ${Y} ${X} ${Z}
+			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
+			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget}) /squelch /e3bcgza /nav loc ${Y} ${X} ${Z}
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
@@ -4173,9 +4173,9 @@ Sub WaitNav(NavTargetID)
 			/call SetLoc
 			/call CheckStuck
 			/call GMCheck
-			/if (${Me.XTarget[1].ID}) {
+			/if (${Me.XTarget}) {
 				/if (${Navigation.Active}) /nav stop
-				/varset NavTargetID ${Me.XTarget[1].ID}
+				/varset NavTargetID ${Me.XTarget}
 				/if (${Debugging}) /echo CALL FARM STUFF WaitNAV
 				/call DoSingleMob
 			} else {
@@ -4185,7 +4185,7 @@ Sub WaitNav(NavTargetID)
 				/if (${CheckBots}) /call GroupEndChk
 				/call GMCheck
 			}
-			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
+			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/if (!${courseCorrection}) {
 				|------  ALL GO TO TARGET - staggered
 				/nav id ${NavTargetID}
@@ -4203,10 +4203,10 @@ Sub WaitNav(NavTargetID)
 			|----------------------------------
 			/delay 10
 		} else {
-			/if (${Me.XTarget[1].ID}) {
+			/if (${Me.XTarget}) {
 				/if (${Navigation.Active}) /nav stop
-				/e3bcgza /target id ${Me.XTarget[1].ID}
-				/varset NavTargetID ${Me.XTarget[1].ID}
+				/e3bcgza /target id ${Me.XTarget}
+				/varset NavTargetID ${Me.XTarget}
 				/if (${Debugging}) /echo CALL DoSingleMob WaitNav II
 				/call DoSingleMob
 			} else {
@@ -4217,8 +4217,8 @@ Sub WaitNav(NavTargetID)
 					/call BackUp
 					/varset BackUpTimer 0
 					/varset NavTargetID 0
-					/if (${Me.XTarget[1].ID}) {
-						/varset NavTargetID ${Me.XTarget[1].ID}
+					/if (${Me.XTarget}) {
+						/varset NavTargetID ${Me.XTarget}
 					}
 				}
 				/if (${Debugging}) /echo WaitNav Moving ELSE
@@ -4226,7 +4226,7 @@ Sub WaitNav(NavTargetID)
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
 			}
-			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
+			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/squelch /nav id ${NavTargetID}
 		}
 	}
@@ -4234,7 +4234,7 @@ Sub WaitNav(NavTargetID)
 	:target
 	/target id ${NavTargetID}
 	/delay 2s ${Target.CleanName.Equal[${Spawn[id ${NavTargetID}].CleanName}]}
-	/if (!${Target.CleanName.Equal[${Spawn[id ${NavTargetID}].CleanName}]} && ${Spawn[id ${NavTargetID}].ID} && !${Me.XTarget[1].ID}) {
+	/if (!${Target.CleanName.Equal[${Spawn[id ${NavTargetID}].CleanName}]} && ${Spawn[id ${NavTargetID}].ID} && !${Me.XTarget}) {
 		/goto :target
 	}
 	/if (${Debugging}) /echo Sub WaitNav Exit
@@ -4392,8 +4392,8 @@ Sub ReclaimAltDC
 	/call CheckCasting
 	/delay 5 !${Me.Moving}
 	|--------------------------------------------------------------------------------
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
+	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
+	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
 	|--------------------------------------------------------------------------------
 
     /squelch /target clear
@@ -4424,7 +4424,7 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
-	/if (!${Me.XTarget[1].ID}) {
+	/if (!${Me.XTarget}) {
 		/loot
 	} else {
 		/call DoClearTargets
@@ -4436,11 +4436,11 @@ Sub ReclaimAltDC
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
 	|--------------------------------------------
-	/if (${Me.XTarget[1].ID}) /call DoClearTargets
+	/if (${Me.XTarget}) /call DoClearTargets
 	|--------------------------------------------
 	/doevents
 	|-------------------------------------------------------------------------------------
-	/if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
+	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
 	|-------------------------------------------------------------------------------------
 
 	/if (${Debugging}) /echo Sub LootMob_E3 Exit
@@ -4469,7 +4469,7 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
-	/if (!${Me.XTarget[1].ID}) {
+	/if (!${Me.XTarget}) {
 		/loot
 	} else {
 		/call DoClearTargets
@@ -4529,7 +4529,7 @@ Sub ReclaimAltDC
 			|--------------------------------------------------------
 		/doevents
 		|--------------------------------------------
-		/if (${Me.XTarget[1].ID}) /call DoClearTargets
+		/if (${Me.XTarget}) /call DoClearTargets
 		|--------------------------------------------
 		/next LootSlot
 		|---------------------------------------
@@ -4539,11 +4539,11 @@ Sub ReclaimAltDC
   /notify LootWnd DoneButton leftmouseup
   /delay 2s !${Window[LootWnd].Open}
   |--------------------------------------------
-  /if (${Me.XTarget[1].ID}) /call DoClearTargets
+  /if (${Me.XTarget}) /call DoClearTargets
   |--------------------------------------------
   /doevents
   |-------------------------------------------------------------------------------------
-  /if (!${Me.XTarget[1].ID} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
+  /if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
   |-------------------------------------------------------------------------------------
 
   /if (${Debugging}) /echo Sub LootMob_DC_Only Exit
