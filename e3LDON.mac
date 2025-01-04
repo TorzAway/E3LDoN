@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: December 19th, 2024 - 12:18:00 PM
+Last Updated: January 3rd, 2025 - 07:16:00 PM
 
-v7.1.3
+v7.1.4
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.1.3
+	/declare version			string		outer	7.1.4
 	
 	/message ==================================================================
  	/call Declares
@@ -2187,7 +2187,7 @@ Sub SinglePullMove(string SinglePull_Loc)
 				/if (${SwarmPull}) {
 					/squelch /nav loc ${SinglePull_Loc}
 					/delay 7
-					/squelch /e3bcga /nav loc ${SinglePull_Loc}	
+					/squelch /e3bcza /nav loc ${SinglePull_Loc}	
 					/while (${Navigation.Active}) {
 						/call SetLoc
 						/call CheckStuck
@@ -2203,7 +2203,7 @@ Sub SinglePullMove(string SinglePull_Loc)
 					}					
 				}
 				/delay 7
-				/squelch /e3bcga /nav loc ${SinglePull_Loc}				
+				/squelch /e3bcza /nav loc ${SinglePull_Loc}				
 				|------------------------------------------------------------------------------------
 			}
 			|--------------------------------------------------------------
@@ -2304,7 +2304,7 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 				/if (${SwarmPull}) {
 					/squelch /nav loc ${TempSpawnPull_Loc}
 					/delay 7
-					/squelch /e3bcga /nav loc ${TempSpawnPull_Loc}
+					/squelch /e3bcza /nav loc ${TempSpawnPull_Loc}
 					/while (${Navigation.Active}) {
 						/call SetLoc
 						/call CheckStuck
@@ -2320,7 +2320,7 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 					}					
 				}
 				/delay 7
-				/squelch /e3bcga /nav loc ${TempSpawnPull_Loc}				
+				/squelch /e3bcza /nav loc ${TempSpawnPull_Loc}				
 				|------------------------------------------------------------------------------------
 			}
 			|--------------------------------------------------------------
@@ -4060,7 +4060,7 @@ Sub NavToLoc(int Y,int X,int Z)
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
 			/if (!${Me.Combat} && !${Me.XTarget[1].ID}) /call Group2Me
-			/if (!${Me.Moving}) /squelch /e3bcga /nav loc ${Y} ${X} ${Z}
+			/if (!${Me.Moving}) /squelch /e3bcza /nav loc ${Y} ${X} ${Z}
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
@@ -4138,7 +4138,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupDeathChk
 			}
 			/if (${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /target clear
-			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /e3bcga /nav loc ${Y} ${X} ${Z}
+			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget[1].ID}) /squelch /e3bcza /nav loc ${Y} ${X} ${Z}
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
@@ -4203,7 +4203,7 @@ Sub WaitNav(NavTargetID)
 		} else {
 			/if (${Me.XTarget[1].ID}) {
 				/if (${Navigation.Active}) /nav stop
-				/e3bcga /target id ${Me.XTarget[1].ID}
+				/e3bcza /target id ${Me.XTarget[1].ID}
 				/varset NavTargetID ${Me.XTarget[1].ID}
 				/if (${Debugging}) /echo CALL DoSingleMob WaitNav II
 				/call DoSingleMob
