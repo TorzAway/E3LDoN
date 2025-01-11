@@ -4379,14 +4379,14 @@ Sub ReclaimAltDC
 
   /if (${Target.ID} && ${Target.Type.Equal[Corpse]}) {
     /message \at+++ \ayLooks like we have a corpse to loot!\ax
-    /if (${Target.ID}) /face fast nolook
+    /face fast nolook
 
 	|----------------------------------------------
 	|-----
 	/if (${Navigation.PathExists[id ${Target.ID}]}) {
-		/if (${Target.ID} && !${Me.Casting.ID}) /nav id ${Target.ID}
+		/if (${Target.ID} && ${Target.Type.Equal[Corpse]} && (${Target.Distance}>10) && !${Me.Casting.ID}) /nav id ${Target.ID}
 	} else {
-		 /if (${Target.ID} && !${Me.Casting.ID}) /moveto id ${Target.ID} mdist 10
+		 /if (${Target.ID} && ${Target.Type.Equal[Corpse]} && (${Target.Distance}>10) && !${Me.Casting.ID}) /moveto id ${Target.ID} mdist 10
 	}
 	|-----
     |----------------------------------------------
@@ -4398,8 +4398,9 @@ Sub ReclaimAltDC
 	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
 	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
 	|--------------------------------------------------------------------------------
-
     /squelch /target clear
+	|-------------------------
+	
     /goto :CheckAgain
   } else {
     /message \ar+++ \ayNo corpse(s) found to loot.\ax
@@ -4415,12 +4416,11 @@ Sub ReclaimAltDC
   Sub LootMob_E3
 	/if (${Debugging}) /echo Sub LootMob_E3 Entry
 
-	/if (${Target.ID}) /face fast nolook
+	/if (${Target.ID} && ${Target.Type.Equal[Corpse]}) /face fast nolook
 	/keypress forward
 	/keypress back
 	/fastdrop on
 	/lootn never
-	/delay 5
 	
 	|---------------------------------------
 	| -- Let E3 Looting System handle this !
@@ -4463,12 +4463,11 @@ Sub ReclaimAltDC
     /declare LootTotal   			int inner	0
 	/declare CursorItemValueInPlat	int inner	0
 
-	/if (${Target.ID}) /face fast nolook
+	/if (${Target.ID} && ${Target.Type.Equal[Corpse]}) /face fast nolook
     /keypress forward
     /keypress back
     /fastdrop on
     /lootn never
-    /delay 1s
 
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
@@ -4483,12 +4482,8 @@ Sub ReclaimAltDC
 	|---------------------------------------
 
 	|-------------------------------------
-    /delay 2s ${Window[LootWnd].Open}
+    /delay 1s ${Window[LootWnd].Open}
     /doevents
-	|-------------------------------------
-	| KEEP DELAY TO POPULATE CORPPSE ITEMS
-	|-------------------------------------
-	/delay 5
 	|-------------------------------------
 	
 	|--------------------------------------
@@ -4543,15 +4538,15 @@ Sub ReclaimAltDC
 	}
     |--------------------------------------
 
-  /notify LootWnd DoneButton leftmouseup
-  /delay 2s !${Window[LootWnd].Open}
-  |--------------------------------------------
-  /if (${Me.XTarget}) /call DoClearTargets
-  |--------------------------------------------
-  /doevents
-  |-------------------------------------------------------------------------------------
-  /if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
-  |-------------------------------------------------------------------------------------
+    /notify LootWnd DoneButton leftmouseup
+    /delay 1s !${Window[LootWnd].Open}
+    |--------------------------------------------
+    /if (${Me.XTarget}) /call DoClearTargets
+    |--------------------------------------------
+    /doevents
+    |-------------------------------------------------------------------------------------
+    /if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
+    |-------------------------------------------------------------------------------------
 
   /if (${Debugging}) /echo Sub LootMob_DC_Only Exit
   /return
