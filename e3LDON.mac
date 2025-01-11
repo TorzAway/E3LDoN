@@ -4367,8 +4367,11 @@ Sub ReclaimAltDC
   /if (${Debugging}) /echo Sub CheckForCorpses Entry
 
   /call GMCheck
-  /hidecorpse looted
-
+  |------------------
+  |/hidecorpse looted
+  /hidecorpse none
+  |------------------
+  
 :CheckAgain
   /message \ay- Checking for missed corpse(s).
   /squelch /target radius 100 corpse
@@ -4390,12 +4393,7 @@ Sub ReclaimAltDC
 
 	|-------------------------
 	/call CheckCasting
-	
-	:StopMovingToLoot
 	/delay 5 !${Me.Moving}
-	/if (${Me.Moving}) /goto :StopMovingToLoot
-	/delay 2 !${Me.Moving}
-	
 	|--------------------------------------------------------------------------------
 	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
 	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
@@ -4470,7 +4468,7 @@ Sub ReclaimAltDC
     /keypress back
     /fastdrop on
     /lootn never
-    /delay 5
+    /delay 1s
 
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
@@ -4484,44 +4482,27 @@ Sub ReclaimAltDC
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
 
-	:OpenCorpseLootWnd
-    /delay 2 ${Window[LootWnd].Open}
-	/if (!${Window[LootWnd].Open}) /goto :OpenCorpseLootWnd
-	/doevents
-
+	|-------------------------------------
+    /delay 2s ${Window[LootWnd].Open}
+    /doevents
+	|-------------------------------------
+	| KEEP DELAY TO POPULATE CORPPSE ITEMS
+	|-------------------------------------
+	/delay 5
+	|-------------------------------------
+	
 	|--------------------------------------
-	/if (!${Corpse.Items}) {
-		/message \ar- NO LOOT! - Cheap Bastard !
-    } else {
-		:PopulateCorpseItems
-		/delay 5 ${Corpse.Items}
-		/if (!${Corpse.Items}) /goto :PopulateCorpseItems
-		
-		:LootThisBitch
+    /if (${Corpse.Items}) {
 		/varset LootTotal ${Corpse.Items}
 		/message \ay++ Corpse has (\at${LootTotal}\ay) item(s) on it to loot.
-		/delay 1
-		
 		|---------------------------------------
 		/for LootSlot 1 to ${LootTotal}
-			/message \ay-- Grabbing corpse item (\am${LootSlot}\ax) of (\am${LootTotal}\ax).			
-			
-			|---------------------------------------
-			:GetCursorItem
-			/nomodkey /shift /itemnotify Loot${LootSlot} leftmouseup			
-			/delay 2 ${Cursor.ID}
-			/if (!${Cursor.ID}) /goto :GetCursorItem
-			/delay 2 ${Cursor.ID}
-			|---------------------------------------
-			
-			|---------------------------------------
-			:SelectQuantity
+			/message \ay-- Grabbing corpse item (\am${LootSlot}\ax) of (\am${LootTotal}\ax).
+			/nomodkey /shift /itemnotify Loot${LootSlot} leftmouseup
+			/delay 5 ${Cursor.ID}
 			/if (${Window[QuantityWnd].Open}) /notify QuantityWnd QTYW_Accept_Button leftmouseup
-			/delay 2 !${Window[QuantityWnd].Open}
-			/if (${Window[QuantityWnd].Open}) /goto :SelectQuantity
-			/delay 2 !${Window[QuantityWnd].Open}
-			|---------------------------------------
-		
+			/delay 5
+
 			|----------------------------------------------------------------------------------------------
 			/varset CursorItemValueInPlat ${Math.Calc[${FindItem[=${Cursor.Name}].Value}/1000]}
 			|----------------------------------------------------------------------------------------------
@@ -4534,18 +4515,12 @@ Sub ReclaimAltDC
 			/if (${Cursor.ID}) {			
 				/if (${Cursor.Name.Equal[Diamond Coin]}) {
 					/message \at+\ax \agKeeping a\ax \ay(\atDiamond Coin\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
-					:AutoInvLootItem1
 					/autoinventory 
-					/delay 2 !${Cursor.ID}
-					/if (${Cursor.ID}) /goto :AutoInvLootItem1
-					/delay 1 !${Cursor.ID}
+					/delay 5 !${Cursor.ID}
 				} else /if (${CursorItemValueInPlat}>${MinItemValue}) {
 					/message \at+\ax \agKeeping a\ax \ay(\at${Cursor.Name}\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
-					:AutoInvLootItem2
 					/autoinventory 
-					/delay 2 !${Cursor.ID}
-					/if (${Cursor.ID}) /goto :AutoInvLootItem2
-					/delay 1 !${Cursor.ID}
+					/delay 5 !${Cursor.ID}
 				}
 			}
 			|--------------------------------------------------------
@@ -4555,39 +4530,25 @@ Sub ReclaimAltDC
 			|--------------------------------------------------------
 			/if (${Cursor.ID}) {				
 				/message \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar, that crap is woth less than \ay(\at${MinItemValue}\ay)\ar plat!\ax --(${CursorItemValueInPlat})--
-					:AutoDestLootItem
-					/destroy 
-					/delay 2 !${Cursor.ID}
-					/if (${Cursor.ID}) /goto :AutoDestLootItem
-					/delay 1 !${Cursor.ID}
+				/destroy
+				/delay 5 !${Cursor.ID}
 			}
 			|--------------------------------------------------------
 		/doevents
 		|--------------------------------------------
 		/if (${Me.XTarget}) /call DoClearTargets
 		|--------------------------------------------
-		/delay 2
 		/next LootSlot
 		|---------------------------------------
-    }
+	}
     |--------------------------------------
 
-	|--------------------------------------
-	/if (!${Corpse.Items}) {
-		:CloseCorpseLootWnd
-		/notify LootWnd DoneButton leftmouseup
-		/delay 2 !${Window[LootWnd].Open}
-		/if (${Window[LootWnd].Open}) /goto :CloseCorpseLootWnd  
-	} else {
-		/message \ay++ Corpse has item(s) on it to \arSTILL\ax to loot !!!
-		/goto :LootThisBitch
-	}
-	|--------------------------------------
-	
-    |--------------------------------------------
-    /if (${Me.XTarget}) /call DoClearTargets
-    |--------------------------------------------
-    /doevents
+  /notify LootWnd DoneButton leftmouseup
+  /delay 2s !${Window[LootWnd].Open}
+  |--------------------------------------------
+  /if (${Me.XTarget}) /call DoClearTargets
+  |--------------------------------------------
+  /doevents
   |-------------------------------------------------------------------------------------
   /if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
   |-------------------------------------------------------------------------------------
