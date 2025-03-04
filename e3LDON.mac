@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: January 10th, 2025 - 02:13:00 PM
+Last Updated: March 4th, 2025 - 03:03:00 PM
 
-v7.1.8
+v7.1.9
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.1.8
+	/declare version			string		outer	7.1.9
 	
 	/message ==================================================================
  	/call Declares
@@ -316,7 +316,11 @@ Sub Main
 	/message ==================================================================
 	/delay 1s		
 		
-	/call CheckThings	
+	/call CheckThings
+
+	|--------------------------------------------
+	/if (${MouseLock}) /mouseto 190, 550
+	|--------------------------------------------	
 
 	|-------------------------------------
 	|-- If No Adventure Time (no AdvRqst_CompleteTimeLeftLabel) Check the starting zone, reset to Marrs if not in Pok or Marrs.
@@ -563,6 +567,7 @@ Sub Declares
 	/call CheckINI ${Settings} General SwarmPull bool FALSE
 	/call CheckINI ${Settings} General UseMerc bool FALSE
 	/call CheckINI ${Settings} General UseMq2Melee bool FALSE
+	/call CheckINI ${Settings} General MouseLock bool TRUE
 	/call CheckIni ${Settings} General CheckBots bool TRUE
 	/call CheckIni ${Settings} General LootCorpse bool FALSE
 	/call CheckIni ${Settings} General ThemeCheck bool TRUE
@@ -3235,7 +3240,7 @@ Sub Zoning
 	/delay 1s ${Target.ID}==${Me.ID}
 	/if (!${Navigation.MeshLoaded}) {
 		/message \ayWaiting for you to load a mesh for this zone.
-		/nav reload
+		/e3bcgza /nav reload
 		/delay 5s
 		/goto :Zoning
 	}
@@ -3664,7 +3669,7 @@ Sub DoGrpInvisByClass(string InvisClassShortName, String GrpInvisAltAbilityID)
 Sub CheckMesh
 	/if (${Debugging}) /echo Sub CheckMesh Entry
 	/if (!${Navigation.MeshLoaded}) {
-		/nav reload
+		/e3bcgza /nav reload
 		/delay 3s ${Navigation.MeshLoaded}
 		/if (!${Navigation.MeshLoaded}) {
 			/message \arNo navigational mesh could be found for this zone. Make one and try again.
@@ -4066,6 +4071,7 @@ Sub NavToLoc(int Y,int X,int Z)
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
+		/doevents
 	}
 	|-------------------------------------------------------------------------------
 	/delay 2s
@@ -4144,6 +4150,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
+		/doevents
 	}
 	/delay 2s
 	/if (${Navigation.Active}) /nav stop
@@ -4229,6 +4236,7 @@ Sub WaitNav(NavTargetID)
 			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/squelch /nav id ${NavTargetID}
 		}
+		/doevents
 	}
 	/if (${Navigation.Active}) /nav stop
 	:target
@@ -4369,6 +4377,9 @@ Sub ReclaimAltDC
   /call GMCheck
   
 :CheckAgain
+  |------------------
+  /if (${MouseLock}) /mouseto 190, 550
+  |------------------
   |------------------
   |/hidecorpse looted
   /hidecorpse none
@@ -5420,7 +5431,7 @@ Sub Event_Sealed_Off
 |--------------------------------------------------------
   Sub Event_NavMeshReload
 	/message \agReloading navmesh for zone: \ay(\am${Zone.Name}\ay)\ag on all toons.
-	/squelch /e3bcaa /nav reload
+	/squelch /e3bcgza /nav reload
 	/delay 1s
     /doevents flush NavMeshReload
   /return  
