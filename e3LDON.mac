@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: March 4th, 2025 - 03:03:00 PM
+Last Updated: March 29th, 2025 - 01:29:00 PM
 
-v7.1.9
+v7.2.0
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.1.9
+	/declare version			string		outer	7.2.0
 	
 	/message ==================================================================
  	/call Declares
@@ -319,8 +319,8 @@ Sub Main
 	/call CheckThings
 
 	|--------------------------------------------
-	/if (${MouseLock}) /mouseto 190, 550
-	|--------------------------------------------	
+	/if (${MouseLock}) /mouseto ${MouseLocValX}, ${MouseLocValY}
+	|--------------------------------------------		
 
 	|-------------------------------------
 	|-- If No Adventure Time (no AdvRqst_CompleteTimeLeftLabel) Check the starting zone, reset to Marrs if not in Pok or Marrs.
@@ -568,6 +568,8 @@ Sub Declares
 	/call CheckINI ${Settings} General UseMerc bool FALSE
 	/call CheckINI ${Settings} General UseMq2Melee bool FALSE
 	/call CheckINI ${Settings} General MouseLock bool TRUE
+	/call CheckINI ${Settings} General MouseLocValX int 290
+	/call CheckINI ${Settings} General MouseLocValY int 550
 	/call CheckIni ${Settings} General CheckBots bool TRUE
 	/call CheckIni ${Settings} General LootCorpse bool FALSE
 	/call CheckIni ${Settings} General ThemeCheck bool TRUE
@@ -4377,9 +4379,9 @@ Sub ReclaimAltDC
   /call GMCheck
   
 :CheckAgain
-  |------------------
-  /if (${MouseLock}) /mouseto 190, 550
-  |------------------
+  |--------------------------------------------
+  /if (${MouseLock}) /mouseto ${MouseLocValX}, ${MouseLocValY}
+  |--------------------------------------------	
   |------------------
   |/hidecorpse looted
   /hidecorpse none
