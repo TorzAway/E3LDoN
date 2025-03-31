@@ -3040,7 +3040,7 @@ Sub DoSingleMob(string Enemy)
 	:navto
 	/if (${Debugging}) /echo DoSingleMob NAVTO
 	/if (${Target.ID}) /squelch /target clear
-	/if (${Spawn[${myTargetID}].Distance} > 30 && !${Target.Type.Equal[corpse]} && !${Me.XTarget} && !${Spawn[${myTargetID}].LineOfSight}) {
+	/if ((${Spawn[${myTargetID}].Distance} > 30 && !${Target.Type.Equal[corpse]} && !${Me.XTarget}) || !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[${myTargetID}].ID}) {
 			/squelch /target clear
 			/if (${Debugging}) /echo \ar My target ID was null, so I'm returning out of the sub.
