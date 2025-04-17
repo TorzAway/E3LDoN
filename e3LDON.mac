@@ -211,7 +211,7 @@ to request a mission after starting the macro
 
 E3LDON.mac v5.5 by Kroaking
 Updated for usage under E3 envioronment system.
-Fully integrated / migrated away from standard MQ EQBCS commands to E3 /e3bca command structure.
+Fully integrated / migrated away from standard MQ EQBCS commands to E3 /e3bcgz command structure.
 All command systems for interacting with bots now supports E3BCS and MQ2DanNet.
 Incorporated SwarmPull method for mob pulling, config file now supports SwarmPull option. If TRUE, camp 
 locations are used for mass agro swarm pulls.
@@ -770,13 +770,13 @@ Sub GoToMarrs
 	
 	|Start in Marrs	
 	/delay 10
-	/e3bca /nav stop
-	/e3bca /playmelody stop
-	/e3bca /keypress x 
+	/e3bcgz /nav stop
+	/e3bcgz /playmelody stop
+	/e3bcgz /keypress x 
 	/delay 6
-	/e3bcaa /stand
+	/e3bcgza /stand
 	/delay 5
-	/e3bca /alt act 511
+	/e3bcgz /alt act 511
 	/nav stop
 	/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 	/keypress x 
@@ -788,13 +788,13 @@ Sub GoToMarrs
 
 	|----------------------------
 	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone} || ${Group.Member[6].OtherZone}) {
-		/squelch /e3bca /nav stop
-		/squelch /e3bca /playmelody stop		 	
-		/squelch /e3bca /keypress x 
+		/squelch /e3bcgz /nav stop
+		/squelch /e3bcgz /playmelody stop		 	
+		/squelch /e3bcgz /keypress x 
 		/delay 6
-		/squelch /e3bca /stand
+		/squelch /e3bcgz /stand
 		/delay 5
-		/squelch /e3bca /alt act 511
+		/squelch /e3bcgz /alt act 511
 		/nav stop
 		/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 		/keypress x 
@@ -828,13 +828,13 @@ Sub GoPoKMagus
 	/delay 3s	
 	|----------------------------
 	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone} || ${Group.Member[6].OtherZone}) {
-		/squelch /e3bca /nav stop
-		/squelch /e3bca /playmelody stop		 	
-		/squelch /e3bca /keypress x 
+		/squelch /e3bcgz /nav stop
+		/squelch /e3bcgz /playmelody stop		 	
+		/squelch /e3bcgz /keypress x 
 		/delay 6
-		/squelch /e3bca /stand
+		/squelch /e3bcgz /stand
 		/delay 5
-		/squelch /e3bca /alt act 511
+		/squelch /e3bcgz /alt act 511
 		/nav stop
 		/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 		/keypress x 
@@ -845,9 +845,9 @@ Sub GoPoKMagus
 		/delay 20s
 	}
 	|----------------------------
-	/squelch /e3bcaa /tar Klonopin
+	/squelch /e3bcgza /tar Klonopin
 	/delay 5
-	/squelch /e3bcaa /nav target
+	/squelch /e3bcgza /nav target
 	/delay 5
 	/while (${Navigation.Active}) {
 		/call SetLoc
@@ -861,7 +861,7 @@ Sub GoPoKMagus
 	/if (${Target.CleanName.Equal[Klonopin]}) {
 		/e3bark poknowledge	
 	} else {
-		/squelch /e3bcaa /tar Klonopin
+		/squelch /e3bcgza /tar Klonopin
 		/delay 5
 		/goto :BarkPoK
 	}
@@ -879,7 +879,7 @@ Sub GoPoKMagus
 	|/echo \ayMoving to a common loc in PoK . . .	
 	|--------------------------------------
 	|/delay 3s
-	|/squelch /e3bcaa /nav loc 189.76 48.62 -116.87
+	|/squelch /e3bcgza /nav loc 189.76 48.62 -116.87
 	|/delay 3s
 	|/while (${Navigation.Active}) {
 	|	/call SetLoc
@@ -895,9 +895,9 @@ Sub GoPoKMagus
 	
 	/message \ayFinding Magus . . .
 	|/delay 3s
-	/squelch /e3bcaa /tar Magus Alaria
+	/squelch /e3bcgza /tar Magus Alaria
 	/delay 5
-	/squelch /e3bcaa /nav target
+	/squelch /e3bcgza /nav target
 	/delay 5
 	/while (${Navigation.Active}) {
 		/call SetLoc
@@ -931,7 +931,7 @@ Sub GoPoKMagus
 		/if (${Target.CleanName.Equal[Magus Alaria]}) {
 			/e3bark ${NextCamp_Bark}	
 		} else {
-			/squelch /e3bcaa /tar Magus Alaria
+			/squelch /e3bcgza /tar Magus Alaria
 			/delay 5
 			/goto :BarkMagus
 		}
@@ -1289,7 +1289,7 @@ Sub GetTask
 	|----------- NORTH RO ------------
 	/if (${Zone.ID} == ${NorthRo}) {
 		:getTaskNRo
-		|-- /squelch /e3bcaa /removelev
+		|-- /squelch /e3bcgza /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Escon Quickbow
@@ -1301,7 +1301,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/message \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	 
-			/squelch /e3bcaa /nav loc 2699.06 931.71 -23.92			
+			/squelch /e3bcgza /nav loc 2699.06 931.71 -23.92			
 			/call GroupWait			
 			/delay 5
 			/while (${Navigation.Active}) {
@@ -1309,7 +1309,7 @@ Sub GetTask
 				/call CheckStuck
 				/delay 5
 				}
-			/squelch /e3bcaa /nav loc ${RecruiterLoc}
+			/squelch /e3bcgza /nav loc ${RecruiterLoc}
 			/call GroupWait
 			/delay 3s   
 			/goto :getTaskNRo
@@ -1318,7 +1318,7 @@ Sub GetTask
 		|- Move to avoid getting trapped in a tent  onroute to task.
 		|---------------------------------------------
 		/message \aoAvoiding tent obtacles at \at[\agNro Camp\at]
-		/if (${runcounter}==0) /squelch /e3bca /nav loc 2661.87 976.10 -20.15
+		/if (${runcounter}==0) /squelch /e3bcgz /nav loc 2661.87 976.10 -20.15
 		/delay 5s
 		/call NavToLoc2 2661.87 976.10 -20.15
 		/call GroupWait
@@ -1331,7 +1331,7 @@ Sub GetTask
 	|----------- COMMONLANDS ------------   && ${Zone.ID}==${startTask}
 	/if (${Zone.ID} == ${Commonlands}) {
 		:getTaskCommon
-		|-- /squelch /e3bcaa /removelev
+		|-- /squelch /e3bcgza /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Periac Windfell
@@ -1344,7 +1344,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/message \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	
-			/squelch /e3bcaa /nav loc ${RecruiterLoc}
+			/squelch /e3bcgza /nav loc ${RecruiterLoc}
 			/call GroupWait
 			/delay 3s   
 			/goto :getTaskCommon
@@ -1356,7 +1356,7 @@ Sub GetTask
 	|----------- BUTCHERBLOCK ------------
 	/if (${Zone.ID} == ${Butcherblock}) {
 		:getTaskButcher
-		|-- /squelch /e3bcaa /removelev
+		|-- /squelch /e3bcgza /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Xyzelauna Tu`Valzir
@@ -1368,7 +1368,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/message \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	  
-			/squelch /e3bcaa /nav loc ${RecruiterLoc}
+			/squelch /e3bcgza /nav loc ${RecruiterLoc}
 			/call GroupWait
 			/delay 3s   
 			/goto :getTaskButcher
@@ -1380,7 +1380,7 @@ Sub GetTask
 	|----------- EVERFROST ------------
 	/if (${Zone.ID} == ${Everfrost}) {
 		:getTaskEFP
-		|-- /squelch /e3bcaa /removelev
+		|-- /squelch /e3bcgza /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Mannis McGuyett
@@ -1392,7 +1392,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/message \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	  
-			/squelch /e3bcaa /nav loc ${RecruiterLoc}
+			/squelch /e3bcgza /nav loc ${RecruiterLoc}
 			/call GroupWait			
 			/delay 3s   
 			/goto :getTaskEFP
@@ -1404,7 +1404,7 @@ Sub GetTask
 	|----------- SOUTH RO ------------  && ${Zone.ID}==${startTask}
 	/if (${Zone.ID} == ${SouthRo}) { 
 		:getTaskSRo
-		|-- /squelch /e3bcaa /removelev
+		|-- /squelch /e3bcgza /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Kallei Ribblok
@@ -1417,7 +1417,7 @@ Sub GetTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/message \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	  
-			/squelch /e3bcaa /nav loc ${RecruiterLoc}
+			/squelch /e3bcgza /nav loc ${RecruiterLoc}
 			/call GroupWait
 			/delay 3s   
 			/goto :getTaskSRo
@@ -1532,7 +1532,7 @@ Sub GotoTask
 		/call GroupWait
 		/if (${DoInvis}) /call CheckInvis
 		
-		/if (${runcounter}==0) /squelch /e3bca /nav loc -1318.19 -3086.02 3.12
+		/if (${runcounter}==0) /squelch /e3bcgz /nav loc -1318.19 -3086.02 3.12
 		/delay 1s
 		/call NavToLoc2 -1314.01 -3058.35 5.90
 		/delay 5
@@ -1544,11 +1544,11 @@ Sub GotoTask
 		/call GroupWait
 		/if (${Me.XTarget}) /call DoClearTargets
 		/if (${runcounter}==0) {
-			/squelch /e3bca /face heading 260
+			/squelch /e3bcgz /face heading 260
 			/delay 2s
-			/squelch /e3bca /keypress forward hold
+			/squelch /e3bcgz /keypress forward hold
 			/delay 3s
-			/squelch /e3bca /keypress forward
+			/squelch /e3bcgz /keypress forward
 			/delay 1s
 		} 
 		/squelch /face heading 260
@@ -1571,7 +1571,7 @@ Sub GotoTask
 		
 		|----------------------
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {	
-			/if (${runcounter}==0) /squelch /e3bca /nav loc -2624.00 -1113.00 3.12			
+			/if (${runcounter}==0) /squelch /e3bcgz /nav loc -2624.00 -1113.00 3.12			
 			/delay 1s
 			/call NavToLoc2 -2610.80 -1113.13 3.12
 			/delay 5
@@ -1582,11 +1582,11 @@ Sub GotoTask
 			}
 			/call GroupWait
 			/if (${Me.XTarget}) /call DoClearTargets
-			/squelch /e3bca /face heading 175
+			/squelch /e3bcgz /face heading 175
 			/delay 2s
-			/squelch /e3bca /keypress forward hold
+			/squelch /e3bcgz /keypress forward hold
 			/delay 3s
-			/squelch /e3bca /keypress forward
+			/squelch /e3bcgz /keypress forward
 			/delay 1s
 			/squelch /face heading 175
 			/delay 2s
@@ -1609,7 +1609,7 @@ Sub GotoTask
 		|----------------------
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/message \aoHeaded to an \at[\agunearthed grave\at]
-			/if (${runcounter}==0) /squelch /e3bca /nav loc -111.31 3861.35 -39.73
+			/if (${runcounter}==0) /squelch /e3bcgz /nav loc -111.31 3861.35 -39.73
 			/delay 1s
 			/call NavToLoc2 -111.31 3861.35 -39.73
 			/delay 5
@@ -1623,11 +1623,11 @@ Sub GotoTask
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
-			/squelch /e3bca /removelev
-			/squelch /e3bca /dropinvis
-			/squelch /e3bca /doortarget MISTPORT701
+			/squelch /e3bcgz /removelev
+			/squelch /e3bcgz /dropinvis
+			/squelch /e3bcgz /doortarget MISTPORT701
 			/delay 2s
-			/squelch /e3bca /click left door
+			/squelch /e3bcgz /click left door
 			/squelch /removelev
 			/squelch /dropinvis
 			/squelch /doortarget MISTPORT701
@@ -1649,7 +1649,7 @@ Sub GotoTask
 		|----------------------
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Find a crypt]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/message \aoHeaded to a \at[\agcrypt\at]
-			/if (${runcounter}==0) /squelch /e3bca /nav loc -755.00 3831.00 1.84
+			/if (${runcounter}==0) /squelch /e3bcgz /nav loc -755.00 3831.00 1.84
 			/delay 1s
 			/call NavToLoc2 -755.00 3831.00 1.84
 			/delay 5
@@ -1663,11 +1663,11 @@ Sub GotoTask
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
-			/squelch /e3bca /removelev
-			/squelch /e3bca /dropinvis
-			/squelch /e3bca /doortarget MISTFCFN700
+			/squelch /e3bcgz /removelev
+			/squelch /e3bcgz /dropinvis
+			/squelch /e3bcgz /doortarget MISTFCFN700
 			/delay 2s
-			/squelch /e3bca /click left door
+			/squelch /e3bcgz /click left door
 			/squelch /removelev
 			/squelch /dropinvis
 			/squelch /doortarget MISTFCFN700
@@ -1702,7 +1702,7 @@ Sub GotoTask
 		
 			|Group goes in now.
 			/message \aoHeaded to a \at[\agglimmering portal\at]
-			/squelch /e3bca /nav loc -841.47 -5460 188
+			/squelch /e3bcgz /nav loc -841.47 -5460 188
 			/call NavToLoc2 -841.47 -5460 188
 			/delay 5
 			/while (${Navigation.Active}) {
@@ -1715,11 +1715,11 @@ Sub GotoTask
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
-			/squelch /e3bca /removelev
-			/squelch /e3bca /dropinvis
-			/squelch /e3bca /doortarget MIRPORTAL700
+			/squelch /e3bcgz /removelev
+			/squelch /e3bcgz /dropinvis
+			/squelch /e3bcgz /doortarget MIRPORTAL700
 			/delay 2s
-			/squelch /e3bca /click left door
+			/squelch /e3bcgz /click left door
 			/squelch /removelev
 			/squelch /dropinvis
 			/squelch /doortarget MIRPORTAL700
@@ -1747,7 +1747,7 @@ Sub GotoTask
 			|Moveto Entrance Stage1
 			|Group goes in now.
 			/message \aoHeaded to a \at[\agsnowy mine\at]
-			/squelch /e3bcaa /nav loc 2739.42 -4684.45 -105.04
+			/squelch /e3bcgza /nav loc 2739.42 -4684.45 -105.04
 			/call NavToLoc2 2739.42 -4684.45 -105.04
 			/delay 5
 			/while (${Navigation.Active}) {
@@ -1759,18 +1759,18 @@ Sub GotoTask
 			/if (${Me.XTarget}) /call DoClearTargets
 				
 			|Go Inside Entrance Stage2
-			/squelch /e3bcaa /nav loc 2772.21 -4726.54 -97.27
+			/squelch /e3bcgza /nav loc 2772.21 -4726.54 -97.27
 			/call NavToLoc2 2772.21 -4726.54 -97.27
 			/call GroupWait
 			/if (${Me.XTarget}) /call DoClearTargets
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
-			/squelch /e3bca /removelev
-			/squelch /e3bca /dropinvis
-			/squelch /e3bca /doortarget MIRPORTAL701
+			/squelch /e3bcgz /removelev
+			/squelch /e3bcgz /dropinvis
+			/squelch /e3bcgz /doortarget MIRPORTAL701
 			/delay 2s
-			/squelch /e3bca /click left door
+			/squelch /e3bcgz /click left door
 			/squelch /removelev
 			/squelch /dropinvis
 			/squelch /doortarget MIRPORTAL701
@@ -1802,7 +1802,7 @@ Sub GotoTask
 			|---------------------------------------------
 			/message \aoHeaded to a \at[\agquicksand pit\at]
 			/delay 1s
-			/squelch /e3bcaa /nav loc -949.78 124.60 -63.23
+			/squelch /e3bcgza /nav loc -949.78 124.60 -63.23
 			/call NavToLoc2 -949.78 124.60 -63.23
 			/delay 5
 			/while (${Navigation.Active}) {
@@ -1814,11 +1814,11 @@ Sub GotoTask
 			/if (${Me.XTarget}) /call DoClearTargets
 			|---------------------------------------------
 			/message \agEveryone is here. \ayGoing in to task...
-			/squelch /e3bcaa /removelev
-			/squelch /e3bcaa /dropinvis
-			/squelch /e3bcaa /doortarget
+			/squelch /e3bcgza /removelev
+			/squelch /e3bcgza /dropinvis
+			/squelch /e3bcgza /doortarget
 			/delay 2s
-			/squelch /e3bcaa /click left door			
+			/squelch /e3bcgza /click left door			
 			/squelch /removelev
 			/squelch /dropinvis
 			/squelch /dropinvis
@@ -1848,7 +1848,7 @@ Sub GotoTask
 			/call GroupWait
 			|---------------------------------------------
 			/message \aoHeaded to an \at[\agMagus Zeir\at]
-			/squelch /e3bcaa /nav spawn Magus_Zeir
+			/squelch /e3bcgza /nav spawn Magus_Zeir
 			/delay 5			
 			/while (${Navigation.Active}) {
 				/call SetLoc
@@ -1858,9 +1858,9 @@ Sub GotoTask
 			/call GroupWait
 			/if (${Me.XTarget}) /call DoClearTargets
 			|---------------------------------------------
-			/squelch /e3bcaa /tar Magus_Zeir
+			/squelch /e3bcgza /tar Magus_Zeir
 			/delay 2s
-			/squelch /e3bcaa /if (${Me.Invis}) /dropinvis
+			/squelch /e3bcgza /if (${Me.Invis}) /dropinvis
 			/keypress H
 			/delay 2s
 			/bark South Ro
@@ -1881,14 +1881,14 @@ Sub GotoTask
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Through a cave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[Through a cave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length}) {			
 			|---------------------------------------------
 			/message \aoAvoiding tent obtacles at \at[\agSro Camp\at]
-			/if (${runcounter}==0) /squelch /e3bca /nav loc -1470.44 1119.92 -23.86
+			/if (${runcounter}==0) /squelch /e3bcgz /nav loc -1470.44 1119.92 -23.86
 			/delay 5s
 			/call NavToLoc2 -1470.44 1119.92 -23.86
 			/call GroupWait
 			/if (${Me.XTarget}) /call DoClearTargets
 			|---------------------------------------------
 			/message \aoHeaded to \at[\aga cave\at]
-			/if (${runcounter}==0) /squelch /e3bca /nav loc -2131.66 1321.46 -75.30
+			/if (${runcounter}==0) /squelch /e3bcgz /nav loc -2131.66 1321.46 -75.30
 			/delay 1s
 			/call NavToLoc2 -2131.66 1321.46 -75.30
 			/delay 5
@@ -1903,11 +1903,11 @@ Sub GotoTask
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents			
-			/squelch /e3bca /removelev
-			/squelch /e3bca /dropinvis
-			/squelch /e3bca /doortarget RUJPORTAL701
+			/squelch /e3bcgz /removelev
+			/squelch /e3bcgz /dropinvis
+			/squelch /e3bcgz /doortarget RUJPORTAL701
 			/delay 2s
-			/squelch /e3bca /click left door
+			/squelch /e3bcgz /click left door
 			/squelch /removelev
 			/squelch /dropinvis
 			/squelch /doortarget RUJPORTAL701
@@ -1937,13 +1937,13 @@ Sub GotoTask
 		/if (${DoInvis}) /call CheckInvis
 		|---------------------------------------------
 		/message \aoAvoiding tent obtacles at \at[\agSro Camp\at]
-		/if (${runcounter}==0) /squelch /e3bca /nav loc -1487.19 998.12 -23.84
+		/if (${runcounter}==0) /squelch /e3bcgz /nav loc -1487.19 998.12 -23.84
 		/call NavToLoc2 -1487.19 998.12 -23.84
 		/call GroupWait
 		/if (${Me.XTarget}) /call DoClearTargets
 		|---------------------------------------------
 		/message \aoMoving to \at[\agInnothule Swamp\at]
-		/if (${runcounter}==0) /squelch /e3bca /nav loc -3190.48 1113.44 -24.93
+		/if (${runcounter}==0) /squelch /e3bcgz /nav loc -3190.48 1113.44 -24.93
 		/call NavToLoc2 -3190.48 1113.44 -24.93
 		/while (${Navigation.Active}) {
 			/call SetLoc
@@ -1953,11 +1953,11 @@ Sub GotoTask
 		/call GroupWait
 		/if (${Me.XTarget}) /call DoClearTargets
 		|---------------------------------------------
-		/squelch /e3bca /face heading 110
+		/squelch /e3bcgz /face heading 110
 		/delay 2s
-		/squelch /e3bca /keypress forward hold
+		/squelch /e3bcgz /keypress forward hold
 		/delay 5s
-		/squelch /e3bca /keypress forward
+		/squelch /e3bcgz /keypress forward
 		/delay 1s
 		/squelch /face heading 110
 		/delay 2s
@@ -1980,7 +1980,7 @@ Sub GotoTask
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[rotting tree trunk]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[rotting tree trunk]} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			
 			/message \aoMoving to a \at[\agrotting tree trunk\at]
-			/if (${runcounter}==0) /squelch /e3bca /nav loc 1338.00 1189.00 -11.00
+			/if (${runcounter}==0) /squelch /e3bcgz /nav loc 1338.00 1189.00 -11.00
 			/delay 5s
 			/call NavToLoc2 1338.00 1189.00 -11.00
 			/delay 5
@@ -1994,11 +1994,11 @@ Sub GotoTask
 			
 		    /message \agEveryone is here. \ayGoing in to task...
 			/doevents
-		    /squelch /e3bca /removelev
-			/squelch /e3bca /dropinvis
-		    /squelch /e3bca /doortarget GKPORTAL700
+		    /squelch /e3bcgz /removelev
+			/squelch /e3bcgz /dropinvis
+		    /squelch /e3bcgz /doortarget GKPORTAL700
 		    /delay 2s
-		    /squelch /e3bca /click left door
+		    /squelch /e3bcgz /click left door
 			/squelch /removelev
 			/squelch /dropinvis
 			/squelch /doortarget GKPORTAL700
@@ -2023,7 +2023,7 @@ Sub GotoTask
 		:getoutalive333
 		
 		/message \aoMoving to \at[\agInnothule - Safe Spot\at]
-		/if (${runcounter}==0) /squelch /e3bca /nav loc 2279.71 -651.85 -11.08
+		/if (${runcounter}==0) /squelch /e3bcgz /nav loc 2279.71 -651.85 -11.08
 		/delay 5s
 		/call NavToLoc2 2279.71 -651.85 -11.08
 		/delay 5
@@ -2036,7 +2036,7 @@ Sub GotoTask
 		/if (${Me.XTarget}) /call DoClearTargets
 		
 		/message \aoMoving to \at[\agUpper Guk - Entrancet\at]
-		/if (${runcounter}==0) /squelch /e3bca /nav loc 142.63 -817.07 -6.21
+		/if (${runcounter}==0) /squelch /e3bcgz /nav loc 142.63 -817.07 -6.21
 		/delay 5s
 		/call NavToLoc2 142.63 -817.07 -6.21
 		/delay 5
@@ -2048,11 +2048,11 @@ Sub GotoTask
 		/call GroupWait	
 		/if (${Me.XTarget}) /call DoClearTargets
 		
-		/squelch /e3bca /face heading 275
+		/squelch /e3bcgz /face heading 275
 		/delay 2s
-		/squelch /e3bca  /keypress forward hold
+		/squelch /e3bcgz  /keypress forward hold
 		/delay 3s
-		/squelch /e3bca /keypress forward
+		/squelch /e3bcgz /keypress forward
 		/delay 1s
 		/squelch /face heading 275
 		/delay 2s
@@ -2074,7 +2074,7 @@ Sub GotoTask
 		/if (${DoInvis}) /call CheckInvis
 		
 		/message \aoMoving to \at[\agbarricaded door\at]
-		/if (${runcounter}==0) /squelch /e3bca /nav loc 441.77 228.63 -9.13
+		/if (${runcounter}==0) /squelch /e3bcgz /nav loc 441.77 228.63 -9.13
 		/delay 5s
 		/call NavToLoc2 441.77 228.63 -9.13
 		/delay 5
@@ -2088,11 +2088,11 @@ Sub GotoTask
 		
 		/message \agEveryone is here. \ayGoing in to task...
 		/doevents
-		/squelch /e3bca /removelev
-		/squelch /e3bca /dropinvis
-		/squelch /e3bca /doortarget GKPORTAL701
+		/squelch /e3bcgz /removelev
+		/squelch /e3bcgz /dropinvis
+		/squelch /e3bcgz /doortarget GKPORTAL701
 		/delay 2s
-		/squelch /e3bca /click left door
+		/squelch /e3bcgz /click left door
 		/squelch /removelev
 		/squelch /dropinvis
 		/squelch /doortarget GKPORTAL701
@@ -2220,7 +2220,7 @@ Sub SinglePullMove(string SinglePull_Loc)
 			|------------------------------------------------------------------
 			| DO NOT CHANGE MOVEMENT METHOD FROM /NAV ID ${Me.ID} FOR BOTS ~!!!
 			|------------------------------------------------------------------
-			/squelch /e3bca /nav id ${Me.ID}			
+			/squelch /e3bcgz /nav id ${Me.ID}			
 			/delay 5
 			|----------------------------------------------------------		
 
@@ -2337,7 +2337,7 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 			|------------------------------------------------------------------
 			| DO NOT CHANGE MOVEMENT METHOD FROM /NAV ID ${Me.ID} FOR BOTS ~!!!
 			|------------------------------------------------------------------
-			/squelch /e3bca /nav id ${Me.ID}			
+			/squelch /e3bcgz /nav id ${Me.ID}			
 			/delay 5
 			|----------------------------------------------------------		
 
@@ -2804,7 +2804,7 @@ Sub DoClearTargets
 		:gotoloopkeepfighting
 		/if (${Me.Sitting}) /stand
 		/if (!${Target.ID} && ${Me.XTarget}) {
-			/squelch /e3bca /nav id ${Me.ID}
+			/squelch /e3bcgz /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
 			/ClearTargets stick
@@ -2815,7 +2815,7 @@ Sub DoClearTargets
 			/delay 3
 			}
 		/if (${Target.ID} && !${Me.Combat}) {
-			/squelch /e3bca /nav id ${Me.ID}
+			/squelch /e3bcgz /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
 			/ClearTargets stick
@@ -2853,7 +2853,7 @@ Sub DoClearTargets
 			/if (${Cast.Ready[3822]} && ${DoBurns}) /alt act 3822
 			| --- Encroaching Darkness
 			/if ((${SpawnCount[npc radius 50]} <3) && ${Spawn[npc radius 50].Aggressive} && ${Cast.Ready[826]} && ${DoBurns}) {
-				/squelch /e3bca /nav target
+				/squelch /e3bcgz /nav target
 				/assistme
 				/alt act 826
 				}
@@ -3278,8 +3278,8 @@ Sub GroupWait
 
     /while ((${Group.Member[1].Distance} > 40) || (${Group.Member[2].Distance} > 40) || (${Group.Member[3].Distance} > 40) || (${Group.Member[4].Distance} > 40) || (${Group.Member[5].Distance} > 40) || (${Group.Member[6].Distance} > 40)) {
         /message \aywaiting for the group, timer ${GroupWaitTimer}.\ax
-		/e3bca /stand
-		/e3bca /nav id ${Me.ID}
+		/e3bcgz /stand
+		/e3bcgz /nav id ${Me.ID}
         /delay 5s
 		/varcalc GroupWaitTimer (${GroupWaitTimer})+1
 		/call GroupWaitTimer
@@ -3299,19 +3299,19 @@ Sub GroupWaitTimer
 	/if (${GroupWaitTimer}==8) /varset GroupWaitTimer 0
 	/if (${GroupWaitTimer}==5) {
 		/message \ayA Group Member might be stuck!
-		/squelch /e3bcaa /stand
-		/squelch /e3bcaa /removelev
-		/squelch /e3bcaa /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
-		/squelch /e3bcaa /keypress back hold
+		/squelch /e3bcgza /stand
+		/squelch /e3bcgza /removelev
+		/squelch /e3bcgza /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
+		/squelch /e3bcgza /keypress back hold
 		/delay 3s
-		/squelch /e3bcaa /keypress back
+		/squelch /e3bcgza /keypress back
 	}
 	/if (${GroupWaitTimer}==6) {
 		/message \ayA Group Member is stuck!
-		/squelch /e3bcaa /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
-		/squelch /e3bcaa /keypress forward hold
+		/squelch /e3bcgza /moveto loc ${Me.Y} ${Me.X} ${Me.Z}
+		/squelch /e3bcgza /keypress forward hold
 		/delay 2s
-		/squelch /e3bcaa /keypress forward
+		/squelch /e3bcgza /keypress forward
 		/delay 2s
 	}
 	|--- Use Wayfarers Brotherhood Emblem' to COTH the group.
@@ -3719,7 +3719,7 @@ Sub CloseAdventureWnd
 	/if (${Window[AdventureRequestWnd].Open}) /squelch /windowstate AdventureRequestWnd close
 	/delay 1s !${Window[AdventureRequestWnd].Open}
 	/if (${Window[AdventureRequestWnd].Open}) /goto :CloseAdvWindow	
-	/e3bcaa /squelch /windowstate AdventureRequestWnd close
+	/e3bcgza /squelch /windowstate AdventureRequestWnd close
 	/if (${Debugging}) /echo Sub CloseAdventureWnd Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -4199,7 +4199,7 @@ Sub WaitNav(NavTargetID)
 				|------  ALL GO TO TARGET - staggered
 				/nav id ${NavTargetID}
 				/delay 5
-				/squelch /e3bca /nav id ${NavTargetID}
+				/squelch /e3bcgz /nav id ${NavTargetID}
 				|------  ALL GO TO TARGET - staggered
 				/varset courseCorrection ${courseCorrection.OriginalValue}
 			}
@@ -4259,9 +4259,9 @@ Sub WaitNav(NavTargetID)
 
   	|--------------------------
 	/message \am<***> Sending the rest of my group to Magus as I sell <***>
-  	/squelch /e3bca /tar Magus Alaria
+  	/squelch /e3bcgz /tar Magus Alaria
 	/delay 5
-	/squelch /e3bca /nav target
+	/squelch /e3bcgz /nav target
 	/delay 5
 	|--------------------------
 
@@ -4878,7 +4878,7 @@ Sub DoorClick
 Sub Group2Me
 /if (${Debugging}) /echo Sub Group2Me Entry
 	|------------ KEEP AS SINGLE NOT GROUP COMMAND 	!
-	/e3bca /nav id ${Me.ID}
+	/e3bcgz /nav id ${Me.ID}
 	|------------ KEEP AS SINGLE NOT GROUP
 /if (${Debugging}) /echo Sub Group2Me Exit
 /return
@@ -5322,9 +5322,9 @@ Sub Event_Too_Far
 |--------------------------------------------------------
 Sub Event_Magical_Presence
 
-	/e3bcaa /doortarget
+	/e3bcgza /doortarget
     /delay 2s
-	/e3bcaa /click left door
+	/e3bcgza /click left door
     /doortarget
     /delay 2s
     /click left door
@@ -5380,15 +5380,15 @@ Sub Event_Sealed_Off
 	
 	|Finish Go to Marrs	
 	/delay 10
-	/e3bca /nav stop
-	/e3bca /playmelody stop
-	/e3bca /keypress x 
+	/e3bcgz /nav stop
+	/e3bcgz /playmelody stop
+	/e3bcgz /keypress x 
 	/delay 6
-	/e3bca /stand
+	/e3bcgz /stand
 	/delay 5
-	/e3bca /alt act 511
+	/e3bcgz /alt act 511
 	/delay 1s
-	/e3bca /alt act 511
+	/e3bcgz /alt act 511
 	/nav stop
 	/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 	/keypress x 
@@ -5402,7 +5402,7 @@ Sub Event_Sealed_Off
 	/delay 15s
 	/while (${Zone.ID} != ${TempleofMarr}) {
 		/delay 5s
-		/e3bcaa /alt act 511
+		/e3bcgza /alt act 511
 		/squelch /e3bcg /keypress forward
 	}
     /doevents flush MissionSuccess
