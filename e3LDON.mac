@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: March 29th, 2025 - 01:29:00 PM
+Last Updated: April 27th, 2025 - 08:09:00 AM
 
-v7.2.0
+v7.2.1
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.2.0
+	/declare version			string		outer	7.2.1
 	
 	/message ==================================================================
  	/call Declares
@@ -770,13 +770,13 @@ Sub GoToMarrs
 	
 	|Start in Marrs	
 	/delay 10
-	/e3bcgz /nav stop
-	/e3bcgz /playmelody stop
-	/e3bcgz /keypress x 
+	/e3bcgza /nav stop
+	/e3bcgza /playmelody stop
+	/e3bcgza /keypress x 
 	/delay 6
 	/e3bcgza /stand
 	/delay 5
-	/e3bcgz /alt act 511
+	/e3bcgza /alt act 511
 	/nav stop
 	/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 	/keypress x 
@@ -788,13 +788,13 @@ Sub GoToMarrs
 
 	|----------------------------
 	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone} || ${Group.Member[6].OtherZone}) {
-		/squelch /e3bcgz /nav stop
-		/squelch /e3bcgz /playmelody stop		 	
-		/squelch /e3bcgz /keypress x 
+		/squelch /e3bcaa /nav stop
+		/squelch /e3bcaa /playmelody stop		 	
+		/squelch /e3bcaa /keypress x 
 		/delay 6
-		/squelch /e3bcgz /stand
+		/squelch /e3bcaa /stand
 		/delay 5
-		/squelch /e3bcgz /alt act 511
+		/squelch /e3bcaa /alt act 511
 		/nav stop
 		/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 		/keypress x 
@@ -828,13 +828,13 @@ Sub GoPoKMagus
 	/delay 3s	
 	|----------------------------
 	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone} || ${Group.Member[6].OtherZone}) {
-		/squelch /e3bcgz /nav stop
-		/squelch /e3bcgz /playmelody stop		 	
-		/squelch /e3bcgz /keypress x 
+		/squelch /e3bcaa /nav stop
+		/squelch /e3bcaa /playmelody stop		 	
+		/squelch /e3bcaa /keypress x 
 		/delay 6
-		/squelch /e3bcgz /stand
+		/squelch /e3bcaa /stand
 		/delay 5
-		/squelch /e3bcgz /alt act 511
+		/squelch /e3bcaa /alt act 511
 		/nav stop
 		/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 		/keypress x 
@@ -2796,31 +2796,37 @@ Sub DoSwarmPull
 | --------------------------------------------------------------------------------------------
 Sub DoClearTargets
 	/if (${Debugging}) /echo Sub DoClearTargets Entry
-	/if (${Me.XTarget} || ${Target.ID}) {
-		/delay 5
+	/if (${Me.XTarget} || (${Target.ID} && ${Target.Type.Equal[npc]})) {
 		|/keypress º
-		/delay 5
+		|/delay 5
 		/ClearTargets stick
+		/keypress esc
+		/delay 10		
 		:gotoloopkeepfighting
 		/if (${Me.Sitting}) /stand
 		/if (!${Target.ID} && ${Me.XTarget}) {
 			/squelch /e3bcgz /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
+			|----------			
+			|/xtarget set 1 ${Me.Name}
+			|/delay 3
+			|/xtarget remove
+			|/delay 3
+			|----------			
+			/target ${Me.XTarget[1].ID}
+			/delay 5
 			/ClearTargets stick
-			/delay 20
-			/xtarget set 1 ${Me.Name}
-			/delay 3
-			/xtarget remove
-			/delay 3
+			/keypress esc
+			/delay 10			
 			}
-		/if (${Target.ID} && !${Me.Combat}) {
+		/if ((${Target.ID} && ${Target.Type.Equal[npc]}) && !${Me.Combat}) {
 			/squelch /e3bcgz /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
 			/ClearTargets stick
 			/keypress esc
-			/delay 20
+			/delay 10
 			}
 		/if (${Target.Type.Find[corpse]}) {
 			/keypress esc
@@ -2994,9 +3000,9 @@ Sub DoSingleMob(string Enemy)
 				/if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
 				/squelch /e3bcg /nav id ${Me.ID}
 				/squelch /e3bcg /target id ${Me.XTarget}
-				/timed 10 /squelch /e3bcg /pet attack
-				/timed 15 /squelch /e3bcg /pet swarm
-				/timed 20 /squelch /e3bcg /assistme
+				/timed 10 /squelch /e3bcgz /assistme
+				/timed 15 /squelch /e3bcgz /pet attack
+				/timed 20 /squelch /e3bcgz /pet swarm
 			}	
 			|--------------------
 		}
@@ -5380,15 +5386,15 @@ Sub Event_Sealed_Off
 	
 	|Finish Go to Marrs	
 	/delay 10
-	/e3bcgz /nav stop
-	/e3bcgz /playmelody stop
-	/e3bcgz /keypress x 
+	/e3bcgza /nav stop
+	/e3bcgza /playmelody stop
+	/e3bcgza /keypress x 
 	/delay 6
-	/e3bcgz /stand
+	/e3bcgza /stand
 	/delay 5
-	/e3bcgz /alt act 511
+	/e3bcgza /alt act 511
 	/delay 1s
-	/e3bcgz /alt act 511
+	/e3bcgza /alt act 511
 	/nav stop
 	/if (${Select[${Me.Class.ShortName},BRD]}) /playmelody stop
 	/keypress x 
