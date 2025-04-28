@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: April 27th, 2025 - 10:20:00 PM
+Last Updated: April 28th, 2025 - 08:51:00 AM
 
-v7.2.2
+v7.2.3
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.2.2
+	/declare version			string		outer	7.2.3
 	
 	/message ==================================================================
  	/call Declares
@@ -4383,13 +4383,12 @@ Sub ReclaimAltDC
   /if (${Debugging}) /echo Sub CheckForCorpses Entry
 
   /call GMCheck
-  
   /message \ay- Checking for missed corpse(s).
+  /if (${Bool[${Spawn[Corpse radius 100]}]}) /message \at+++ \ayLooks like we have a corpse to loot.
   
 :CheckAgain
-  |--------------------------------------------
+  |------------------
   /if (${MouseLock}) /mouseto ${MouseLocValX}, ${MouseLocValY}
-  |--------------------------------------------	
   |------------------
   |/hidecorpse looted
   /hidecorpse none
@@ -4397,32 +4396,34 @@ Sub ReclaimAltDC
 
   /squelch /target radius 100 corpse
   /delay 5 ${Target.ID}
-
-  /if (${Target.ID} && ${Target.Type.Equal[Corpse]}) {
-    /message \at+++ \ayLooks like we have a corpse to loot!\ax
-    /face fast nolook
-
+	
 	|----------------------------------------------
-	|-----
-	/if (${Navigation.PathExists[id ${Target.ID}]}) {
-		/if (${Target.ID} && ${Target.Type.Equal[Corpse]} && (${Target.Distance}>10) && !${Me.Casting.ID}) /nav id ${Target.ID}
-	} else {
-		 /if (${Target.ID} && ${Target.Type.Equal[Corpse]} && (${Target.Distance}>10) && !${Me.Casting.ID}) /moveto id ${Target.ID} mdist 10
-	}
-	|-----
-    |----------------------------------------------
+	/if (${Target.ID} && ${Target.Type.Equal[Corpse]}) {
+		/face fast nolook
 
-	|-------------------------
-	/call CheckCasting
-	/delay 5 !${Me.Moving}
-	|--------------------------------------------------------------------------------
-	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
-	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
-	|--------------------------------------------------------------------------------
+		|----------------------------------------------
+		|-----
+		/if (${Navigation.PathExists[id ${Target.ID}]}) {
+			/if (${Target.ID} && ${Target.Type.Equal[Corpse]} && (${Target.Distance}>10) && !${Me.Casting.ID}) /nav id ${Target.ID}
+		} else {
+			/if (${Target.ID} && ${Target.Type.Equal[Corpse]} && (${Target.Distance}>10) && !${Me.Casting.ID}) /moveto id ${Target.ID} mdist 10
+		}
+		|-----
+		|----------------------------------------------
+
+		|-------------------------
+		/call CheckCasting
+		/delay 5 !${Me.Moving}	
+		|--------------------------------------------------------------------------------
+		/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
+		/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
+		/delay 5
+		|--------------------------------------------------------------------------------
+	}
     /squelch /target clear
 	|-------------------------
 	
-    /goto :CheckAgain
+    /if (${Bool[${Spawn[Corpse radius 100]}]}) /goto :CheckAgain
   } else {
     /message \ar+++ \ayNo corpse(s) found to loot.\ax
   }
@@ -4450,6 +4451,7 @@ Sub ReclaimAltDC
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
 	/if (!${Me.XTarget}) {
+		/message \at+++ \ayLooting - \ag Corpse\ao: \ar[\am${Target.CleanName}\ar] \agID\ao: \ar[\am${Target.ID}\ar].
 		/loot
 	} else {
 		/call DoClearTargets
@@ -4494,6 +4496,7 @@ Sub ReclaimAltDC
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
 	/if (!${Me.XTarget}) {
+		/message \at+++ \ayLooting - \ag Corpse\ao: \ar[\am${Target.CleanName}\ar] \agID\ao: \ar[\am${Target.ID}\ar].
 		/loot
 	} else {
 		/call DoClearTargets
