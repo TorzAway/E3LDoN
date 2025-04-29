@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: April 28th, 2025 - 12:41:00 PM
+Last Updated: April 29th, 2025 - 11:11:00 AM
 
-v7.2.4
+v7.2.5
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.2.4
+	/declare version			string		outer	7.2.5
 	
 	/message ==================================================================
  	/call Declares
@@ -3007,7 +3007,7 @@ Sub DoSingleMob(string Enemy)
 				/if (${Target.ID}) /face
 				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
-				/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) /pet attack
+				|/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) /pet attack
 				/doevents
 				/if (${UseClickDamage}) /call Clickies_Damage
 			}
@@ -3026,8 +3026,8 @@ Sub DoSingleMob(string Enemy)
 				/squelch /e3bcg /nav id ${Me.ID}
 				/squelch /e3bcg /target id ${Me.XTarget}
 				/timed 10 /squelch /e3bcgz /assistme
-				/timed 15 /squelch /e3bcgz /pet attack
-				/timed 20 /squelch /e3bcgz /pet swarm
+				|/timed 15 /squelch /e3bcgz /pet attack
+				|/timed 20 /squelch /e3bcgz /pet swarm
 			}	
 			|--------------------
 		}
@@ -4573,7 +4573,7 @@ Sub ReclaimAltDC
 			|---- DESTROY ANYTHING REMAINING
 			|--------------------------------------------------------
 			/if (${Cursor.ID}) {				
-				/message \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar, that crap is woth less than \ay(\at${MinItemValue}\ay)\ar plat!\ax --(${CursorItemValueInPlat})--
+				/message \ar-\ax \arDestroying a\ax \ay(\at${Cursor.Name}\ay)\ar, that crap is woth less than \ay(\at${MinItemValue}\ay)\ar plat!\ag Sell Val\ao:\at(\ay${CursorItemValueInPlat}\at)\ay.
 				/destroy
 				/delay 5 !${Cursor.ID}
 			}
