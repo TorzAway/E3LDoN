@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: May 28th, 2025 - 08:29:00 PM
+Last Updated: June 27th, 2025 - 02:33:00 PM
 
-v7.2.7
+v7.2.9
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.2.7
+	/declare version			string		outer	7.2.9
 	
 	/message ==================================================================
  	/call Declares
@@ -1676,8 +1676,10 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/call ResetBard
-			/delay 2s
+			/if (${GrpHasBrdClass}) {
+				/call ResetBard
+				/delay 2s
+			}
 			/squelch /e3bcgz /multiline ; /afollow off ; /followoff ; /nav stop ; /stand
 			/delay 5
 			/squelch /followoff
@@ -1716,8 +1718,10 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList		
 			/call ForeceSpawnStepReset
-			/call ResetBard
-			/delay 2s
+			/if (${GrpHasBrdClass}) {
+				/call ResetBard
+				/delay 2s
+			}
 			/squelch /e3bcg /multiline ; /afollow off ; /nav stop ; /stand
 			/delay 5
 			/squelch /followoff
@@ -1768,8 +1772,10 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList				
 			/call ForeceSpawnStepReset
-			/call ResetBard
-			/delay 2s
+			/if (${GrpHasBrdClass}) {
+				/call ResetBard
+				/delay 2s
+			}
 			/squelch /e3bcg /multiline ; /afollow off ; /nav stop ; /stand
 			/delay 5
 			/squelch /followoff
@@ -1819,8 +1825,10 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/call ResetBard
-			/delay 2s
+			/if (${GrpHasBrdClass}) {
+				/call ResetBard
+				/delay 2s
+			}
 			/squelch /e3bcg /multiline ; /afollow off ; /nav stop ; /stand
 			/delay 5
 			/squelch /followoff
@@ -1869,8 +1877,10 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/call ResetBard
-			/delay 2s
+			/if (${GrpHasBrdClass}) {
+				/call ResetBard
+				/delay 2s
+			}
 			/squelch /e3bcg /multiline ; /afollow off ; /nav stop ; /stand
 			/delay 5
 			/squelch /followoff
@@ -1956,8 +1966,10 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/call ResetBard
-			/delay 2s
+			/if (${GrpHasBrdClass}) {
+				/call ResetBard
+				/delay 2s
+			}
 			/squelch /e3bcg /multiline ; /afollow off ; /nav stop ; /stand
 			/delay 5
 			/squelch /followoff
@@ -2048,8 +2060,10 @@ Sub GotoTask
 			/if (${Zone.ID} == ${Innothule} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive8
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/call ResetBard
-			/delay 2s
+			/if (${GrpHasBrdClass}) {
+				/call ResetBard
+				/delay 2s
+			}
 			/squelch /e3bcg /multiline ; /afollow off ; /nav stop ; /stand
 			/delay 5
 			/squelch /followoff
@@ -2142,8 +2156,10 @@ Sub GotoTask
 		/if (${Zone.ID} == ${GukTop} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive9
 		/call GenerateList
 		/call ForeceSpawnStepReset
-		/call ResetBard
-		/delay 2s
+		/if (${GrpHasBrdClass}) {
+			/call ResetBard
+			/delay 2s
+		}
 		/squelch /e3bcg /multiline ; /afollow off ; /nav stop ; /stand
 		/delay 5
 		/squelch /followoff
@@ -2751,7 +2767,7 @@ Sub DoSwarmPull
 	/message \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}_8]}) {
 		/message \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_8[1,10]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}_8[1,10]	string	outer
+		/declare LocalStepArray_${Zone.ShortName}_8[1,10] string outer
 		/delay 10
 	}
 	|------------------------------------------------------
@@ -2773,9 +2789,9 @@ Sub DoSwarmPull
 	/message \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,5]}\am]\ay
 	/message \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,6]}\am]\ay
 	/message \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,7]}\am]\ay	
-	/message \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,8]}\am]\ay	
-	/message \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,9]}\am]\ay	
-	/message \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,10]}\am]\ay	
+	/message \ayStep \am[\ag8\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,8]}\am]\ay	
+	/message \ayStep \am[\ag9\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,9]}\am]\ay	
+	/message \ayStep \am[\ag10\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,10]}\am]\ay	
 	/message ==================================================================
 	|----------------------------------------------------
 	/message \agGet ready, the fun is starting soon !
