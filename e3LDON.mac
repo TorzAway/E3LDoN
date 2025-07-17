@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: June 27th, 2025 - 02:33:00 PM
+Last Updated: July 16th, 2025 - 06:15:00 AM
 
-v7.2.9
+v7.3.0
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.2.9
+	/declare version			string		outer	7.3.0
 	
 	/message ==================================================================
  	/call Declares
@@ -5534,6 +5534,7 @@ Sub Event_Sealed_Off
   Sub Event_NavMeshReload
 	/message \agReloading navmesh for zone: \ay(\am${Zone.Name}\ay)\ag on all toons.
 	/squelch /e3bcgza /nav reload
+	/call BackUp
 	/delay 1s
     /doevents flush NavMeshReload
   /return  
