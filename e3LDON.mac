@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: July 16th, 2025 - 06:15:00 AM
+Last Updated: July 27th, 2025 - 03:37:00 PM
 
-v7.3.0
+v7.3.1
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -307,7 +307,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.3.0
+	/declare version			string		outer	7.3.1
 	
 	/message ==================================================================
  	/call Declares
@@ -335,7 +335,6 @@ Sub Main
 	|-------------------------------------
 	
 	/if (${ForageTime}>0) /call CheckPlugin MQ2AutoForage
-	/call CheckPlugin MQ2Melee
 		
 	/if (${Bool[${Plugin[MQ2Bucles]}]}) {
         /squelch /plugin MQ2Bucles unload noauto
@@ -568,7 +567,6 @@ Sub Declares
 	/call CheckINI ${Settings} General MinItemValue int 10
 	/call CheckINI ${Settings} General SwarmPull bool FALSE
 	/call CheckINI ${Settings} General UseMerc bool FALSE
-	/call CheckINI ${Settings} General UseMq2Melee bool FALSE
 	/call CheckINI ${Settings} General MouseLock bool TRUE
 	/call CheckINI ${Settings} General MouseLocValX int 290
 	/call CheckINI ${Settings} General MouseLocValY int 550
@@ -709,17 +707,7 @@ Sub CheckThings
 	
 	/call CheckPlugin MQ2Nav
 	/call CheckMesh
-	/call CheckPlugin MQ2Events
-	|-----------------------------
-	/if (${UseMq2Melee}) {
-		/call CheckPlugin MQ2Melee
-	} else {
-		/if (${Bool[${Plugin[MQ2Melee]}]}) {
-			/message \ay -- Unloading \am[\atMQ2Melee\am]\ay plugin.
-			/squelch /plugin MQ2Melee unload noauto
-		}
-	}
-	|-----------------------------	
+	/call CheckPlugin MQ2Events	
 	/call CheckPlugin MQ2MoveUtils
 	
 	/if (${LootCorpse}) {		
@@ -3041,7 +3029,6 @@ Sub DoSingleMob(string Enemy)
 			|--------------------
 			/if (${Me.XTarget} && ${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
-				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				|/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) /pet attack
 				/doevents
@@ -4203,7 +4190,6 @@ Sub NavToLoc2(int Y,int X,int Z)
 					/call Group2Me
 					|------  CALL GROUP TO ME To FIGHT					
 					/if (${Target.ID}) /face
-					/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 					/squelch /attack on
 					/call DoClearTargets
 					/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
@@ -4232,7 +4218,6 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/call Group2Me
 				|------  CALL GROUP TO ME To FIGHT					
 				/if (${Target.ID}) /face
-				/if (${Bool[${Plugin[MQ2Melee]}]}) /squelch /killthis
 				/squelch /attack on
 				/call DoClearTargets
 				/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
