@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: July 27th, 2025 - 03:37:00 PM
+Last Updated: August 25th, 2025 - 02:12:00 PM
 
-v7.3.1
+v7.3.3
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -266,6 +266,8 @@ now in alignment with using DoClearTargets sub like SwarmPull does.
 Cleaned up old code and INI call references for unused variables and procedures.
 
 ****************************************************************************************************************|
+/squelch /log on
+
 #event Magical_Presence "strange magical presence"
 #event Sealed_Off "sealed off to you"
 											   
@@ -307,7 +309,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.3.1
+	/declare version			string		outer	7.3.3
 	
 	/message ==================================================================
  	/call Declares
@@ -410,7 +412,7 @@ Sub Main
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------
 			/while (!${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Left[2].NotEqual[${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Right[2]}]} || ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
-
+				/if (${Target.ID} && !${Me.XTarget} && !${Me.Casting.ID}) /squelch /target clear
 				|-----------------------------------------------
 				| Before we Swarm pull ...   Check if we should loot Corpses.
 				/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
@@ -438,7 +440,7 @@ Sub Main
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------			
 			/while (!${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Left[2].NotEqual[${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Right[2]}]} || ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
-
+				/if (${Target.ID} && !${Me.XTarget} && !${Me.Casting.ID}) /squelch /target clear
 				|-----------------------------------------------
 				| Before we Single pull ...   Check if we should loot Corpses.
 				/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
@@ -4611,7 +4613,7 @@ Sub ReclaimAltDC
 					/message \at+\ax \agKeeping a\ax \ay(\atDiamond Coin\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
 					/autoinventory 
 					/delay 5 !${Cursor.ID}
-				} else /if (${CursorItemValueInPlat}>${MinItemValue}) {
+				} else /if (${CursorItemValueInPlat}>=${MinItemValue}) {
 					/message \at+\ax \agKeeping a\ax \ay(\at${Cursor.Name}\ay) \ag worth \ay(\at${CursorItemValueInPlat}\ay)\ag platinum ... WOOT!\ax
 					/autoinventory 
 					/delay 5 !${Cursor.ID}
