@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: August 25th, 2025 - 02:12:00 PM
+Last Updated: March 16th, 2026 - 10:02:00 AM
 
-v7.3.3
+v7.3.4
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -309,7 +309,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.3.3
+	/declare version			string		outer	7.3.4
 	
 	/message ==================================================================
  	/call Declares
@@ -711,7 +711,16 @@ Sub CheckThings
 	/call CheckMesh
 	/call CheckPlugin MQ2Events	
 	/call CheckPlugin MQ2MoveUtils
-	
+
+	|-------------------------
+	|-- CHECK DRIVER PET STATUS
+	|-------------------------
+	/call CheckDriverPetStatus
+	|-------------------------		
+
+	|-------------------------	
+	| Looting Selection Setup
+	|-------------------------		
 	/if (${LootCorpse}) {		
 		/message ==================================================================
 		/message \ay--- \atENABLING\ax \am${MacroName}\ax LOOTING, we will loot corpses.
@@ -732,13 +741,14 @@ Sub CheckThings
 		/message \ar--- DISABLING ${MacroName} LOOTING, YOU WILL NOT LOOT CORPSES !
 		/message ==================================================================
 	}
+	|-------------------------	
 
 	|-------------------------
 	|-- CHECK CLASSES SET VARS
 	|-------------------------
 	/call CheckGroupClasses
 	|-------------------------
-	
+		
 	|-------------------------
 	| Delay to read output.
 	|-------------------------
@@ -778,7 +788,7 @@ Sub GoToMarrs
 	|---------------------
 	/delay 10
 	/squelch /e3bcgza /nav stop
-	/squelch /e3bcgza /playmelody stop
+	/if (${GrpHasBrdClass}) /squelch /e3bct ${GrpBrdName} /playmelody stop
 	/squelch /e3bcgza /keypress x
 	/delay 6
 	/squelch /e3bcgza /stand
@@ -897,6 +907,7 @@ Sub GoPoKMagus
 	/delay 2s
 	/while (${Zone.ID} == ${TempleofMarr}) {
 		/delay 5s
+		/goto :BarkPoK 
 	}
 	/delay 20s
 }
@@ -968,6 +979,7 @@ Sub GoPoKMagus
 		/delay 5s
 		/while (${Zone.ID} == ${PlaneofKnowledge}) {
 			/delay 5s
+			/goto :BarkMagus
 			}
 		/delay 10s
 	}
@@ -2850,12 +2862,13 @@ Sub DoClearTargets
 	/if (${Me.XTarget} || (${Target.ID} && ${Target.Type.Equal[npc]})) {
 		|/keypress º
 		|/delay 5
-		/ClearTargets stick
+		/ClearTargets usemytarget
 		/keypress esc
-		/delay 10		
-		:gotoloopkeepfighting
+		/delay 10	
+		
+		:gotoloopkeepfighting		
 		/if (${Me.Sitting}) /stand
-		/if (!${Target.ID} && ${Me.XTarget}) {
+		/if (!${Target.ID} && ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 			/squelch /e3bcgz /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
@@ -2865,9 +2878,9 @@ Sub DoClearTargets
 			|/xtarget remove
 			|/delay 3
 			|----------			
-			/target ${Me.XTarget[1].ID}
+			/target id ${NearestSpawn[npc radius 35 targetable].ID}
 			/delay 5
-			/ClearTargets stick
+			/ClearTargets usemytarget
 			/keypress esc
 			/delay 10			
 			}
@@ -2875,7 +2888,7 @@ Sub DoClearTargets
 			/squelch /e3bcgz /nav id ${Me.ID}
 			|/keypress º
 			/delay 5
-			/ClearTargets stick
+			/ClearTargets usemytarget
 			/keypress esc
 			/delay 10
 			}
@@ -2920,9 +2933,12 @@ Sub DoClearTargets
             /goto :gotoloopkeepfighting
         }
 		|-------------------------------------------------------------------
-		/if (${Me.XTarget} || ${Target.ID}) /goto :gotoloopkeepfighting
+		/if (${Me.XTarget} || (${Target.ID} && ${Target.Type.Equal[npc]})) /goto :gotoloopkeepfighting
 	}
 	/delay 20
+	|-----------------------------------
+	/if (!${Me.XTarget} || (!${Target.ID} && !${Bool[${Spawn[npc radius 50].Aggressive}]})) /squelch /target clear
+	|-----------------------------------
 	/if (${Debugging}) /echo Sub DoClearTargets Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -3029,7 +3045,7 @@ Sub DoSingleMob(string Enemy)
 		/if (${myTargetID} && !${Target.Type.Equal[Corpse]} && !${Target.Type.Equal[Pet]} && !${Target.Type.Equal[PC]}) {
 			/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 			|--------------------
-			/if (${Me.XTarget} && ${Spawn[id ${Target.ID}].Distance} < 30) {
+			/if (${Spawn[id ${Target.ID}].Distance} < 30) {
 				/if (${Target.ID}) /face
 				/squelch /attack on
 				|/if (${Select[${Me.Class.ShortName},SHD,MAG,NEC,BST,SHM,ENC,DRU]} && ${Me.Pet.ID}) /pet attack
@@ -3446,6 +3462,46 @@ Sub CheckGroupClasses
 	|-----------------------------
 
 	/if (${Debugging}) /echo Sub CheckGroupClasses Exit
+/return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: CheckDriverPetStatus
+| --------------------------------------------------------------------------------------------
+Sub CheckDriverPetStatus
+	/if (${Debugging}) /echo Sub CheckDriverPetStatus Entry
+
+	|-----------------------------
+	/if (${Select[${Me.Class.ShortName},PAL,SHD,WAR]} && ${Me.Pet.ID}) {
+		/message ==================================================================
+		/message \ay- I have a pet active.\ax
+		|----------------------------------
+		/if (${Select[${Me.Class.ShortName},PAL,WAR]}) {
+			/message \ay- I can not suspend my pet, dismissing it.		
+			/pet leave
+			/delay 5
+		}
+		|----------------------------------
+		/if (${Me.Class.ShortName.Equal[SHD]}) {
+			/message \ay- Attempting to Suspended Minion.	
+			|------------------------------
+			/if (${Me.AltAbilityReady[Suspended Minion]}) {
+				/squelch /alt act 176
+				/call CheckCasting
+				/delay 5
+			} else {
+				/message \ay- I can not suspend my pet, dismissing it.
+				/pet leave			
+				/delay 5
+			}
+			|------------------------------
+		}
+		|----------------------------------
+		/message ==================================================================
+	}
+	|-----------------------------
+
+	/if (${Debugging}) /echo Sub CheckDriverPetStatus Exit
 /return
 | --------------------------------------------------------------------------------------------
 
@@ -4132,7 +4188,7 @@ Sub NavToLoc(int Y,int X,int Z)
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
 			/call GMCheck
-			/if (${Me.XTarget}) {
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL DoSingleMob NavToLoc
 				/call DoSingleMob
@@ -4145,7 +4201,7 @@ Sub NavToLoc(int Y,int X,int Z)
 			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/delay 10
 		} else {
-			/if (${Me.XTarget}) {
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II
 				/call DoSingleMob
@@ -4181,13 +4237,13 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
 			/call GMCheck
-			/if (${Me.XTarget}) {
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/popcustom 13 5 ---> GOT AGGRO ON ROUTE <---
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc						
-				/target ${Me.XTarget[1].ID}
+				/target id ${NearestSpawn[npc radius 35 targetable].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-				/if (${Me.XTarget} && ${Spawn[id ${Target.ID}].Distance} < 30) {
+				/if (${Spawn[id ${Target.ID}].Distance} < 30) {
 					|------  CALL GROUP TO ME To FIGHT
 					/call Group2Me
 					|------  CALL GROUP TO ME To FIGHT					
@@ -4209,24 +4265,24 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/delay 10
 		} else {
-			/if (${Me.XTarget}) {
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/popcustom 13 5 ---> GOT AGGRO ON ROUTE <---
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II				
-				/target ${Me.XTarget[1].ID}
+				/target id ${NearestSpawn[npc radius 35 targetable].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-				/if (${Me.XTarget} && ${Spawn[id ${Target.ID}].Distance} < 30) {
-				|------  CALL GROUP TO ME To FIGHT
-				/call Group2Me
-				|------  CALL GROUP TO ME To FIGHT					
-				/if (${Target.ID}) /face
-				/squelch /attack on
-				/call DoClearTargets
-				/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
-				/call CheckMissionSuccess
-				/doevents
-				/if (${UseClickDamage}) /call Clickies_Damage
-			}
+				/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+					|------  CALL GROUP TO ME To FIGHT
+					/call Group2Me
+					|------  CALL GROUP TO ME To FIGHT					
+					/if (${Target.ID}) /face
+					/squelch /attack on
+					/call DoClearTargets
+					/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
+					/call CheckMissionSuccess
+					/doevents
+					/if (${UseClickDamage}) /call Clickies_Damage
+				}
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
 			}
@@ -4255,7 +4311,7 @@ Sub WaitNav(NavTargetID)
 	}
 	/while (${Spawn[id ${NavTargetID}].Distance} > 30 || !${Spawn[${myTargetID}].LineOfSight}) {
 		/if (!${Spawn[id ${NavTargetID}].ID}) {
-			/delay 5s
+			/delay 3s
 			/return
 		}
 		/if (${Spawn[id ${NavTargetID}].Distance} < 30) {
@@ -4265,9 +4321,9 @@ Sub WaitNav(NavTargetID)
 			/call SetLoc
 			/call CheckStuck
 			/call GMCheck
-			/if (${Me.XTarget}) {
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/if (${Navigation.Active}) /nav stop
-				/varset NavTargetID ${Me.XTarget}
+				/varset NavTargetID ${Spawn[id ${NavTargetID}].ID}
 				/if (${Debugging}) /echo CALL FARM STUFF WaitNAV
 				/call DoSingleMob
 			} else {
@@ -4295,10 +4351,10 @@ Sub WaitNav(NavTargetID)
 			|----------------------------------
 			/delay 10
 		} else {
-			/if (${Me.XTarget}) {
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/if (${Navigation.Active}) /nav stop
-				/e3bcgza /target id ${Me.XTarget}
-				/varset NavTargetID ${Me.XTarget}
+				/target id ${NearestSpawn[npc radius 35 targetable].ID}
+				/varset NavTargetID ${Target.ID}
 				/if (${Debugging}) /echo CALL DoSingleMob WaitNav II
 				/call DoSingleMob
 			} else {
@@ -4462,6 +4518,7 @@ Sub ReclaimAltDC
   /call GMCheck
   /message \ay- Checking for missed corpse(s).
   /if (${Bool[${Spawn[Corpse radius 100]}]}) /message \at+++ \ayLooks like we have a corpse to loot.
+  /if (${Target.ID} && (!${Me.XTarget} || !${Bool[${Spawn[npc radius 35].Aggressive}]})) /squelch /target clear
   
 :CheckAgain
   |------------------
@@ -4840,8 +4897,9 @@ Sub CheckCasting
 		/goto :CheckCastingNow
 		/message \ag-- I am done casting.
 		/delay 1s
+		/if (${Target.ID} && (!${Me.XTarget} || !${Bool[${Spawn[npc radius 35].Aggressive}]})) /squelch /target clear
 	}
-	|-------------------------
+	|------------------------
 
 	/if (${Debugging}) /echo Sub CheckCasting Exit
 /return
@@ -5468,7 +5526,7 @@ Sub Event_Sealed_Off
 	|Finish Go to Marrs	
 	/delay 10
 	/e3bcgza /nav stop
-	/e3bcgza /playmelody stop
+	/if (${GrpHasBrdClass}) /squelch /e3bct ${GrpBrdName} /playmelody stop
 	/e3bcgza /keypress x 
 	/delay 6
 	/e3bcgza /stand
