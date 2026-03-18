@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: March 16th, 2026 - 10:02:00 AM
+Last Updated: March 18th, 2026 - 03:47:00 PM
 
-v7.3.4
+v7.3.7
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -309,7 +309,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.3.4
+	/declare version			string		outer	7.3.7
 	
 	/message ==================================================================
  	/call Declares
@@ -795,10 +795,27 @@ Sub GoToMarrs
 	/delay 5
 	/squelch /e3bcgza /alt act 511
 	/delay 20s
+	
+	:SelfPortOutToMarrs
+	|---------------------------
+	|- Ensure I made it to marrs
+	|---------------------|-----
+	/if (${Zone.ID} != ${TempleofMarr}) {
+		/message \arOoops..   looks like I didn't make it out!
+		/message \ayGating to \am[\atTemple of Marr\am]\ay.\ax	
+		/squelch /keypress x
+		/delay 6
+		/squelch /stand
+		/delay 5
+		/squelch /alt act 511
+		/delay 20s
+		/if (${Zone.ID} != ${TempleofMarr}) /goto :SelfPortOutToMarrs
+	}
+	|---------------------
 
+	/if (${Zone.ID} == ${TempleofMarr}) {
 	|----------------------------
-	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone}) {
-		
+	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone}) {		
 		|--------------------------
 		|--- Group - Start in Marrs
 		|---------------------------
@@ -823,22 +840,19 @@ Sub GoToMarrs
 		|---------------------------
 		/delay 20s
 	}
+	
 	|----------------------------
-	/message \agAll group members are here.
+	/message \agAll group members are in \am[\atTemple of Marr\am]\g.
 	|----------------------------
-	/while (${Zone.ID} != ${TempleofMarr}) {
-		/delay 5s
-	}
 	/call GroupWait
 	/delay 2s
 	|----------------------------
 	
 	/if (${Zone.ID} == ${TempleofMarr}) /message \ayI am currently in \am[\atTemple of Marr\am]\ay.\ax
-
+	
 	/if (${Debugging}) /echo Sub GoToMarrs Exit
 /return
 | --------------------------------------------------------------------------------------------
-
 
 | --------------------------------------------------------------------------------------------
 | SUB: GoPoKMagus
@@ -851,8 +865,6 @@ Sub GoPoKMagus
 	/call CloseAdventureWnd
 |------------------------------
 /if (${Zone.ID} == ${TempleofMarr}) {
-	/message \agGoing to PoK . . .
-	/delay 3s	
 	
 	|----------------------------
 	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone}) {
@@ -881,9 +893,18 @@ Sub GoPoKMagus
 		|---------------------------
 		/delay 20s
 	}
+	
 	|----------------------------
-	/message \agAll group members are here.
+	/message \agAll group members are in \am[\atTemple of Marr\am]\g.
 	|----------------------------
+	
+	|------------------------------
+	:GoToPorter
+	/message \agGoing to PoK . . .
+	/delay 3s
+	|------------------------------	
+	
+	|------------------------------
 	/squelch /e3bcgza /tar Klonopin
 	/delay 5
 	/squelch /e3bcgza /nav target
@@ -893,49 +914,46 @@ Sub GoPoKMagus
 		/call CheckStuck
 		/delay 5
 	}
+	/if (${Spawn[Klonopin].Distance}>15) /goto :GoToPorter
+	|------------------------------
+	
+	|------------------------------
+	:BarkPoK
 	/call GroupWait
 	/delay 2s
+	|------------------------------
 
-	:BarkPoK
+	|------------------------------
 	/if (${Target.CleanName.Equal[Klonopin]}) {
-		/e3bark poknowledge	
+		/squelch /e3bark poknowledge	
 	} else {
 		/squelch /e3bcgza /tar Klonopin
 		/delay 5
-		/goto :BarkPoK
+		/squelch /e3bark poknowledge
 	}
 	/delay 2s
 	/while (${Zone.ID} == ${TempleofMarr}) {
 		/delay 5s
-		/goto :BarkPoK 
 	}
-	/delay 20s
+	/delay 5s
+	|------------------------------
 }
 |------------------------------
 |------------------------------
 /if (${Zone.ID} == ${PlaneofKnowledge}) {
 	
 	|--------------------------------------
-	|/echo \ayMoving to a common loc in PoK . . .	
-	|--------------------------------------
-	|/delay 3s
-	|/squelch /e3bcgza /nav loc 189.76 48.62 -116.87
-	|/delay 3s
-	|/while (${Navigation.Active}) {
-	|	/call SetLoc
-	|	/call CheckStuck
-	|	/delay 5
-	|}
-	|/call GroupWait
-	|--------------------------------------
-	
-	|--------------------------------------
 	/if (${AutoSellInPok}) /call AutoSell_Loot
 	|--------------------------------------
-	
+
+	|------------------------------
+	:GoToMagus
 	/message \ayFinding Magus . . .
-	|/delay 3s
-	/squelch /e3bcgza /tar Magus Alaria
+	/delay 3s
+	|------------------------------	
+	
+	|------------------------------
+	/squelch /e3bcgza /tar Magus Alaria	
 	/delay 5
 	/squelch /e3bcgza /nav target
 	/delay 5
@@ -943,46 +961,52 @@ Sub GoPoKMagus
 		/call SetLoc
 		/call CheckStuck
 		/delay 5
-		}
+	}
+	/if (${Spawn[Magus Alaria].Distance}>15) /goto :GoToMagus
+	|------------------------------	
+
+	|--------------------------------------------------------------
+	|-- IF WE ARE CHECKING THEME CAMP WINS FOR CHARM ! 
+	|.. Theme Win to go/Lockout Select it.. else FLAT Round Robin
+	|--------------------------------------------------------------
+	/if (${ThemeCheck}) {
+		/call SelectAdventureZone_TC
+	} else {
+		/call SelectAdventureZone_RR
+	}
+	|--------------------------------
+	/delay 2s
+	
+	|--------------------------------------------------------------
+	| Forece reset of LastSwarmed_Step and LastSwarmed_Dungeon
+	|--------------------------------------------------------------
+	/call IniChange "Theme" "LastSwarmed_Dungeon" ${Zone.ShortName}
+	/call IniChange "Theme" "LastSwarmed_Step" 1
+	|--------------------------------------------------------------
+	/message \ayHeaded to: \ar[\at${NextCamp_Bark}\ar]\ax
+	|--------------------------
+
+	|------------------------------
+	:BarkMagus
 	/call GroupWait
 	/delay 2s
-		|--------------------------------------------------------------
-		|-- IF WE ARE CHECKING THEME CAMP WINS FOR CHARM ! 
-		|.. Theme Win to go/Lockout Select it.. else FLAT Round Robin
-		|--------------------------------------------------------------
-		/if (${ThemeCheck}) {
-			/call SelectAdventureZone_TC
-		} else {
-			/call SelectAdventureZone_RR
-		}
-		|--------------------------------
-		/delay 2s
-		
-		|--------------------------------------------------------------
-		| Forece reset of LastSwarmed_Step and LastSwarmed_Dungeon
-		|--------------------------------------------------------------
-		/call IniChange "Theme" "LastSwarmed_Dungeon" ${Zone.ShortName}
-		/call IniChange "Theme" "LastSwarmed_Step" 1
-		|--------------------------------------------------------------
-		
-		/message \ayHeaded to: \ar[\at${NextCamp_Bark}\ar]\ax
-		|--------------------------
-		:BarkMagus
-		/if (${Target.CleanName.Equal[Magus Alaria]}) {
-			/e3bark ${NextCamp_Bark}	
-		} else {
-			/squelch /e3bcgza /tar Magus Alaria
-			/delay 5
-			/goto :BarkMagus
-		}
-		|--------------------------
-		/delay 5s
-		/while (${Zone.ID} == ${PlaneofKnowledge}) {
-			/delay 5s
-			/goto :BarkMagus
-			}
-		/delay 10s
+	|------------------------------
+	
+	|------------------------------
+	/if (${Target.CleanName.Equal[Magus Alaria]}) {
+		/squelch /e3bark ${NextCamp_Bark}
+	} else {
+		/squelch /e3bcgza /tar Magus Alaria
+		/delay 5
+		/squelch /e3bark ${NextCamp_Bark}
 	}
+	/delay 2s
+	/while (${Zone.ID} == ${PlaneofKnowledge}) {
+		/delay 5s
+	}
+	/delay 5s
+	|------------------------------
+}
 |------------------------------	
 /if (${Debugging}) /echo Sub GoPoKMagus Exit
 /return
@@ -1074,7 +1098,7 @@ Sub SelectAdventureZone_RR
 	/varcalc ZoneCount ${LastCompleted_Num}+1
     /if (${ZoneCount}>=6) /varcalc ZoneCount 1
 		
-	/if (${ZoneCount}==5) {
+	/if (${ZoneCount}==5) {	
 		/varset NextCamp_Num ${ZoneCount}
 		/varset NextCamp_Theme Takish-Hiz
 		/varset NextCamp_Bark North Ro
@@ -1329,20 +1353,32 @@ Sub GetTask
 	
 	|----------- NORTH RO ------------
 	/if (${Zone.ID} == ${NorthRo}) {
+	
+		|-----------------------------------------------------------
+		|- Move to avoid getting trapped in a tent  onroute to task.
+		|-----------------------------------------------------------
+		/message \aoAvoiding flag obtacle at \at[\agNro Camp\at]
+		/if (${runcounter}==0) /squelch /e3bcgz /nav loc 2661.87 976.10 -20.15
+		/delay 5s
+		/call NavToLoc2 2661.87 976.10 -20.15
+		/call GroupWait
+		/if (${Me.XTarget}) /call DoClearTargets
+		|-----------------------------------------------------------			
+		
 		:getTaskNRo
 		|-- /squelch /e3bcgza /removelev
 		|/call CheckInvis
 		/if (!${Defined[Recruiter]}) {
 			/declare Recruiter string local Escon Quickbow
 			/declare RecruiterLoc string local ${Spawn[${Recruiter}].Y} ${Spawn[${Recruiter}].X} ${Spawn[${Recruiter}].Z}
-		}
+		}	
 		
 		/if (${Spawn[${Recruiter}].Distance3D} < 20) {
 			/call FindTask
 		} else {
 			/if (!${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/message \agGoing to \ay[\ap${Recruiter}\ay] \ag to pick up a task...	 
-			/squelch /e3bcgza /nav loc 2699.06 931.71 -23.92			
+			/squelch /e3bcgza /nav loc 2661.87 976.10 -20.15			
 			/call GroupWait			
 			/delay 5
 			/while (${Navigation.Active}) {
@@ -1356,16 +1392,6 @@ Sub GetTask
 			/goto :getTaskNRo
 			}
 		}
-		|- Move to avoid getting trapped in a tent  onroute to task.
-		|---------------------------------------------
-		/message \aoAvoiding tent obtacles at \at[\agNro Camp\at]
-		/if (${runcounter}==0) /squelch /e3bcgz /nav loc 2661.87 976.10 -20.15
-		/delay 5s
-		/call NavToLoc2 2661.87 976.10 -20.15
-		/call GroupWait
-		/if (${Me.XTarget}) /call DoClearTargets
-		|---------------------------------------------		
-		/delay 5
 	}
 	|----------- NORTH RO ------------
 	
@@ -1991,10 +2017,11 @@ Sub GotoTask
 		|---------------------------------------------
 		/message \aoAvoiding tent obtacles at \at[\agSro Camp\at]
 		/if (${runcounter}==0) /squelch /e3bcgz /nav loc -1487.19 998.12 -23.84
+		/delay 5s
 		/call NavToLoc2 -1487.19 998.12 -23.84
 		/call GroupWait
 		/if (${Me.XTarget}) /call DoClearTargets
-		|---------------------------------------------
+		|---------------------------------------------		
 		/message \aoMoving to \at[\agInnothule Swamp\at]
 		/if (${runcounter}==0) /squelch /e3bcgz /nav loc -3190.48 1113.44 -24.93
 		/call NavToLoc2 -3190.48 1113.44 -24.93
