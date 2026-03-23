@@ -316,7 +316,7 @@ Sub Main
 	/message ==================================================================
 	/message \at${MacroName}.mac \aw- \atv${version} \awby \ag Kroaking
 	/message ==================================================================
-	/delay 1s
+	/delay 2s
 
 	|----------------
 	/call CheckThings
@@ -360,12 +360,12 @@ Sub Main
 		/message \ar ~ NOTE: \aoWe have \ayPBAE\ao classe(s) in group and \am[\atDoPBAOE\am]\ao is currently \am[\ar${DoPBAOE}\am]\ao.
 		/message \ay ~ PBAE Mob count threshhold is currently at\ao: \am[\at${PBAOE_MobCount}\am]\ax
 		/message ==================================================================	
-		/delay 3s
+		/delay 2s
 	}
 	|-------------------------------------------------------------
 	/message \at/E3LDoN \awfor help \ayor \at/mqp \awto pause...
 	/message \agGetting things ready, sit back...
-	/delay 3s
+	/delay 2s
 
 	|-----------------------------------------------	
 	/if (${Select[${Zone.ID},${GukTop},${Innothule},${AccursedSanctuary},${AncientAqua},${CauldronLostSouls},${ChapelOfTheWitnesses},${DrowningCrypt},${ForbodingPrison},${MushroomGrove},${RootGarden}]}) {
@@ -411,7 +411,7 @@ Sub Main
 			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \arSWARM PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
 			/popcustom 13 5 ---> ABOUT TO SWARM PULL . . . get ready! <---
 			/message ==================================================================
-			/delay 2s
+			/delay 1s
 			|-----------------------------------
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------
@@ -439,7 +439,7 @@ Sub Main
 			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \agSINGLE PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
 			/popcustom 15 5 ---> ABOUT TO SINGLE PULL . . . get ready! <---
 			/message ==================================================================
-			/delay 2s
+			/delay 1s
 			|-----------------------------------
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------			
