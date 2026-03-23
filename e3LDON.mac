@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: March 23rd, 2026 - 12:39:00 AM
+Last Updated: March 23rd, 2026 - 12:42:00 PM
 
-v7.5.0
+v7.5.1
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -309,7 +309,7 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.5.0
+	/declare version			string		outer	7.5.1
 	
 	/message ==================================================================
  	/call Declares
@@ -354,8 +354,8 @@ Sub Main
 	}
 	/message ==================================================================
 	
-	|-------------------------------------------------------------
-	/if ((${GrpHasEncClass} || ${GrpHasWizClass}) && ${DoPBAOE}) {
+	|-------------------------------------------------------------	
+	/if ((${GrpHasENCClass} || ${GrpHasWIZClass}) && ${DoPBAOE}) {
 		/message ==================================================================
 		/message \ar ~ NOTE: \aoWe have \ayPBAE\ao classe(s) in group and \am[\atDoPBAOE\am]\ao is currently \am[\ar${DoPBAOE}\am]\ao.
 		/message \ay ~ PBAE Mob count threshhold is currently at\ao: \am[\at${PBAOE_MobCount}\am]\ax
@@ -365,7 +365,7 @@ Sub Main
 	|-------------------------------------------------------------
 	/message \at/E3LDoN \awfor help \ayor \at/mqp \awto pause...
 	/message \agGetting things ready, sit back...
-	/delay 5s
+	/delay 3s
 
 	|-----------------------------------------------	
 	/if (${Select[${Zone.ID},${GukTop},${Innothule},${AccursedSanctuary},${AncientAqua},${CauldronLostSouls},${ChapelOfTheWitnesses},${DrowningCrypt},${ForbodingPrison},${MushroomGrove},${RootGarden}]}) {
@@ -411,7 +411,7 @@ Sub Main
 			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \arSWARM PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
 			/popcustom 13 5 ---> ABOUT TO SWARM PULL . . . get ready! <---
 			/message ==================================================================
-			/delay 5s
+			/delay 2s
 			|-----------------------------------
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------
@@ -439,7 +439,7 @@ Sub Main
 			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \ayABOUT TO: - \agSINGLE PULL\ay . . . get ready! \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
 			/popcustom 15 5 ---> ABOUT TO SINGLE PULL . . . get ready! <---
 			/message ==================================================================
-			/delay 5s
+			/delay 2s
 			|-----------------------------------
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------			
@@ -497,12 +497,6 @@ Sub Declares
 	/declare CampZ 				int 	outer ${Me.Z}
 	/declare DebugRepeatTimer 	timer	outer 1s
 	/declare Endmac 			bool	outer FALSE
-	/declare GrpBrdName			string	outer
-	/declare GrpEncName			string	outer
-	/declare GrpWizName			string	outer
-	/declare GrpHasBrdClass		bool	outer FALSE
-	/declare GrpHasEncClass		bool	outer FALSE
-	/declare GrpHasWizClass		bool	outer FALSE
 	/declare MobIgnore			string 	outer E3LDoN_MobIgnored.ini
 	/declare PBAE_State			bool	outer FALSE
 	/declare SitDelay 			timer 	outer 5s
@@ -809,7 +803,7 @@ Sub GoToMarrs
 	|---------------------
 	/delay 10
 	/squelch /e3bcgza /nav stop
-	/if (${GrpHasBrdClass}) /squelch /e3bct ${GrpBrdName} /playmelody stop
+	/if (${GrpHasBRDClass}) /squelch /e3bct ${GrpBrdName} /playmelody stop
 	/squelch /e3bcgza /keypress x
 	/delay 6
 	/squelch /e3bcgza /stand
@@ -1725,7 +1719,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/if (${GrpHasBrdClass}) {
+			/if (${GrpHasBRDClass}) {
 				/call ResetBard
 				/delay 2s
 			}
@@ -1767,7 +1761,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList		
 			/call ForeceSpawnStepReset
-			/if (${GrpHasBrdClass}) {
+			/if (${GrpHasBRDClass}) {
 				/call ResetBard
 				/delay 2s
 			}
@@ -1821,7 +1815,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList				
 			/call ForeceSpawnStepReset
-			/if (${GrpHasBrdClass}) {
+			/if (${GrpHasBRDClass}) {
 				/call ResetBard
 				/delay 2s
 			}
@@ -1874,7 +1868,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/if (${GrpHasBrdClass}) {
+			/if (${GrpHasBRDClass}) {
 				/call ResetBard
 				/delay 2s
 			}
@@ -1926,7 +1920,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/if (${GrpHasBrdClass}) {
+			/if (${GrpHasBRDClass}) {
 				/call ResetBard
 				/delay 2s
 			}
@@ -2015,7 +2009,7 @@ Sub GotoTask
 			/call Zoning
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/if (${GrpHasBrdClass}) {
+			/if (${GrpHasBRDClass}) {
 				/call ResetBard
 				/delay 2s
 			}
@@ -2110,7 +2104,7 @@ Sub GotoTask
 			/if (${Zone.ID} == ${Innothule} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive8
 			/call GenerateList
 			/call ForeceSpawnStepReset
-			/if (${GrpHasBrdClass}) {
+			/if (${GrpHasBRDClass}) {
 				/call ResetBard
 				/delay 2s
 			}
@@ -2206,7 +2200,7 @@ Sub GotoTask
 		/if (${Zone.ID} == ${GukTop} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive9
 		/call GenerateList
 		/call ForeceSpawnStepReset
-		/if (${GrpHasBrdClass}) {
+		/if (${GrpHasBRDClass}) {
 			/call ResetBard
 			/delay 2s
 		}
@@ -2924,7 +2918,7 @@ Sub DoClearTargets
 		|--------------------------------------------------------------------------------------------------
 		|-- Call PBAE_Enabled state detection if we have classe(s) and ${DoPBAOE}
 		|--------------------------------------------------------------------------------------------------
-		/if ((${GrpHasEncClass} || ${GrpHasWizClass}) && ${DoPBAOE}) {
+		/if ((${GrpHasENCClass} || ${GrpHasWIZClass}) && ${DoPBAOE}) {
 			|-------------------------------------
 			/if (!${PBAE_State} && ${Target.ID} && ${Debugging}) {
 				|-- Degub Condition
@@ -3624,37 +3618,39 @@ Sub ResetBard
 Sub CheckGroupClasses
 	/if (${Debugging}) /echo Sub CheckGroupClasses Entry
 
-	/declare y 					int 	local	0
-	
-	/for y 1 to ${Group.Members}
-		|--------------------------------------------------------	
-		|/message \ayChecking class for group member \am[\at${Group.Member[${y}].CleanName}\am]\ay.
-		|--------------------------------------------------------	
-		/if (${Group.Member[${y}].Class.ShortName.Equal[BRD]} || ${Group.Member[${y}].Class.ShortName.Equal[ENC]} || ${Group.Member[${y}].Class.ShortName.Equal[WIZ]}) {
-			/if (${Group.Member[${y}].Class.ShortName.Equal[BRD]}) {
-				/varset GrpHasBrdClass TRUE
-				/varset GrpBrdName ${Group.Member[${y}].CleanName}
-				/message \ay+ \agThe group has a \aoBARD\ay - \am[\at${GrpBrdName}\am]\ag.
-			}
-			/if (${Group.Member[${y}].Class.ShortName.Equal[ENC]}) {
-				/varset GrpHasEncClass TRUE
-				/varset GrpEncName ${Group.Member[${y}].CleanName}
-				/message \ay+ \agThe group has a \aoEnchanter\ay - \am[\at${GrpEncName}\am]\ag.
-			}	
-			/if (${Group.Member[${y}].Class.ShortName.Equal[WIZ]}) {
-				/varset GrpHasWizClass TRUE
-				/varset GrpWizName ${Group.Member[${y}].CleanName}
-				/message \ay+ \agThe group has a \aoWizard\ay - \am[\at${GrpWizName}\am]\ag.
-			}			
-		}
-	|-----------
-	/next y
-	|-----------------------------
-	/if (${GrpHasBrdClass} || ${GrpHasEncClass} || ${GrpHasWizClass}) {			
-		/message ==================================================================
-	}	
-	|-----------------------------
+	/declare i 					int 	local	0
+	/declare targetClasses string local BRD,BER,BST,CLR,DRU,ENC,MAG,MNK,NEC,PAL,RNG,ROG,SHD,SHM,WAR,WIZ
 
+	|--/message ==================================================================
+	/message \ayChecking current Group Members \am[\at${Group.Members}\am]\ay against all classes.\ax
+	|-- /message \ayClasses to be checked\ao:\ax
+	|-- /message \am[\at${targetClasses}\am]\ax
+
+	|---------------------------------------------------
+	|---- CREATE DEFAULT CLASS VARIABLES FOR ALL CLASSES
+	|---------------------------------------------------
+    /for i 0 to ${Group.Members}
+		
+		|--/message ==================================================================
+        |-- /message \ayChecking \am[\at${Group.Member[${i}].CleanName}\am]\ao: \am[\ay${Group.Member[${i}].Class.ShortName}\am] \awItemSelect- \am[\ay${Select[${Group.Member[${i}].Class.ShortName},${targetClasses}]}\am] 
+		|------------
+		/if (${Select[${Group.Member[${i}].Class.ShortName},${targetClasses}]}) {
+            |-- /message Found a target class: \am[\ay${Group.Member[${i}].Class.ShortName}\am] - \am[\ay${Group.Member[${i}].CleanName}\am] \awin \am[\aytargetClasses\am]\ax.
+			/if (!${Defined[GrpHas${Group.Member[${i}].Class.ShortName}Class]}) {
+				|-- /message \ar--- \agMaking a \am[\atGrpHas${Group.Member[${i}].Class.ShortName}Class\am]\ag DECLARE for class \am[\at${Group.Member[${i}].Class.ShortName}\am]\ax
+				/declare GrpHas${Group.Member[${i}].Class.ShortName}Class	bool	outer	TRUE			
+				|-- /message \ar--- Created\ao:\aw /declare GrpHas${Group.Member[${i}].Class.ShortName}Class	bool	outer	TRUE
+			}
+			/message \ay+ \agThe group has a \am[\at${Group.Member[${i}].Class.ShortName}\am] - \am[\at${Group.Member[${i}].CleanName}\am]\ag.
+		}
+		|------------
+	/next i
+    }
+	/message ==================================================================
+	|---------------------------------------------------
+	|---- CREATE DEFAULT CLASS VARIABLES FOR ALL CLASSES
+	|---------------------------------------------------	
+	
 	/if (${Debugging}) /echo Sub CheckGroupClasses Exit
 /return
 | --------------------------------------------------------------------------------------------
@@ -3795,7 +3791,7 @@ Sub CheckInvis
 				
 	|----------------------- IF ME !INVIS
 	/if (!${Me.Invis}) {
-		/if (${GrpHasBrdClass}) {
+		/if (${GrpHasBRDClass}) {
 			/message \arNeed to make myself invisible!
 			/message \ayI am \arSTILL NOT\ay invised, making \am[\at${GrpBrdName}\am]\ay sing \am[\at${BRDTravelSong}\am]\ay.
 			|------------------------
@@ -5721,7 +5717,7 @@ Sub Event_Sealed_Off
 	|Finish Go to Marrs	
 	/delay 10
 	/e3bcgza /nav stop
-	/if (${GrpHasBrdClass}) /squelch /e3bct ${GrpBrdName} /playmelody stop
+	/if (${GrpHasBRDClass}) /squelch /e3bct ${GrpBrdName} /playmelody stop
 	/e3bcgza /keypress x 
 	/delay 6
 	/e3bcgza /stand
