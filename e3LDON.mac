@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: March 23rd, 2026 - 12:42:00 PM
+Last Updated: March 26th, 2026 - 10:02:00 AM
 
-v7.5.1
+v7.5.5
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -309,15 +309,17 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.5.1
+	/declare version			string		outer	7.5.5
+	/declare LastUpdated		string		outer	"Last Updated: March 26th, 2026 - 10:02:00 AM"
 	
 	/message ==================================================================
  	/call Declares
 	/message ==================================================================
 	/message \at${MacroName}.mac \aw- \atv${version} \awby \ag Kroaking
+	/message \at${LastUpdated}.
 	/message ==================================================================
 	/delay 2s
-
+	
 	|----------------
 	/call CheckThings
 	|----------------
@@ -366,6 +368,11 @@ Sub Main
 	/message \at/E3LDoN \awfor help \ayor \at/mqp \awto pause...
 	/message \agGetting things ready, sit back...
 	/delay 2s
+	
+	/message \ayI am currently in \am[\at${Zone.Name}\am]\ay.\ax
+	|--------------
+	/call GroupWait
+	|--------------	
 
 	|-----------------------------------------------	
 	/if (${Select[${Zone.ID},${GukTop},${Innothule},${AccursedSanctuary},${AncientAqua},${CauldronLostSouls},${ChapelOfTheWitnesses},${DrowningCrypt},${ForbodingPrison},${MushroomGrove},${RootGarden}]}) {
@@ -479,17 +486,19 @@ Sub Main
 | --------------------------------------------------------------------------------------------
 Sub Declares
 	/if (${Debugging}) /echo Sub Declares Entry
+	
+	|==================== DO NOT ALTER THESE VALUES ====================
 	/declare FarmMob 			string 	outer 
 	/declare PullRange 			int 	outer 
 	/declare MacroName			string	outer	E3LDoN
-	/declare Settings			string	outer	${MacroName}_${Me.CleanName}.ini
+	/declare IniFileName		string	outer	${MacroName}_${Me.CleanName}.ini
 	/declare FirstRun			int		outer	0
 	
 	|--------------------------------------
-	/if (!${Ini[${Settings}].Length}) /varset FirstRun 1
+	/if (!${Ini[${IniFileName}].Length}) /varset FirstRun 1
 	|--------------------------------------
 	
-	/message \ay${Settings} is the INI being used.
+	/message \ay${IniFileName} is the INI being used.
 	/declare BagsAreFull		bool 	outer FALSE
 	/declare CampRadius 		int 	outer 2500
 	/declare CampX 				int 	outer ${Me.X}
@@ -559,57 +568,59 @@ Sub Declares
 	|** E3LDON.mac/PullFarm.mac type declares INIThings **|
 	
 	|** SPECIFIC of E3LDON.mac/PullFarm.mac type declares **|
-	/call CheckINI ${Settings} General Debugging bool TRUE
+	/call CheckINI ${IniFileName} General Debugging bool TRUE
 	|** SPECIFIC of E3LDON.mac/PullFarm.mac type declares **|
 
-	/call CheckINI ${Settings} General AssistMe bool TRUE
-	/call CheckINI ${Settings} General AutoSellInPok bool FALSE
-	/call CheckIni ${Settings} General CheckBots bool TRUE
-	/call CheckINI ${Settings} General DoBurns bool FALSE
-	/call CheckINI ${Settings} General DoInvis bool TRUE
-	/call CheckINI ${Settings} General DoPBAOE bool FALSE
+	/call CheckINI ${IniFileName} General AssistMe bool TRUE
+	/call CheckINI ${IniFileName} General AutoSellInPok bool FALSE
+	/call CheckIni ${IniFileName} General CheckBots bool TRUE
+	/call CheckINI ${IniFileName} General DoBurns bool FALSE
+	/call CheckINI ${IniFileName} General DoInvis bool TRUE
+	/call CheckINI ${IniFileName} General DoPBAOE bool FALSE
 	|------------------------------------------------------------------------------
 	| Time to Forage after mission ends 18000 tenths of a second max = (30 minutes)
-	/call CheckINI ${Settings} General ForageTime int 0
+	/call CheckINI ${IniFileName} General ForageTime int 0
 	|** End of LDON.mac/PullFarm.mac type declares **|
 	|------------------------------------------------------------------------------
-	/call CheckINI ${Settings} General GroupNavToMe bool TRUE
-	/call CheckINI ${Settings} General HardMode bool FALSE
-	/call CheckIni ${Settings} General LootCorpse bool FALSE
-	/call CheckINI ${Settings} General LootMethod string DCONLY
-	/call CheckINI ${Settings} General MinItemValue int 10
-	/call CheckINI ${Settings} General MouseLock bool TRUE
-	/call CheckINI ${Settings} General MouseLocValX int 290
-	/call CheckINI ${Settings} General MouseLocValY int 550
-	/call CheckINI ${Settings} General PBAOE_MobCount int 5
-	/call CheckINI ${Settings} General SwarmPull bool FALSE
-	/call CheckIni ${Settings} General UseClickBuffs bool FALSE
-	/call CheckIni ${Settings} General UseClickDamage bool FALSE
-	/call CheckINI ${Settings} General UseMerc bool FALSE
-	/call CheckIni ${Settings} General ThemeCheck bool TRUE
-	
+	/call CheckINI ${IniFileName} General GroupNavToMe bool TRUE
+	/call CheckINI ${IniFileName} General HardMode bool FALSE
+	/call CheckIni ${IniFileName} General LootCorpse bool FALSE
+	/call CheckINI ${IniFileName} General LootMethod string DCONLY
+	/call CheckINI ${IniFileName} General MinItemValue int 10
+	/call CheckINI ${IniFileName} General MouseLock bool TRUE
+	/call CheckINI ${IniFileName} General MouseLocValX int 290
+	/call CheckINI ${IniFileName} General MouseLocValY int 550
+	/call CheckINI ${IniFileName} General PBAOE_MobCount int 5
+	/call CheckINI ${IniFileName} General SwarmPull bool FALSE
+	/call CheckIni ${IniFileName} General UseClickBuffs bool FALSE
+	/call CheckIni ${IniFileName} General UseClickDamage bool FALSE
+	/call CheckINI ${IniFileName} General UseMerc bool FALSE
+	/call CheckIni ${IniFileName} General ThemeCheck bool TRUE
+	/call CheckINI ${IniFileName} General TurboLooter string ${GrpMainLooter}
+	|------------------------------------------------------------
 	/declare BRDTravelSong string  outer "Selo's Song of Travel"
-	/call CheckINI ${Settings} BardSong BRDMelodyName string base
-	/call CheckINI ${Settings} BardSong BRDTravelSongSlot string 11
-	
-	/call CheckINI ${Settings} Endurance MedEndAt int 8
-	/call CheckINI ${Settings} Endurance MedEndTill int 100
-	
-	/call CheckINI ${Settings} Mana BardMed bool TRUE
-	/call CheckINI ${Settings} Mana MedAt int 30
-	/call CheckINI ${Settings} Mana MedTill int 100
-			
-	/call CheckIni ${Settings} Alerts AFKGM bool TRUE
-	/call CheckIni ${Settings} Alerts UseBeep bool TRUE
-	
-	/call CheckIni ${Settings} Theme LastCompleted_Num int 0
-	/call CheckIni ${Settings} Theme LastCompleted_Theme string NONE
-	/call CheckIni ${Settings} Theme LastCompleted_TimeStamp string NONE
-		
-	/call CheckIni ${Settings} Theme LastSwarmed_Dungeon string NONE
-	/call CheckIni ${Settings} Theme LastSwarmed_Step string 1
-	
-	/call CheckIni ${Settings} Theme NextCamp_Bark string NONE
+	/call CheckINI ${IniFileName} BardSong BRDMelodyName string base
+	/call CheckINI ${IniFileName} BardSong BRDTravelSongSlot string 11
+	|------------------------------------------------------------
+	/call CheckINI ${IniFileName} Endurance MedEndAt int 8
+	/call CheckINI ${IniFileName} Endurance MedEndTill int 100
+	|------------------------------------------------------------
+	/call CheckINI ${IniFileName} Mana BardMed bool TRUE
+	/call CheckINI ${IniFileName} Mana MedAt int 30
+	/call CheckINI ${IniFileName} Mana MedTill int 100
+	|------------------------------------------------------------
+	/call CheckIni ${IniFileName} Alerts AFKGM bool TRUE
+	/call CheckIni ${IniFileName} Alerts UseBeep bool TRUE
+	|------------------------------------------------------------
+	/call CheckIni ${IniFileName} Theme LastCompleted_Num int 0
+	/call CheckIni ${IniFileName} Theme LastCompleted_Theme string NONE
+	/call CheckIni ${IniFileName} Theme LastCompleted_TimeStamp string NONE
+	|------------------------------------------------------------
+	/call CheckIni ${IniFileName} Theme LastSwarmed_Dungeon string NONE
+	/call CheckIni ${IniFileName} Theme LastSwarmed_Step string 1
+	|------------------------------------------------------------
+	/call CheckIni ${IniFileName} Theme NextCamp_Bark string NONE
+	|------------------------------------------------------------
 		
 	|** Start ZoneID as variable **|
 	/declare TempleofMarr int outer 386
@@ -690,15 +701,16 @@ Sub Declares
 	|** End Deepest Guk Zones **|
 	
 	|** End ZoneID as Variable **|
-
+	|==================== DO NOT ALTER THESE VALUES ====================
+	
 	|-------------------------------	
 	/if (${FirstRun}) {
-		/message Created INI file ${Settings} with default values.
+		/message Created INI file ${IniFileName} with default values.
 		/message Please edit the file and restart ${MacroName}.
 		/message Ending Macro
 		/end
 	} else {
-		/message Config loaded from ${Settings}.
+		/message Config loaded from ${IniFileName}.
 	}
 	|-------------------------------	
 	
@@ -712,21 +724,44 @@ Sub Declares
 | --------------------------------------------------------------------------------------------
 Sub CheckThings
 	/if (${Debugging}) /echo Sub CheckThings Entry
+
+	/message \ayChecking running status of \am[\atxfix.lua\am]\ao:\ax
+
+	|--------
+	/if (!${Lua.Script[xfix].Status.Equal[Running]}) {
+		/message \atTrying to start xfix.lua...\ax
+		/lua run xfix
+		/delay 2s
+	}
+	|--------
+
+	|--------
+	/if (!${Lua.Script[xfix].Status.Equal[Running]}) {
+		/message \arxfix.lua can not be started, and it IS needed, exiting !\ax
+		/message ==================================================================
+		/end
+	} else {
+		/message \agxfix is already active.
+		/message ==================================================================
+	}
+	|--------
 	
-	/if (${ForageTime}>0) /call CheckPlugin MQ2AutoForage
-	
+	|---------------------------------
+	| Plugin check - Enabble / disable
+	|---------------------------------
 	|---------
 	/if (${Bool[${Plugin[MQ2Bucles]}]}) {
         /squelch /plugin MQ2Bucles unload noauto
         /message MQ2Bucles detected! This macro doesn't like it! Unloading temporarily ...
     }
 	|---------
-	
 	/call CheckPlugin MQ2Nav
 	/call CheckMesh
 	/call CheckPlugin MQ2Events	
 	/call CheckPlugin MQ2MoveUtils
-
+	/if (${ForageTime}>0) /call CheckPlugin MQ2AutoForage
+	|---------------------------------
+	
 	|-------------------------
 	|-- CHECK DRIVER PET STATUS
 	|-------------------------
@@ -1101,7 +1136,7 @@ Sub SelectAdventureZone_RR
 	|-----------------------------------
 	|- Retrieve the last mission results
 	|-----------------------------------
-	/varset LastCompleted_Num ${Ini[${Settings},Theme,LastCompleted_Num]}
+	/varset LastCompleted_Num ${Ini[${IniFileName},Theme,LastCompleted_Num]}
 	|-----------------------------------
 	
 	|-----------------------------------
@@ -1288,7 +1323,7 @@ Sub SelectAdventureZone_TC
 	|-----------------------------------
 	|- Retrieve the last mission results
 	|-----------------------------------
-	/varset LastCompleted_Num ${Ini[${Settings},Theme,LastCompleted_Num]}
+	/varset LastCompleted_Num ${Ini[${IniFileName},Theme,LastCompleted_Num]}
 	|-----------------------------------
 	
 	|-----------------------------------
@@ -2477,8 +2512,8 @@ Sub Go2LastSwarmLoc
 	|------------------------------------------------------------------------------------------------------------
 	|- READ:  LastSwarmed_Dungeon and LastSwarmed_Step from ini file, to pickup at this point if restarted macro.
 	|------------------------------------------------------------------------------------------------------------
-	/varset LastSwarmed_Dungeon ${Ini[${Settings},Theme,LastSwarmed_Dungeon]}
-	/varset LastSwarmed_Step ${Ini[${Settings},Theme,LastSwarmed_Step]}
+	/varset LastSwarmed_Dungeon ${Ini[${IniFileName},Theme,LastSwarmed_Dungeon]}
+	/varset LastSwarmed_Step ${Ini[${IniFileName},Theme,LastSwarmed_Step]}
 	|-------------------------------------------------------------------------------------------------------
 	|/echo \arGo2LastSwarmLoc: \ayLastSwarmed_Dungeon=(${LastSwarmed_Dungeon}) | LastSwarmed_Step=(${LastSwarmed_Step})	
 	|-------------------------------------------------------------------------------------------------------
@@ -2816,7 +2851,8 @@ Sub DoSwarmPull
 	}
 	|------------------------------------------------------
 	/varset LocalStepArray_${Zone.ShortName}_8[1,1] -27.67 416.21 -55.87
-	/varset LocalStepArray_${Zone.ShortName}_8[1,2] -345.88 402.49 -116.87
+	|-- ORIG IN PIT -- /varset LocalStepArray_${Zone.ShortName}_8[1,2] -345.88 402.49 -116.87
+	/varset LocalStepArray_${Zone.ShortName}_8[1,2] -344.39 349.27 -116.37	
 	/varset LocalStepArray_${Zone.ShortName}_8[1,3] -113.21 262.63 -116.37
 	/varset LocalStepArray_${Zone.ShortName}_8[1,4] 0.56 5.65 4.13
 	/varset LocalStepArray_${Zone.ShortName}_8[1,5] -337.81 54.79 63.13
@@ -2937,7 +2973,13 @@ Sub DoClearTargets
 		|-- Dont have target, but aggressive mob near.
 		|------------------------------
 		/if (!${Target.ID} && ${Bool[${Spawn[npc radius 35].Aggressive}]}) {			
-			/squelch /e3bcgz /nav id ${Me.ID}
+			|-----
+			/if (${Navigation.PathExists[id ${Me.ID}]}) {
+				/squelch /e3bcgz /nav id ${Me.ID}
+			} else {
+				/squelch /e3bcgz /moveto id ${Me.ID} mdist 10
+			}
+			|-----
 			/delay 5			
 			/target id ${NearestSpawn[npc radius 35 targetable].ID}
 			/delay 5
@@ -2952,7 +2994,13 @@ Sub DoClearTargets
 		|-- Have a target, kill it.
 		|------------------------------
 		/if (${Target.ID} && ${Target.Type.Equal[npc]} && ${Target.Aggressive}) {				
-			/squelch /e3bcgz /nav id ${Me.ID}
+			|-----
+			/if (${Navigation.PathExists[id ${Me.ID}]}) {
+				/squelch /e3bcgz /nav id ${Me.ID}
+			} else {
+				/squelch /e3bcgz /moveto id ${Me.ID} mdist 10
+			}
+			|-----
 			/delay 5
 			/if (${Target.ID}!=0) /message \ayAttacking targeted mob \aoID: \am[\at${Target.ID}\am] \aoName: \am[\at${Target.CleanName}\am]\ay !\ax			
 			/ClearTarget usemytarget
@@ -2968,9 +3016,21 @@ Sub DoClearTargets
 
 			|------------------------------
 			/if (${Spawn[npc fleeing].ID}) {
-				/squelch /nav id ${Spawn[npc fleeing].ID}
+				|-----
+				/if (${Navigation.PathExists[id ${Spawn[npc fleeing].ID}]}) {
+					/squelch /nav id ${Spawn[npc fleeing].ID}
+				} else {
+					/squelch /moveto id ${Spawn[npc fleeing].ID} mdist 10
+				}
+				|-----
 				/delay 5	
-				/squelch /e3bcgz /nav id ${Spawn[npc fleeing].ID}
+				|-----
+				/if (${Navigation.PathExists[id ${Spawn[npc fleeing].ID}]}) {
+					/squelch /e3bcgz /nav id ${Spawn[npc fleeing].ID}
+				} else {
+					/squelch /e3bcgz /moveto id ${Spawn[npc fleeing].ID} mdist 10
+				}
+				|-----
 				/delay 5			
 				/target id ${Spawn[npc fleeing].ID}
 				/delay 5					
@@ -3000,9 +3060,21 @@ Sub DoClearTargets
 				/if	(${Me.XTarget}) {
 					/for i 1 to ${Me.XTargetSlots}
 						/if (${Me.XTarget[${i}].ID}) {					
-							/squelch /nav id ${Me.XTarget[${i}].ID}
+							|-----
+							/if (${Navigation.PathExists[id ${Me.XTarget[${i}].ID}]}) {
+								/squelch /nav id ${Me.XTarget[${i}].ID}
+							} else {
+								/squelch /moveto id ${Me.XTarget[${i}].ID}
+							}
+							|-----							
 							/delay 5	
-							/squelch /e3bcgz /nav id ${Me.XTarget[${i}].ID}
+							|-----
+							/if (${Navigation.PathExists[id ${Me.XTarget[${i}].ID}]}) {
+								/squelch /e3bcgz /nav id ${Me.XTarget[${i}].ID}
+							} else {
+								/squelch /e3bcgz /moveto id ${Me.XTarget[${i}].ID}
+							}
+							|-----			
 							/delay 5			
 							/target id ${Me.XTarget[${i}].ID}
 							/delay 5					
@@ -3024,9 +3096,21 @@ Sub DoClearTargets
 		
 		|------------------------------
 		/if (${Target.Distance} > 20) {
-			/squelch /nav id ${Target.ID}
+			|--
+			/if (${Navigation.PathExists[id ${Target.ID}]}) {
+					/squelch /nav id ${Target.ID}
+				} else {
+					/squelch /moveto id ${Target.ID} mdist 10
+			}
+			|--
 			/stick 15
-			/squelch /e3bcgz /nav id ${Me.ID}
+			|--
+			/if (${Navigation.PathExists[id ${Me.ID}]}) {
+					/squelch /e3bcgz /nav id ${Me.ID}
+				} else {
+					/squelch /e3bcgz /moveto id ${Me.ID} mdist 10
+			}
+			|--
 		}
 		|------------------------------
 		|------------------------------
@@ -3133,7 +3217,7 @@ Sub FinishAdventure
 	| Write Success info to INI
 	|------------------------------------------------------------------------------
     /popcustom 15 5 ---> MISSION SUCCESS <---
-    /message \agUpdating \ay(\am${Settings}\ay)\ao with last adventure completion data.
+    /message \agUpdating \ay(\am${IniFileName}\ay)\ao with last adventure completion data.
 	
 	/if (${Select[${Zone.ID},264,239,229,254,234,249,244,259]}) {
 		/varset NextCamp_Num 1
@@ -3641,7 +3725,7 @@ Sub CheckGroupClasses
 				/declare GrpHas${Group.Member[${i}].Class.ShortName}Class	bool	outer	TRUE			
 				|-- /message \ar--- Created\ao:\aw /declare GrpHas${Group.Member[${i}].Class.ShortName}Class	bool	outer	TRUE
 			}
-			/message \ay+ \agThe group has a \am[\at${Group.Member[${i}].Class.ShortName}\am] - \am[\at${Group.Member[${i}].CleanName}\am]\ag.
+			/message \ay+ \agThe group has a \am[\ao${Group.Member[${i}].Class.ShortName}\am] - \am[\at${Group.Member[${i}].CleanName}\am]\ag.
 		}
 		|------------
 	/next i
@@ -4774,7 +4858,7 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
-	/if (!${Me.XTarget}) {
+	 /if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}) {
 		/message \at+++ \ayLooting - \ag Corpse\ao: \ar[\am${Target.CleanName}\ar] \agID\ao: \ar[\am${Target.ID}\ar].
 		/loot
 	} else {
@@ -4783,6 +4867,7 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
+	
 	|---------------------------------------
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
@@ -4819,7 +4904,7 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
-	/if (!${Me.XTarget}) {
+	 /if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}) {
 		/message \at+++ \ayLooting - \ag Corpse\ao: \ar[\am${Target.CleanName}\ar] \agID\ao: \ar[\am${Target.ID}\ar].
 		/loot
 	} else {
@@ -5224,7 +5309,7 @@ Sub Group2Me
 |--------------------------------------------------------
 Sub INIChange(Section,Key,Value)
 /if (${Debugging}) /echo Sub INIChange Entry
-	/ini "${Settings}" "${Section}" "${Key}" "${Value}"
+	/ini "${IniFileName}" "${Section}" "${Key}" "${Value}"
 /if (${Debugging}) /echo Sub INIChange Exit	
 /return
 |--------------------------------------------------------
@@ -5681,7 +5766,7 @@ Sub Event_Sealed_Off
 	| Write Success info to INI
 	|------------------------------------------------------------------------------
     /popcustom 2 5 ---> MISSION SUCCESS ! ! !  <---
-    /message \agUpdating \ay(\am${Settings}\ay)\ao with last adventure completion data.
+    /message \agUpdating \ay(\am${IniFileName}\ay)\ao with last adventure completion data.
 	
 	/if (${Select[${Zone.ID},264,239,229,254,234,249,244,259]}) {
 		/varset NextCamp_Num 1
