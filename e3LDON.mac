@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: March 26th, 2026 - 10:02:00 AM
+Last Updated: March 28th, 2026 - 08:31:00 AM
 
-v7.5.5
+v7.5.6
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -286,6 +286,8 @@ Cleaned up old code and INI call references for unused variables and procedures.
 
 #event NavMeshReload "#*#Could not locate destination on navmesh#*#"
 
+#event TurboLootDone "#*#${TurboLooter} tells the group, '[DONE LOOTING]'#*#"
+
 #define /message "/echo \ay[\atE3LDoN\ay]\aw "
 
 #bind AddToIgnore /ignorethese
@@ -309,11 +311,12 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.5.5
-	/declare LastUpdated		string		outer	"Last Updated: March 26th, 2026 - 10:02:00 AM"
+	/declare version			string		outer	7.5.6
+	/declare LastUpdated		string		outer	"Last Updated: March 28th, 2026 - 08:31:00 AM"
 	
 	/message ==================================================================
  	/call Declares
+	
 	/message ==================================================================
 	/message \at${MacroName}.mac \aw- \atv${version} \awby \ag Kroaking
 	/message \at${LastUpdated}.
@@ -323,10 +326,15 @@ Sub Main
 	|----------------
 	/call CheckThings
 	|----------------
-
+	
 	|--------------------------------------------
 	/if (${MouseLock}) /mouseto ${MouseLocValX}, ${MouseLocValY}
-	|--------------------------------------------		
+	|--------------------------------------------	
+
+	|------------
+	/if (${LootMethod.Equal[TURBOLOOT]})  {
+		/message \ag- TurboLooter \ayis set to \am[\ao${TurboLooter}\am]\ax 
+	}	
 
 	|-------------------------------------
 	|-- If No Adventure Time (no AdvRqst_CompleteTimeLeftLabel) Check the starting zone, reset to Marrs if not in Pok or Marrs.
@@ -596,7 +604,6 @@ Sub Declares
 	/call CheckIni ${IniFileName} General UseClickDamage bool FALSE
 	/call CheckINI ${IniFileName} General UseMerc bool FALSE
 	/call CheckIni ${IniFileName} General ThemeCheck bool TRUE
-	/call CheckINI ${IniFileName} General TurboLooter string ${GrpMainLooter}
 	|------------------------------------------------------------
 	/declare BRDTravelSong string  outer "Selo's Song of Travel"
 	/call CheckINI ${IniFileName} BardSong BRDMelodyName string base
@@ -620,6 +627,12 @@ Sub Declares
 	/call CheckIni ${IniFileName} Theme LastSwarmed_Step string 1
 	|------------------------------------------------------------
 	/call CheckIni ${IniFileName} Theme NextCamp_Bark string NONE
+	|------------------------------------------------------------
+	
+	|------------------------------------------------------------
+	| Set Turbolooter to the pulled variablie from Mq2Mono Query.
+	|------------------------------------------------------------
+	/varset TurboLooter ${MQ2Mono.Query[e3,E3Bots(${Me.CleanName}).Query(GrpMainLooterName)]}
 	|------------------------------------------------------------
 		
 	|** Start ZoneID as variable **|
@@ -773,23 +786,41 @@ Sub CheckThings
 	|-------------------------		
 	/if (${LootCorpse}) {		
 		/message ==================================================================
-		/message \ay--- \atENABLING\ax \am${MacroName}\ax LOOTING, we will loot corpses.
+		/message \ay--- \atENABLING\ax \am${MacroName}\ax LOOTING, WE WILL LOOT CORPSE(S).
+		/message ==================================================================		
 		/if (${LootMethod.Equal[DCONLY]}) {
 			/squelch /lootoff
-			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot [\atDiamond Coin\ay] and \arHIGH VALUE ITEMS.\ax
+			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot [\atDiamond Coin\ay] and \arHIGH VALUE ITEMS \am(\ao>=\at${MinItemValue}\am)\ay.\ax
 			|------------------------------------------------
 		}  
 		/if (${LootMethod.Equal[E3]}) {
 			/squelch /looton
-			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot according to \amE3\ax settings.
-			/message \ay    [ if configured in your \amE3\ax config files. \ag(Loot Settings.ini)\ax ]
+			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot according to \am${LootMethod}\ax settings.
+			/message \ay    [ if configured in your \am${LootMethod}\ax config files. \ag("Loot Settings.ini")\ax ]
 		}
+		/if (${LootMethod.Equal[TURBOLOOT]}) {
+			/squelch /lootoff
+			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot according to \am${LootMethod}\ax settings.
+			/message \ay    [ if configured in your \am${LootMethod}\ax config files. \ag(turboloot.ini)\ax ]
+			|-------------
+			/if (${TurboLooter.Equal[NOBODY]} || ${TurboLooter.Equal[NULL]} || ${TurboLooter.Equal[${Me.CleanName}]}) {
+				/message ==================================================================
+				/message \ar    WARNING\ao: \arYOU CAN NOT HAVE TURBOLOOTER SET AS \ar[\at${TurboLooter}\am]\ar.
+				/message \ar    It can not be NOBODY or YOURSELF ! \ag ~ FIX AND RESTART ~.\ax
+				/message ==================================================================
+				/end
+			}			
+			|-------------
+			/message \ay    [ Looter cuurently set to: \am[\at${TurboLooter}\am]\ay   ]			
+		}		
 		/message ==================================================================
+		/delay 3s
 	} else {
 		/squelch /lootoff
 		/message ==================================================================
-		/message \ar--- DISABLING ${MacroName} LOOTING, YOU WILL NOT LOOT CORPSES !
+		/message \ar--- DISABLING \am${MacroName}\ar LOOTING, YOU WILL NOT LOOT CORPSE(S)!
 		/message ==================================================================
+		/delay 3s
 	}
 	|-------------------------	
 
@@ -1927,8 +1958,8 @@ Sub GotoTask
 			|---------------------------------------------
 			/message \aoHeaded to a \at[\agquicksand pit\at]
 			/delay 1s
-			/squelch /e3bcgza /nav loc -949.78 124.60 -63.23
-			/call NavToLoc2 -949.78 124.60 -63.23
+			/squelch /e3bcgza /nav loc -945.89 121.15 -61.98
+			/call NavToLoc2 -945.89 121.15 -61.98
 			/delay 5
 			/while (${Navigation.Active}) {
 				/call SetLoc
@@ -2943,8 +2974,8 @@ Sub DoClearTargets
 	|--------------------------------------------------
 	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]} || (${Target.ID} && ${Target.Type.Equal[npc]} && ${Target.Aggressive})) {
 		/ClearTarget usemytarget
-		/keypress esc
-		/delay 10
+		|/keypress esc
+		/delay 5
 		
 		:gotoloopkeepfighting
 		|------------------------
@@ -2985,8 +3016,8 @@ Sub DoClearTargets
 			/delay 5
 			/if (${Target.ID}!=0) /message \ayTargetting aggressive mob \aoID: \am[\at${NearestSpawn[npc radius 35 targetable].ID}\am] \aoName: \am[\at${NearestSpawn[npc radius 35 targetable].CleanName}\am]\ay and attacking !\ax
 			/ClearTarget usemytarget
-			/keypress esc
-			/delay 10			
+			|/keypress esc
+			/delay 5			
 		}
 		|------------------------------
 		
@@ -3004,8 +3035,8 @@ Sub DoClearTargets
 			/delay 5
 			/if (${Target.ID}!=0) /message \ayAttacking targeted mob \aoID: \am[\at${Target.ID}\am] \aoName: \am[\at${Target.CleanName}\am]\ay !\ax			
 			/ClearTarget usemytarget
-			/keypress esc
-			/delay 10
+			|/keypress esc
+			/delay 5
 		}
 		|------------------------------
 		
@@ -3036,8 +3067,8 @@ Sub DoClearTargets
 				/delay 5					
 				/if (${Target.ID}!=0) /message \arFound a \am[\atRandom\am]\ar fleeing mob! \ayTargetting \aoID: \am[\at${Me.XTarget[${i}].ID}\am] \ayName\ao: \am[\at${Me.XTarget[${i}].CleanName}\am]\ay and attacking !\ax
 				/ClearTarget usemytarget
-				/keypress esc
-				/delay 10
+				|/keypress esc
+				/delay 5
 			}
 			|------------------------------
 			
@@ -3046,13 +3077,13 @@ Sub DoClearTargets
 			/if ((${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) || (${Me.XTarget} && ${Spawn[npc fleeing].ID})) {
 				|-----
 				/if (${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) {
-					/message \aoAn XTarget mob is out of range.\ax
+					/message \aoAn XTarget mob is out of range, hunting it down !\ax
 				}
 				|-----
 
 				|-----
 				/if	(${Me.XTarget} && ${Spawn[npc fleeing].ID}) {
-					/message \aoXTarget mob is fleeing.\ax
+					/message \aoXTarget mob is fleeing, chasing it down !\ax
 				}
 				|-----				
 			
@@ -3080,8 +3111,8 @@ Sub DoClearTargets
 							/delay 5					
 							/if (${Target.ID}!=0) /message \arFound a \am[\atXTarget\am]\ar fleeing mob! \ayTargetting \aoID: \am[\at${Me.XTarget[${i}].ID}\am] \ayName\ao: \am[\at${Me.XTarget[${i}].CleanName}\am]\ay and attacking !\ax
 							/ClearTarget usemytarget
-							/keypress esc
-							/delay 10
+							|/keypress esc
+							/delay 5
 							/break
 						}
 					/next i
@@ -3706,7 +3737,7 @@ Sub CheckGroupClasses
 	/declare targetClasses string local BRD,BER,BST,CLR,DRU,ENC,MAG,MNK,NEC,PAL,RNG,ROG,SHD,SHM,WAR,WIZ
 
 	|--/message ==================================================================
-	/message \ayChecking current Group Members \am[\at${Group.Members}\am]\ay against all classes.\ax
+	/message \ayChecking current Group Members \am(\atMe \ao+ \am[\at${Group.Members}\am])\ay against all classes.\ax
 	|-- /message \ayClasses to be checked\ao:\ax
 	|-- /message \am[\at${targetClasses}\am]\ax
 
@@ -3846,28 +3877,28 @@ Sub CheckInvis
 		/message \ayAttempting to invis group using alternate abilities !
 		|------------------------------------
 		|------------- UNDEAD ---------------
-		|/if (!${Me.Invis}) /call DoGrpInvisByClass CLR 1212
-		|/if (!${Me.Invis}) /call DoGrpInvisByClass PAL 1212
-		|/if (!${Me.Invis}) /call DoGrpInvisByClass NEC 1212
-		|/if (!${Me.Invis}) /call DoGrpInvisByClass SHD 1212
+		|/if (!${Me.Invis} && ${GrpHasENCClass}) /call DoGrpInvisByClass CLR 1212
+		|/if (!${Me.Invis} && ${GrpHasPALClass}) /call DoGrpInvisByClass PAL 1212
+		|/if (!${Me.Invis} && ${GrpHasNECClass}) /call DoGrpInvisByClass NEC 1212
+		|/if (!${Me.Invis} && ${GrpHasSHDClass}) /call DoGrpInvisByClass SHD 1212
 		|------------- UNDEAD ---------------
-		|/if (!${Me.Invis}) /call DoGrpInvisByClass MAG 280
-		|/if (!${Me.Invis}) /call DoGrpInvisByClass ENC 280
-		|/if (!${Me.Invis}) /call DoGrpInvisByClass WIZ 280
+		|/if (!${Me.Invis} && ${GrpHasMAGClass}) /call DoGrpInvisByClass MAG 280
+		|/if (!${Me.Invis} && ${GrpHasENCClass}) /call DoGrpInvisByClass ENC 280
+		|/if (!${Me.Invis} && ${GrpHasWIZClass}) /call DoGrpInvisByClass WIZ 280
 		|------------- GROUP ---------------
-		/if (!${Me.Invis}) /call DoGrpInvisByClass SHM 630
+		/if (!${Me.Invis} && ${GrpHasSHMClass}) /call DoGrpInvisByClass SHM 630
 		|------------- GROUP ---------------
-		/if (!${Me.Invis}) /call DoGrpInvisByClass DRU 518
-		/if (!${Me.Invis}) /call DoGrpInvisByClass RNG 518
+		/if (!${Me.Invis} && ${GrpHasDRUClass}) /call DoGrpInvisByClass DRU 518
+		/if (!${Me.Invis} && ${GrpHasRNGClass}) /call DoGrpInvisByClass RNG 518
 		|------------- GROUP ---------------
-		/if (!${Me.Invis}) /call DoGrpInvisByClass ENC 1210
-		/if (!${Me.Invis}) /call DoGrpInvisByClass MAG 1210		
-		/if (!${Me.Invis}) /call DoGrpInvisByClass WIZ 1210
+		/if (!${Me.Invis} && ${GrpHasENCClass}) /call DoGrpInvisByClass ENC 1210
+		/if (!${Me.Invis} && ${GrpHasMAGClass}) /call DoGrpInvisByClass MAG 1210		
+		/if (!${Me.Invis} && ${GrpHasWIZClass}) /call DoGrpInvisByClass WIZ 1210
 		|------------- INDIVIDUAL ---------------
-		|/if (!${Me.Invis}) /call DoGrpInvisByClass BRD 231
-		/if (!${Me.Invis}) /call DoGrpInvisByClass SHD 531
-		/if (!${Me.Invis}) /call DoGrpInvisByClass NEC 531
-		/if (!${Me.Invis}) /call DoGrpInvisByClass BST 8301
+		|/if (!${Me.Invis} && ${GrpHasBRDClass}) /call DoGrpInvisByClass BRD 231
+		/if (!${Me.Invis} && ${GrpHasSHDClass}) /call DoGrpInvisByClass SHD 531
+		/if (!${Me.Invis} && ${GrpHasNECClass}) /call DoGrpInvisByClass NEC 531
+		/if (!${Me.Invis} && ${GrpHasBSTClass}) /call DoGrpInvisByClass BST 8301
 		|------------------------------------
 		/delay 3s ${Me.Invis}
 	}
@@ -4823,6 +4854,7 @@ Sub ReclaimAltDC
 		/call CheckCasting
 		/delay 5 !${Me.Moving}	
 		|--------------------------------------------------------------------------------
+		/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[TURBOLOOT]}) /call LootMob_Turboloot
 		/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
 		/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
 		/delay 5
@@ -4837,6 +4869,49 @@ Sub ReclaimAltDC
   }
 
 	/if (${Debugging}) /echo Sub CheckForCorpses Exit
+  /return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+|SUB: LootMob_Turboloot -- Let Turboloot Looting handle your corpseloot.
+| --------------------------------------------------------------------------------------------
+  Sub LootMob_Turboloot
+	/if (${Debugging}) /echo Sub LootMob_Turboloot Entry
+	
+		/declare TurboLootPause		bool	inner	FALSE
+
+	|---------------------------------------
+	| -- Let TURBOLOOT Looting System handle this !
+	|---------------------------------------
+	/if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}) {
+		/message \at+++ \ayHaving \am[\ag${TurboLooter}\am]\ay loot via \am[\aoTurboLoot\am]\ay.		
+		/message \at+ \aoHiding corpse(s) from myself.
+		/hidecorpse all
+		/squelch /e3bct ${TurboLooter} /mac TurboLoot
+		/varset TurboLootPause TRUE
+		/delay 5
+		|---------------------------
+		/while (${TurboLootPause}) {			
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
+			/doevents
+			/delay 5s
+			/message \at+ \aoWaiting on \am[\ag${TurboLooter}\am]\ay to finish looting.
+		}
+		|---------------------------
+		/message \at+++ \ayDone having \am[\ag${TurboLooter}\am]\ay loot via \am[\aoTurboLoot\am]\ay.
+	} else {
+		/call DoClearTargets
+	}
+	|---------------------------------------
+	| -- Let TURBOLOOT Looting System handle this !
+	|---------------------------------------
+	|--------------------------------------------
+	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
+	|--------------------------------------------
+	/doevents
+	|-------------------------------------------------------------------------------------
+
+	/if (${Debugging}) /echo Sub LootMob_Turboloot Exit
   /return
 | --------------------------------------------------------------------------------------------
 
@@ -5860,6 +5935,19 @@ Sub Event_Sealed_Off
     /doevents flush NavMeshReload
   /return  
 |-------------------------------------------------------- 
+|--------------------------------------------------------
+Sub Event_TurboLootDone
+	/message \at+ \am[\ag${TurboLooter}\am]\ay has finished looting.
+	/varset TurboLootPause FALSE
+	/doevents flush TurboLootDone
+/return
+|-------------------------------------------------------
+|--------------------------------------------------------
+Sub Event_BagsFull
+	/varset BagsAreFull TRUE
+	/doevents flush BagsFull
+/return
+|--------------------------------------------------------
 
  
 |--------------------------------------------------------
