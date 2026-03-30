@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: March 28th, 2026 - 08:31:00 AM
+Last Updated: March 30th, 2026 - 06:24:00 AM
 
-v7.5.6
+v7.5.8
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -267,6 +267,7 @@ Cleaned up old code and INI call references for unused variables and procedures.
 
 ****************************************************************************************************************|
 /squelch /log on
+#chat group
 
 #event Magical_Presence "strange magical presence"
 #event Sealed_Off "sealed off to you"
@@ -286,7 +287,7 @@ Cleaned up old code and INI call references for unused variables and procedures.
 
 #event NavMeshReload "#*#Could not locate destination on navmesh#*#"
 
-#event TurboLootDone "#*#${TurboLooter} tells the group, '[DONE LOOTING]'#*#"
+#event TurboLootDone "#*# tells the group, '[DONE LOOTING]'#*#"
 
 #define /message "/echo \ay[\atE3LDoN\ay]\aw "
 
@@ -311,8 +312,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.5.6
-	/declare LastUpdated		string		outer	"Last Updated: March 28th, 2026 - 08:31:00 AM"
+	/declare version			string		outer	7.5.8
+	/declare LastUpdated		string		outer	"Last Updated: March 30th, 2026 - 06:24:00 AM"
 	
 	/message ==================================================================
  	/call Declares
@@ -518,6 +519,7 @@ Sub Declares
 	/declare PBAE_State			bool	outer FALSE
 	/declare SitDelay 			timer 	outer 5s
 	/declare Targets 			string 	outer
+	/declare TurboLootPause		bool	outer FALSE
 	/declare ZRadius 			int 	outer 500
 	/declare courseCorrection 	timer 	outer 1s
 	/declare myTargetID 		int 	outer 0
@@ -629,11 +631,11 @@ Sub Declares
 	/call CheckIni ${IniFileName} Theme NextCamp_Bark string NONE
 	|------------------------------------------------------------
 	
-	|------------------------------------------------------------
+	|------------------------------------------------------------------------------------------------------------
 	| Set Turbolooter to the pulled variablie from Mq2Mono Query.
-	|------------------------------------------------------------
-	/varset TurboLooter ${MQ2Mono.Query[e3,E3Bots(${Me.CleanName}).Query(GrpMainLooterName)]}
-	|------------------------------------------------------------
+	|------------------------------------------------------------------------------------------------------------
+	/declare TurboLooter	string	outer	${MQ2Mono.Query[e3,E3Bots(${Me.CleanName}).Query(GrpMainLooterName)]}
+	|------------------------------------------------------------------------------------------------------------
 		
 	|** Start ZoneID as variable **|
 	/declare TempleofMarr int outer 386
@@ -796,12 +798,12 @@ Sub CheckThings
 		/if (${LootMethod.Equal[E3]}) {
 			/squelch /looton
 			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot according to \am${LootMethod}\ax settings.
-			/message \ay    [ if configured in your \am${LootMethod}\ax config files. \ag("Loot Settings.ini")\ax ]
+			/message \ay    [ If configured in your \am${LootMethod}\ax config files. \ag("Loot Settings.ini")\ax ]
 		}
 		/if (${LootMethod.Equal[TURBOLOOT]}) {
 			/squelch /lootoff
 			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot according to \am${LootMethod}\ax settings.
-			/message \ay    [ if configured in your \am${LootMethod}\ax config files. \ag(turboloot.ini)\ax ]
+			/message \ay    [ If configured in your \am${LootMethod}\ax config files. \ag(turboloot.ini)\ax ]
 			|-------------
 			/if (${TurboLooter.Equal[NOBODY]} || ${TurboLooter.Equal[NULL]} || ${TurboLooter.Equal[${Me.CleanName}]}) {
 				/message ==================================================================
@@ -2969,7 +2971,8 @@ Sub DoSwarmPull
 Sub DoClearTargets
 	/if (${Debugging}) /echo Sub DoClearTargets Entry
 	
-	/declare i int 	local	0
+	/declare i 				int 	local	0
+	/declare CurrentTarget 	int 	local	0
 
 	|--------------------------------------------------
 	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]} || (${Target.ID} && ${Target.Type.Equal[npc]} && ${Target.Aggressive})) {
@@ -3014,10 +3017,15 @@ Sub DoClearTargets
 			/delay 5			
 			/target id ${NearestSpawn[npc radius 35 targetable].ID}
 			/delay 5
-			/if (${Target.ID}!=0) /message \ayTargetting aggressive mob \aoID: \am[\at${NearestSpawn[npc radius 35 targetable].ID}\am] \aoName: \am[\at${NearestSpawn[npc radius 35 targetable].CleanName}\am]\ay and attacking !\ax
-			/ClearTarget usemytarget
-			|/keypress esc
-			/delay 5			
+			|------------
+			/if (${CurrentTarget}!=${NearestSpawn[npc radius 35 targetable].ID}) {
+				/if (${Target.ID}!=0) /message \ayTargetting aggressive mob \aoID: \am[\at${NearestSpawn[npc radius 35 targetable].ID}\am] \aoName: \am[\at${NearestSpawn[npc radius 35 targetable].CleanName}\am]\ay and attacking !\ax
+				/ClearTarget usemytarget
+				|/keypress esc
+				/delay 5
+				/varset CurrentTarget ${NearestSpawn[npc radius 35 targetable].ID}
+			}
+			|------------
 		}
 		|------------------------------
 		
@@ -3031,12 +3039,18 @@ Sub DoClearTargets
 			} else {
 				/squelch /e3bcgz /moveto id ${Me.ID} mdist 10
 			}
+			|-----			
+			/delay 5
 			|-----
-			/delay 5
-			/if (${Target.ID}!=0) /message \ayAttacking targeted mob \aoID: \am[\at${Target.ID}\am] \aoName: \am[\at${Target.CleanName}\am]\ay !\ax			
-			/ClearTarget usemytarget
-			|/keypress esc
-			/delay 5
+			|------------
+			/if (${CurrentTarget}!=${Target.ID}) {
+				/if (${Target.ID}!=0) /message \ayTargetting aggressive mob \aoID: \am[\at${NearestSpawn[npc radius 35 targetable].ID}\am] \aoName: \am[\at${NearestSpawn[npc radius 35 targetable].CleanName}\am]\ay and attacking !\ax
+				/ClearTarget usemytarget
+				|/keypress esc
+				/delay 5
+				/varset CurrentTarget ${Target.ID}
+			}
+			|------------
 		}
 		|------------------------------
 		
@@ -3050,25 +3064,26 @@ Sub DoClearTargets
 				|-----
 				/if (${Navigation.PathExists[id ${Spawn[npc fleeing].ID}]}) {
 					/squelch /nav id ${Spawn[npc fleeing].ID}
-				} else {
-					/squelch /moveto id ${Spawn[npc fleeing].ID} mdist 10
-				}
-				|-----
-				/delay 5	
-				|-----
-				/if (${Navigation.PathExists[id ${Spawn[npc fleeing].ID}]}) {
+					/delay 5
 					/squelch /e3bcgz /nav id ${Spawn[npc fleeing].ID}
 				} else {
+					/squelch /moveto id ${Spawn[npc fleeing].ID} mdist 10
+					/delay 5
 					/squelch /e3bcgz /moveto id ${Spawn[npc fleeing].ID} mdist 10
 				}
 				|-----
 				/delay 5			
-				/target id ${Spawn[npc fleeing].ID}
-				/delay 5					
-				/if (${Target.ID}!=0) /message \arFound a \am[\atRandom\am]\ar fleeing mob! \ayTargetting \aoID: \am[\at${Me.XTarget[${i}].ID}\am] \ayName\ao: \am[\at${Me.XTarget[${i}].CleanName}\am]\ay and attacking !\ax
-				/ClearTarget usemytarget
-				|/keypress esc
+				/target id ${Spawn[npc fleeing].ID}				
 				/delay 5
+				|------------
+				/if (${CurrentTarget}!=${Spawn[npc fleeing].ID}) {
+					/if (${Target.ID}!=0) /message \arFound a \am[\atRandom\am]\ar fleeing mob! \ayTargetting \aoID: \am[\at${Me.XTarget[${i}].ID}\am] \ayName\ao: \am[\at${Me.XTarget[${i}].CleanName}\am]\ay and attacking !\ax
+					/ClearTarget usemytarget
+					|/keypress esc
+					/delay 5
+					/varset CurrentTarget ${Spawn[npc fleeing].ID}
+				}
+				|------------				
 			}
 			|------------------------------
 			
@@ -3094,25 +3109,26 @@ Sub DoClearTargets
 							|-----
 							/if (${Navigation.PathExists[id ${Me.XTarget[${i}].ID}]}) {
 								/squelch /nav id ${Me.XTarget[${i}].ID}
-							} else {
-								/squelch /moveto id ${Me.XTarget[${i}].ID}
-							}
-							|-----							
-							/delay 5	
-							|-----
-							/if (${Navigation.PathExists[id ${Me.XTarget[${i}].ID}]}) {
+								/delay 5
 								/squelch /e3bcgz /nav id ${Me.XTarget[${i}].ID}
 							} else {
+								/squelch /moveto id ${Me.XTarget[${i}].ID}
+								/delay 5
 								/squelch /e3bcgz /moveto id ${Me.XTarget[${i}].ID}
 							}
-							|-----			
+							|-----
 							/delay 5			
 							/target id ${Me.XTarget[${i}].ID}
-							/delay 5					
-							/if (${Target.ID}!=0) /message \arFound a \am[\atXTarget\am]\ar fleeing mob! \ayTargetting \aoID: \am[\at${Me.XTarget[${i}].ID}\am] \ayName\ao: \am[\at${Me.XTarget[${i}].CleanName}\am]\ay and attacking !\ax
-							/ClearTarget usemytarget
-							|/keypress esc
-							/delay 5
+							/delay 5		
+							|------------
+							/if (${CurrentTarget}!=${Me.XTarget[${i}].ID}) {
+								/if (${Target.ID}!=0) /message \arFound a \am[\atXTarget\am]\ar fleeing mob! \ayTargetting \aoID: \am[\at${Me.XTarget[${i}].ID}\am] \ayName\ao: \am[\at${Me.XTarget[${i}].CleanName}\am]\ay and attacking !\ax
+								/ClearTarget usemytarget
+								|/keypress esc
+								/delay 5
+								/varset CurrentTarget ${Me.XTarget[${i}].ID}
+							}
+							|------------
 							/break
 						}
 					/next i
@@ -3126,24 +3142,29 @@ Sub DoClearTargets
 		|------------------------------	
 		
 		|------------------------------
-		/if (${Target.Distance} > 20) {
+		| Target Distance Stick Check
+		|------------------------------
+		/if (${Target.ID} && ${Target.Type.Equal[npc]} && ${Target.Aggressive} && (${Target.Distance} > 20)) {	
+			/if (${Target.ID}!=0) /message \ayMob \aoID: \am[\at${Target.ID}\am] \ag|\ax \aoName: \am[\at${Target.CleanName}\am]\ay \ag|\ax \aoDistance: \am[\at${Target.Distance}\am]\ay is \ar[TOO FAR AWAY]\ay, adjusting group !\ax
 			|--
 			/if (${Navigation.PathExists[id ${Target.ID}]}) {
 					/squelch /nav id ${Target.ID}
+					/delay 2s ${Target.Distance}<=20
+					/squelch /e3bcgz /nav id ${Me.ID}					
 				} else {
 					/squelch /moveto id ${Target.ID} mdist 10
-			}
-			|--
-			/stick 15
-			|--
-			/if (${Navigation.PathExists[id ${Me.ID}]}) {
-					/squelch /e3bcgz /nav id ${Me.ID}
-				} else {
+					/delay 2s ${Target.Distance}<=20
 					/squelch /e3bcgz /moveto id ${Me.ID} mdist 10
 			}
 			|--
-		}
+			/stick 15
+			/delay 5
+		} else {
+			/stick 15
+			/delay 5
+		{
 		|------------------------------
+		
 		|------------------------------
 		/if (${Target.Type.Find[corpse]}) {
 			/squelch /target clear
@@ -3192,6 +3213,12 @@ Sub DoClearTargets
 		|--------------------------------------------------
 	}
 	|--------------------------------------------------
+
+	|----------------------
+	|--- Reset CurrentTarget
+	|----------------------
+	/varset CurrentTarget 0
+	|----------------------
 	
 	|------------------------
 	|-- FORCE TURN OFF PBAE
@@ -3204,7 +3231,7 @@ Sub DoClearTargets
 	|------------------------
 	
 	|------------------------
-	/delay 20
+	
 	|-----------------------------------
 	/if (!${Me.XTarget} || (!${Target.ID} && !${Bool[${Spawn[npc radius 50].Aggressive}]})) /squelch /target clear
 	|-----------------------------------
@@ -4876,9 +4903,7 @@ Sub ReclaimAltDC
 |SUB: LootMob_Turboloot -- Let Turboloot Looting handle your corpseloot.
 | --------------------------------------------------------------------------------------------
   Sub LootMob_Turboloot
-	/if (${Debugging}) /echo Sub LootMob_Turboloot Entry
-	
-		/declare TurboLootPause		bool	inner	FALSE
+	/if (${Debugging}) /echo Sub LootMob_Turboloot Entry		
 
 	|---------------------------------------
 	| -- Let TURBOLOOT Looting System handle this !
@@ -4888,14 +4913,14 @@ Sub ReclaimAltDC
 		/message \at+ \aoHiding corpse(s) from myself.
 		/hidecorpse all
 		/squelch /e3bct ${TurboLooter} /mac TurboLoot
+		/message \at+ \aoWaiting on \am[\ag${TurboLooter}\am]\ay to finish looting.
 		/varset TurboLootPause TRUE
 		/delay 5
 		|---------------------------
 		/while (${TurboLootPause}) {			
-			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets			
 			/doevents
-			/delay 5s
-			/message \at+ \aoWaiting on \am[\ag${TurboLooter}\am]\ay to finish looting.
+			/delay 1s
 		}
 		|---------------------------
 		/message \at+++ \ayDone having \am[\ag${TurboLooter}\am]\ay loot via \am[\aoTurboLoot\am]\ay.
