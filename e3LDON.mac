@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: March 30th, 2026 - 06:24:00 AM
+Last Updated: March 31st, 2026 - 06:07:00 PM
 
-v7.5.9
+v7.6.1
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -312,12 +312,11 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.5.9
-	/declare LastUpdated		string		outer	"Last Updated: March 30th, 2026 - 09:11:00 AM"
+	/declare version			string		outer	7.6.1
+	/declare LastUpdated		string		outer	"Last Updated: March 31st, 2026 - 06:07:00 PM"
 	
 	/message ==================================================================
  	/call Declares
-	
 	/message ==================================================================
 	/message \at${MacroName}.mac \aw- \atv${version} \awby \ag Kroaking
 	/message \at${LastUpdated}.
@@ -329,7 +328,11 @@ Sub Main
 	|----------------
 	
 	|--------------------------------------------
-	/if (${MouseLock}) /mouseto ${MouseLocValX}, ${MouseLocValY}
+	/if (${MouseLock}) {
+		/message \ag- MouseLock \ayis set to \am[\at${MouseLock}\am]\ax
+		/message \ag- MouseLock \aoCoordinates: \am[\atX=${MouseLocValX}, Y=${MouseLocValY}\am]\ax
+		/mouseto ${MouseLocValX}, ${MouseLocValY}
+	}
 	|--------------------------------------------	
 
 	|------------
@@ -398,7 +401,11 @@ Sub Main
 	}
 	|-----------------------------------------------
 
+	| --- MAIN ------------------------------------------------------------------------------
 	:mainloop
+	|---------
+	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
+	|---------
 	/if (${Zone.ID} == ${TempleofMarr} || ${Zone.ID} == ${PlaneofKnowledge}) /call GoPoKMagus
 	/if (${Debugging}) /echo Sub Main - MainLoop Entry
 	
@@ -432,10 +439,11 @@ Sub Main
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------
 			/while (!${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Left[2].NotEqual[${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Right[2]}]} || ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
+				/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 				/if (${Target.ID} && !${Me.XTarget} && !${Me.Casting.ID}) /squelch /target clear
 				|-----------------------------------------------
 				| Before we Swarm pull ...   Check if we should loot Corpses.
-				/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
+				/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
 				|-----------------------------------------------
 				|----------------------------
 				| -- Call check mission zone.
@@ -460,10 +468,11 @@ Sub Main
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------			
 			/while (!${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Left[2].NotEqual[${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Right[2]}]} || ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
+				/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 				/if (${Target.ID} && !${Me.XTarget} && !${Me.Casting.ID}) /squelch /target clear
 				|-----------------------------------------------
 				| Before we Single pull ...   Check if we should loot Corpses.
-				/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
+				/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
 				|-----------------------------------------------
 				|----------------------------
 				| -- Call check mission zone.
@@ -483,10 +492,16 @@ Sub Main
 	|---------------------------------------------------------------------------
 	|-------------- ONLY DO LOGIC IF WE HAVE AN ACTIVE ADVENTURE ASSIGNED !!!!!!
 	|---------------------------------------------------------------------------
+	
+	|---------------
 	/call GoPoKMagus
+	|---------------
+	
 	/if (${Debugging}) /echo Sub Main - MainLoop Exit
 	/goto :mainloop
+	| --- MAIN ------------------------------------------------------------------------------
 	/if (${Debugging}) /echo Sub Main Exit
+	
 /return
 | --------------------------------------------------------------------------------------------
 
@@ -761,6 +776,15 @@ Sub CheckThings
 	}
 	|--------
 	
+	|-----------------------
+	|-- SEET GROUP ROLES ---
+	|-----------------------
+	/grouproles set ${Me.CleanName} 1
+	/delay 5
+	/grouproles set ${Me.CleanName} 2
+	/delay 5
+	|-----------------------	
+	
 	|---------------------------------
 	| Plugin check - Enabble / disable
 	|---------------------------------
@@ -792,7 +816,8 @@ Sub CheckThings
 		/message ==================================================================		
 		/if (${LootMethod.Equal[DCONLY]}) {
 			/squelch /lootoff
-			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot [\atDiamond Coin\ay] and \arHIGH VALUE ITEMS \am(\ao>=\at${MinItemValue}\am)\ay.\ax
+			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot\ax
+			/message \ay    [\atDiamond Coin\ay] and \arHIGH VALUE ITEMS \am(\ao>=\at${MinItemValue}\am)\ay.\ax
 			|------------------------------------------------
 		}  
 		/if (${LootMethod.Equal[E3]}) {
@@ -2401,7 +2426,7 @@ Sub SinglePullMove(string SinglePull_Loc)
 		}
 		|-----------------------------------------------
 		| Before we go to next step ...   ECheck if we should loot Corpses.
-		/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
+		/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
 		| Before we go to next step ...   EXIT the loop if we have mission success !
 		|-----------------------------------------------		
 	|/echo Completed all SinglePullMove steps.
@@ -2525,7 +2550,7 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 		}
 		|-----------------------------------------------
 		| Before we go to next step ...   ECheck if we should loot Corpses.
-		/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
+		/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
 		| Before we go to next step ...   EXIT the loop if we have mission success !
 		|-----------------------------------------------
 		
@@ -3253,14 +3278,14 @@ Sub CheckPBAELogic
 	|-- TURN ON PBAE
 	/if (!${PBAE_State} && ${Target.ID} && (${Target.Distance}<=25) && (${SpawnCount[npc radius 25]}>=${PBAOE_MobCount}) && ${Bool[${Spawn[npc radius 25].Aggressive}]}) {
 		/varset PBAE_State TRUE
-		/message \aoPBAE is currently \am[\agDISABLED\am]\ao, enabling \am[\atPBAE\am]\ao now.\ax
+		/message \aoPBAE is currently \am[\agDISABLED\am]\ao: ~ \am[\arENABLING\am]\ao ~ \am[\atPBAE\am]\ao now.\ax
 		/popcustom 13 2 -> PBAE ON <
 		/pbaeon
 	}
 	|-- TURN OFF PBAE
 	/if (${PBAE_State} && ${Target.ID} && (${Target.Distance}<=25) && (${SpawnCount[npc radius 25]}<${PBAOE_MobCount}) && ${Bool[${Spawn[npc radius 25].Aggressive}]}) {			
 		/varset PBAE_State FALSE
-		/message \aoPBAE is currently \am[\arENABLED\am]\ao, disabling \am[\atPBAE\am]\ao now.\ax
+		/message \aoPBAE is currently \am[\arENABLED\am]\ao: ~ \am[\agDISABLING\am]\ao ~ \am[\atPBAE\am]\ao now.\ax
 		/popcustom 2 2 -> PBAE OFF <-
 		/pbaeoff
 	}
@@ -3316,7 +3341,7 @@ Sub FinishAdventure
 	
 	|-----------------------------------------------
 	| Before we leave ...   Check if we should loot Corpses.
-	/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
+	/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
 	|-----------------------------------------------	
 	
 	| -- *** --
@@ -4587,7 +4612,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 					/if (${Target.ID}) /face
 					/squelch /attack on
 					/call DoClearTargets
-					/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
+					/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
 					/call CheckMissionSuccess
 					/doevents
 					/if (${UseClickDamage}) /call Clickies_Damage
@@ -4615,7 +4640,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 					/if (${Target.ID}) /face
 					/squelch /attack on
 					/call DoClearTargets
-					/if (${LootCorpse} && !${Me.XTarget}) /call CheckForCorpses
+					/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
 					/call CheckMissionSuccess
 					/doevents
 					/if (${UseClickDamage}) /call Clickies_Damage
@@ -4977,11 +5002,11 @@ Sub ReclaimAltDC
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
 	|--------------------------------------------
-	/if (${Me.XTarget}) /call DoClearTargets
+	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
 	|--------------------------------------------
 	/doevents
 	|-------------------------------------------------------------------------------------
-	/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
+	/if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}  && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
 	|-------------------------------------------------------------------------------------
 
 	/if (${Debugging}) /echo Sub LootMob_E3 Exit
@@ -5069,7 +5094,7 @@ Sub ReclaimAltDC
 			|--------------------------------------------------------
 		/doevents
 		|--------------------------------------------
-		/if (${Me.XTarget}) /call DoClearTargets
+		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
 		|--------------------------------------------
 		/next LootSlot
 		|---------------------------------------
@@ -5079,11 +5104,11 @@ Sub ReclaimAltDC
     /notify LootWnd DoneButton leftmouseup
     /delay 1s !${Window[LootWnd].Open}
     |--------------------------------------------
-    /if (${Me.XTarget}) /call DoClearTargets
+    /if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
     |--------------------------------------------
     /doevents
     |-------------------------------------------------------------------------------------
-    /if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
+    /if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}  && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
     |-------------------------------------------------------------------------------------
 
   /if (${Debugging}) /echo Sub LootMob_DC_Only Exit
