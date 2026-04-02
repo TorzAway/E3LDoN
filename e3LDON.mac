@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: March 31st, 2026 - 06:07:00 PM
+Last Updated: April 2nd, 2026 - 05:48:00 PM
 
-v7.6.1
+v7.6.2
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -312,8 +312,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.6.1
-	/declare LastUpdated		string		outer	"Last Updated: March 31st, 2026 - 06:07:00 PM"
+	/declare version			string		outer	7.6.2
+	/declare LastUpdated		string		outer	"Last Updated: April 2nd, 2026 - 05:48:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -779,11 +779,16 @@ Sub CheckThings
 	|-----------------------
 	|-- SEET GROUP ROLES ---
 	|-----------------------
+	/message \aySetting group role(s)\ao:\ax.
+	/message \ayMaking myself \am[\atMain Tank\am]\ay.
 	/grouproles set ${Me.CleanName} 1
 	/delay 5
+	/message \ayMaking myself \am[\atMain Assist\am]\ay.
 	/grouproles set ${Me.CleanName} 2
 	/delay 5
-	|-----------------------	
+	/message ==================================================================
+	/delay 2s
+	|-----------------------
 	
 	|---------------------------------
 	| Plugin check - Enabble / disable
@@ -2339,8 +2344,10 @@ Sub CheckMissionSuccess
 		|-----------------------------------------------
 		/message \at - Checking adventure success status.
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length}==0 && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}==0) {			
+			/message ==================================================================
 			/message \atLooks like our adventure is over !
 			/message \aw<\ar*\ao*\ay*\ag*\at*\au*\am*\ap*\aw> \agMISSION SUCCESS \aw<\ap*\am*\au*\at*\ag*\ay*\ao*\ar*\aw> 
+			/message ==================================================================
 			/call FinishAdventure
 		}
 		|-----------------------------------------------
@@ -3194,6 +3201,27 @@ Sub DoClearTargets
 			/delay 5
 		}
 		|------------------------------
+
+		|------------------------------
+		| Target LineOfSight Check
+		|------------------------------
+		/if (${Target.ID} && ${Target.Type.Equal[npc]} && ${Target.Aggressive} && !${Target.LineOfSight}) {	
+			/if (${Target.ID}!=0) /message \ayMob \aoID: \am[\at${Target.ID}\am] \ag|\ax \aoName: \am[\at${Target.CleanName}\am]\ay \ag|\ax \aoDistance: \am[\at${Target.Distance}\am]\ay is \ar[NOT IN LINE OF SIGHT]\ay, adjusting group !\ax
+			|---------------------
+			/if (${Navigation.PathExists[id ${Target.ID}]}) {
+					/squelch /nav id ${Target.ID}
+					/delay 2s ${Target.LineOfSight}
+					/squelch /face fast
+					/squelch /e3bcgz /nav id ${Me.ID}					
+				} else {
+					/squelch /moveto id ${Target.ID} mdist 10
+					/delay 2s ${Target.LineOfSight}
+					/squelch /face fast
+					/squelch /e3bcgz /moveto id ${Me.ID} mdist 10
+			}
+			|---------------------
+		}		
+		|------------------------------
 		
 		|------------------------------
 		/if (${Target.Type.Find[corpse]}) {
@@ -3306,6 +3334,7 @@ Sub FinishAdventure
 	|------------------------------------------------------------------------------
     /popcustom 15 5 ---> MISSION SUCCESS <---
     /message \agUpdating \ay(\am${IniFileName}\ay)\ao with last adventure completion data.
+	/message ==================================================================
 	
 	/if (${Select[${Zone.ID},264,239,229,254,234,249,244,259]}) {
 		/varset NextCamp_Num 1
