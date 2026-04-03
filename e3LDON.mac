@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: April 2nd, 2026 - 05:48:00 PM
+Last Updated: April 3nd, 2026 - 04:54:00 PM
 
-v7.6.2
+v7.6.3
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -312,8 +312,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.6.2
-	/declare LastUpdated		string		outer	"Last Updated: April 2nd, 2026 - 05:48:00 PM"
+	/declare version			string		outer	7.6.3
+	/declare LastUpdated		string		outer	"Last Updated: April 3nd, 2026 - 04:54:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -2917,17 +2917,16 @@ Sub DoSwarmPull
 		/delay 10
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}_8[1,1] -27.67 416.21 -55.87
-	|-- ORIG IN PIT -- /varset LocalStepArray_${Zone.ShortName}_8[1,2] -345.88 402.49 -116.87
-	/varset LocalStepArray_${Zone.ShortName}_8[1,2] -344.39 349.27 -116.37	
-	/varset LocalStepArray_${Zone.ShortName}_8[1,3] -113.21 262.63 -116.37
-	/varset LocalStepArray_${Zone.ShortName}_8[1,4] 0.56 5.65 4.13
-	/varset LocalStepArray_${Zone.ShortName}_8[1,5] -337.81 54.79 63.13
-	/varset LocalStepArray_${Zone.ShortName}_8[1,6] -467.00 -337.06 -56.87
-	/varset LocalStepArray_${Zone.ShortName}_8[1,7] -435.91 -814.49 65.13
-	/varset LocalStepArray_${Zone.ShortName}_8[1,8] -337.81 54.79 63.13
-	/varset LocalStepArray_${Zone.ShortName}_8[1,9] -35.79 487.16 -56.24
-	/varset LocalStepArray_${Zone.ShortName}_8[1,10] -205.90 236.81 115.74
+    /varset LocalStepArray_${Zone.ShortName}_8[1,1] -27.67 416.21 -55.87
+    /varset LocalStepArray_${Zone.ShortName}_8[1,2] -344.39 349.27 -116.37    
+    /varset LocalStepArray_${Zone.ShortName}_8[1,3] -113.21 262.63 -116.37
+    /varset LocalStepArray_${Zone.ShortName}_8[1,4] 0.56 5.65 4.13
+    /varset LocalStepArray_${Zone.ShortName}_8[1,5] -337.81 54.79 63.13
+    /varset LocalStepArray_${Zone.ShortName}_8[1,6] -467.00 -337.06 -56.87
+    /varset LocalStepArray_${Zone.ShortName}_8[1,7] -435.91 -814.49 65.13
+    /varset LocalStepArray_${Zone.ShortName}_8[1,8] -337.81 54.79 63.13
+    /varset LocalStepArray_${Zone.ShortName}_8[1,9] 7.81, 175.29 5.14
+    /varset LocalStepArray_${Zone.ShortName}_8[1,10] 50.31 -294.64 65.49
 	|------------------------------------------------------
 	/message \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,1]}\am]\ay
 	/message \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_8[1,2]}\am]\ay
