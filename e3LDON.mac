@@ -413,7 +413,7 @@ Sub Main
 	/call GetAdventureStatus
 	|------------------
 	/message ==================================================================
-	/call SetPetNoAlert
+	/if (!${SwarmPull}) /call SetPetNoAlert
 	/message ==================================================================
 	|------------------
 	|-----------------------------------------------	
@@ -1815,7 +1815,7 @@ Sub GotoTask
 			/squelch /click left door
 			|-----------------------
 			/call Zoning
-			/call GenerateList
+			/if (!${SwarmPull}) /call GenerateList
 			/call ForeceSpawnStepReset
 			/if (${GrpHasBRDClass}) {
 				/call ResetBard
@@ -1857,7 +1857,7 @@ Sub GotoTask
 			/squelch /click left door
 			|-----------------------
 			/call Zoning
-			/call GenerateList		
+			/if (!${SwarmPull}) /call GenerateList
 			/call ForeceSpawnStepReset
 			/if (${GrpHasBRDClass}) {
 				/call ResetBard
@@ -1911,7 +1911,7 @@ Sub GotoTask
 			/squelch /click left door
 			|-----------------------
 			/call Zoning
-			/call GenerateList				
+			/if (!${SwarmPull}) /call GenerateList
 			/call ForeceSpawnStepReset
 			/if (${GrpHasBRDClass}) {
 				/call ResetBard
@@ -1964,7 +1964,7 @@ Sub GotoTask
 			/squelch /click left door
 			|-----------------------
 			/call Zoning
-			/call GenerateList
+			/if (!${SwarmPull}) /call GenerateList
 			/call ForeceSpawnStepReset
 			/if (${GrpHasBRDClass}) {
 				/call ResetBard
@@ -2016,7 +2016,7 @@ Sub GotoTask
 			/delay 1s
 			|-----------------------
 			/call Zoning
-			/call GenerateList
+			/if (!${SwarmPull}) /call GenerateList
 			/call ForeceSpawnStepReset
 			/if (${GrpHasBRDClass}) {
 				/call ResetBard
@@ -2105,7 +2105,7 @@ Sub GotoTask
 			/squelch /click left door
 			|-----------------------
 			/call Zoning
-			/call GenerateList
+			/if (!${SwarmPull}) /call GenerateList
 			/call ForeceSpawnStepReset
 			/if (${GrpHasBRDClass}) {
 				/call ResetBard
@@ -2200,7 +2200,7 @@ Sub GotoTask
 			|-----------------------
 			/call Zoning
 			/if (${Zone.ID} == ${Innothule} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive8
-			/call GenerateList
+			/if (!${SwarmPull}) /call GenerateList
 			/call ForeceSpawnStepReset
 			/if (${GrpHasBRDClass}) {
 				/call ResetBard
@@ -2296,7 +2296,7 @@ Sub GotoTask
 		|-----------------------
 		/call Zoning
 		/if (${Zone.ID} == ${GukTop} && !${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[you are not currently assigned]}) /goto :getoutalive9
-		/call GenerateList
+		/if (!${SwarmPull}) /call GenerateList
 		/call ForeceSpawnStepReset
 		/if (${GrpHasBRDClass}) {
 			/call ResetBard
