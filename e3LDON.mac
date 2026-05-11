@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: April 6th, 2026 - 02:34:00 PM
+Last Updated: May 10th, 2026 - 08:26:00 PM
 
-v7.6.5
+v7.6.6
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -312,14 +312,14 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.6.5
-	/declare LastUpdated		string		outer	"Last Updated: April 6th, 2026 - 02:34:00 PM"
+	/declare version			string		outer	7.6.6
+	/declare LastUpdated		string		outer	"Last Updated: May 10th, 2026 - 08:26:00 PM"
 	
 	/message ==================================================================
  	/call Declares
 	/message ==================================================================
 	/message \at${MacroName}.mac \aw- \atv${version} \awby \ag Kroaking
-	/message \at${LastUpdated}.
+	/message \ao${LastUpdated}
 	/message ==================================================================
 	/delay 2s
 	
@@ -450,7 +450,7 @@ Sub Main
 				|----------------------------
 				/call CheckInADungeon
 				/if (${InADungeon}==1) /call DoSwarmPull
-				/call GMCheck			
+				/call PCnGMCheck			
 			}
 			|-----------------------------------
 			|-- WHILE !(killcount=totalkillcount||No time left)
@@ -479,7 +479,7 @@ Sub Main
 				|----------------------------
 				/call CheckInADungeon
 				/if (${InADungeon}==1) /call DoSinglePull
-				/call GMCheck
+				/call PCnGMCheck
 			}
 			|-----------------------------------
 			|-- WHILE !(killcount=totalkillcount||No time left)
@@ -633,8 +633,9 @@ Sub Declares
 	/call CheckINI ${IniFileName} Mana MedAt int 30
 	/call CheckINI ${IniFileName} Mana MedTill int 100
 	|------------------------------------------------------------
-	/call CheckIni ${IniFileName} Alerts AFKGM bool TRUE
-	/call CheckIni ${IniFileName} Alerts UseBeep bool TRUE
+	/call CheckINI ${IniFileName} Alerts AFKGM bool TRUE
+	/call CheckINI ${IniFileName} Alerts AFKPC bool TRUE
+	/call CheckINI ${IniFileName} Alerts UseBeep bool TRUE	
 	|------------------------------------------------------------
 	/call CheckIni ${IniFileName} Theme LastCompleted_Num int 0
 	/call CheckIni ${IniFileName} Theme LastCompleted_Theme string NONE
@@ -1475,7 +1476,7 @@ Sub GetTask
 		/delay 5s
 		/call NavToLoc2 2661.87 976.10 -20.15
 		/call GroupWait
-		/if (${Me.XTarget}) /call DoClearTargets
+		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 		|-----------------------------------------------------------			
 		
 		:getTaskNRo
@@ -1722,7 +1723,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait
-		/if (${Me.XTarget}) /call DoClearTargets
+		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 		/if (${runcounter}==0) {
 			/squelch /e3bcgz /face heading 260
 			/delay 2s
@@ -1761,7 +1762,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			/squelch /e3bcgz /face heading 175
 			/delay 2s
 			/squelch /e3bcgz /keypress forward hold
@@ -1799,7 +1800,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -1841,7 +1842,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -1895,7 +1896,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -1942,13 +1943,13 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 				
 			|Go Inside Entrance Stage2
 			/squelch /e3bcgza /nav loc 2772.21 -4726.54 -97.27
 			/call NavToLoc2 2772.21 -4726.54 -97.27
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			
 			/message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -1999,7 +2000,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			|---------------------------------------------
 			/message \agEveryone is here. \ayGoing in to task...
 			/squelch /e3bcgza /removelev
@@ -2046,7 +2047,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			|---------------------------------------------
 			/squelch /e3bcgza /tar Magus_Zeir
 			/delay 2s
@@ -2075,7 +2076,7 @@ Sub GotoTask
 			/delay 5s
 			/call NavToLoc2 -1470.44 1119.92 -23.86
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			|---------------------------------------------
 			/message \aoHeaded to \at[\aga cave\at]
 			/if (${runcounter}==0) /squelch /e3bcgz /nav loc -2131.66 1321.46 -75.30
@@ -2088,7 +2089,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			|---------------------------------------------
 			
 			/message \agEveryone is here. \ayGoing in to task...
@@ -2133,7 +2134,7 @@ Sub GotoTask
 		/delay 5s
 		/call NavToLoc2 -1487.19 998.12 -23.84
 		/call GroupWait
-		/if (${Me.XTarget}) /call DoClearTargets
+		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 		|---------------------------------------------		
 		/message \aoMoving to \at[\agInnothule Swamp\at]
 		/if (${runcounter}==0) /squelch /e3bcgz /nav loc -3190.48 1113.44 -24.93
@@ -2144,7 +2145,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait
-		/if (${Me.XTarget}) /call DoClearTargets
+		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 		|---------------------------------------------
 		/squelch /e3bcgz /face heading 110
 		/delay 2s
@@ -2183,7 +2184,7 @@ Sub GotoTask
 				/delay 20
 			}
 			/call GroupWait
-			/if (${Me.XTarget}) /call DoClearTargets
+			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 			
 		    /message \agEveryone is here. \ayGoing in to task...
 			/doevents
@@ -2228,7 +2229,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait
-		/if (${Me.XTarget}) /call DoClearTargets
+		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 		
 		/message \aoMoving to \at[\agUpper Guk - Entrancet\at]
 		/if (${runcounter}==0) /squelch /e3bcgz /nav loc 142.63 -817.07 -6.21
@@ -2241,7 +2242,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait	
-		/if (${Me.XTarget}) /call DoClearTargets
+		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 		
 		/squelch /e3bcgz /face heading 275
 		/delay 2s
@@ -2279,7 +2280,7 @@ Sub GotoTask
 			/delay 20
 		}
 		/call GroupWait
-		/if (${Me.XTarget}) /call DoClearTargets
+		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
 		
 		/message \agEveryone is here. \ayGoing in to task...
 		/doevents
@@ -4329,36 +4330,70 @@ Sub CloseAdventureStatsWnd
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
-| SUB: GMCheck
+| SUB: PCnGMCheck
 | --------------------------------------------------------------------------------------------
-Sub GMCheck
-/if (${Debugging}) /echo Sub GMCheck Entry
+Sub PCnGMCheck
+/if (${Debugging}) /echo Sub PCnGMCheck Entry
+
 /if (${Spawn[gm].ID} && ${AFKGM}) {
-				/message \ar WARNING GM nearby!
-				/if (${UseBeep}) /beep
-				|------------------------------------------------
-				|--- DON't Call Gmmode, just call FinishAdventure
-				|/call GMMode
-				/call FinishAdventure
-				|------------------------------------------------
-				}
-/if (${Debugging}) /echo Sub GMCheck Exit
+	/message \ar WARNING GM nearby!
+	/if (${UseBeep}) /beep
+	|------------------------------------------------
+	/call GM_CheckMode
+	|------------------------------------------------
+}
+
+/if ((${SpawnCount[pc]}>${Math.Calc[${Group.Members}+1]}) && ${AFKPC}) {
+	/message \ar WARNING PC's IN ZONE!
+	/if (${UseBeep}) /beep
+	|------------------------------------------------
+	/call PC_CheckMode
+	|------------------------------------------------
+}
+	
+/if (${Debugging}) /echo Sub PCnGMCheck Exit
 /return
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
-| SUB: GMMode
+| SUB: PC_CheckMode
 | --------------------------------------------------------------------------------------------
-Sub GMMode
-/if (${Debugging}) /echo Sub GMMode Entry
-		/if (${UseBeep}) /beep
-		/popcustom 13 5 Warning! GMMode: GM is Present!
-		/message ==================================================================
-		/message \ar***** GM IN ZONE, PAUSING MACRO *****\ax
-		/message ==================================================================
-		/mqp
+Sub PC_CheckMode
+/if (${Debugging}) /echo Sub PC_CheckMode Entry
 
-/if (${Debugging}) /echo Sub GMMode Exit
+:WaitForLowPopulation
+/if (${SpawnCount[pc]}==${Math.Calc[${Group.Members}+1]}) /goto :ResumePC
+
+/if (${UseBeep}) /beep
+/message [WaitForZonePCs] Crowded — ${SpawnCount[pc]} PCs (waiting for < ${Math.Calc[${Group.Members}+1]})...
+/delay 10s
+/if (${SpawnCount[pc]}>${Math.Calc[${Group.Members}+1]}) /goto :WaitForLowPopulation
+
+:ResumePC
+/message [WaitForZonePCs] Clear — ${SpawnCount[pc]} PCs. Continuing.
+
+/if (${Debugging}) /echo Sub PC_CheckMode Exit
+/return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: GM_CheckMode
+| --------------------------------------------------------------------------------------------
+Sub GM_CheckMode
+/if (${Debugging}) /echo Sub GM_CheckMode Entry
+
+:WaitForNoGM
+/if (!${Spawn[gm].ID}) /goto :ResumeGM
+
+/if (${UseBeep}) /beep
+/message [WaitForNoGM] HEY !!! — GM IS IN ZONE !!!)...
+/delay 10s
+/if (${Spawn[gm].ID}) /goto :WaitForNoGM
+
+:ResumeGM
+/message [WaitForNoGM] Clear — NO GM. Continuing.
+
+/if (${Debugging}) /echo Sub GM_CheckMode Exit
 /return
 | --------------------------------------------------------------------------------------------
 
@@ -4372,7 +4407,7 @@ Sub GroupDeathChk
 		/message \arYOU~ have died! Waiting for YOU to get off your face.
 		|----------
 		/while (${Me.State.Equal[DEAD]} ) {
-			/call GMCheck
+			/call PCnGMCheck
 			/beep
 			/beep
 			/beep
@@ -4394,7 +4429,7 @@ Sub GroupDeathChk
 				/if (!${Me.XTarget}) {
 					|----------------------------------
 					/while (${Group.Member[${i}].State.Equal[DEAD]} && !${Me.XTarget}) {
-						/call GMCheck
+						/call PCnGMCheck
 						/if ((${Me.Standing}) && (!${Me.Casting.ID}) && (!${Me.Mount.ID})) /sit
 						/beep
 						/delay 30
@@ -4432,7 +4467,7 @@ Sub GroupManaChk
 				|--------------------------------------
 				/while ((${Me.PctMana} < ${MedTill} && !${Me.XTarget} && !${Me.State.Equal[DEAD]} && !${Select[${Me.Class.ShortName},WAR,BER,ROG,MNK,BRD]}) || (${BardMed} && ${Me.PctMana} < ${MedTill} && !${Me.XTarget} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 					/message \agYour \am[\atMana\am]\ag is currently at \am[\at${Me.PctMana}\am]\ag%, medding to \am[\at${MedTill}\am]\ag%.
-					/call GMCheck
+					/call PCnGMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
 					/delay 6s
 				}
@@ -4461,7 +4496,7 @@ Sub GroupManaChk
 						|--------------------------------------
 						/while ((${Group.Member[${i}].PctMana} < ${MedTill} && ${Group.Member[${i}].Class.CanCast} && !${Me.XTarget} && !${Group.Member[${i}].State.Equal[DEAD]} && !${Select[${Group.Member[${i}].Class.ShortName},BRD,WAR,MNK,BER,ROG]}) || (${BardMed} && ${Group.Member[${i}].PctMana} < ${MedTill} && !${Me.XTarget} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 							/message \ag${Group.Member[${i}].CleanName}'s \am[\atMana\am]\ag is currently at \am[\at${Group.Member[${i}].PctMana}\am]\ag%, medding to \am[\at${MedTill}\am]\ag%.
-							/call GMCheck
+							/call PCnGMCheck
 							/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
 							/delay 3s
 							|----------
@@ -4506,7 +4541,7 @@ Sub GroupEndChk
 				|--------------------------------------
 				/while ((${Me.PctEndurance} < ${MedEndTill} && !${Me.XTarget} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Me.PctEndurance} < ${MedEndAt} && !${Me.State.Equal[DEAD]} && ${Me.Class.ShortName.Equal[BRD]})) {
 					/message \agYour \am[\atEndurance\am]\ag is currently at \am[\at${Me.PctEndurance}\am]\ag%, medding to \am[\at${MedEndTill}\am]\ag%.
-					/call GMCheck
+					/call PCnGMCheck
 					/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
 					/delay 6s
 				}
@@ -4536,7 +4571,7 @@ Sub GroupEndChk
 							|---------------------------------------
 							/while ((${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.NotEqual[BRD]}) || (${BardMed} && ${Group.Member[${i}].PctEndurance} < ${MedEndTill} && !${Me.XTarget} && !${Group.Member[${i}].State.Equal[DEAD]} && ${Group.Member[${i}].Class.ShortName.Equal[BRD]})) {
 								/message \ag${Group.Member[${i}].CleanName}'s \am[\atEndurance\am]\ag is currently at \am[\at${Group.Member[${i}].PctEndurance}\am]\ag%, medding to \am[\at${MedEndTill}\am]\ag%.
-								/call GMCheck
+								/call PCnGMCheck
 								/if (${Me.Standing} && !${Me.Casting.ID} && !${Me.Mount.ID} && !${Navigation.Active}) /sit
 								/delay 3s
 								|----------
@@ -4611,7 +4646,7 @@ Sub NavToLoc(int Y,int X,int Z)
 			/if (${CheckBots}) /call GroupDeathChk
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
-			/call GMCheck
+			/call PCnGMCheck
 			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL DoSingleMob NavToLoc
@@ -4620,7 +4655,7 @@ Sub NavToLoc(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupDeathChk
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
-				/call GMCheck
+				/call PCnGMCheck
 			}
 			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/delay 10
@@ -4660,7 +4695,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/if (${CheckBots}) /call GroupDeathChk
 			/if (${CheckBots}) /call GroupManaChk
 			/if (${CheckBots}) /call GroupEndChk
-			/call GMCheck
+			/call PCnGMCheck
 			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/popcustom 13 5 ---> GOT AGGRO ON ROUTE <---
 				/if (${Navigation.Active}) /nav stop
@@ -4684,7 +4719,7 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupDeathChk
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
-				/call GMCheck
+				/call PCnGMCheck
 			}
 			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/delay 10
@@ -4744,7 +4779,7 @@ Sub WaitNav(NavTargetID)
 		/if (${Spawn[id ${NavTargetID}].ID}) {
 			/call SetLoc
 			/call CheckStuck
-			/call GMCheck
+			/call PCnGMCheck
 			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/if (${Navigation.Active}) /nav stop
 				/varset NavTargetID ${Spawn[id ${NavTargetID}].ID}
@@ -4755,7 +4790,7 @@ Sub WaitNav(NavTargetID)
 				/if (${CheckBots}) /call GroupDeathChk
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
-				/call GMCheck
+				/call PCnGMCheck
 			}
 			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
 			/if (!${courseCorrection}) {
@@ -4939,7 +4974,7 @@ Sub ReclaimAltDC
   Sub CheckForCorpses
   /if (${Debugging}) /echo Sub CheckForCorpses Entry
 
-  /call GMCheck
+  /call PCnGMCheck
   /message \ay- Checking for missed corpse(s).
   /if (${Bool[${Spawn[Corpse radius 100]}]}) /message \at+++ \ayLooks like we have a corpse to loot.
   /if (${Target.ID} && (!${Me.XTarget} || !${Bool[${Spawn[npc radius 35].Aggressive}]})) /squelch /target clear
