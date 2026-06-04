@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: May 10th, 2026 - 08:26:00 PM
+Last Updated: June 3rd, 2026 - 09:01:00 PM
 
-v7.6.6
+v7.6.7
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -312,8 +312,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.6.6
-	/declare LastUpdated		string		outer	"Last Updated: May 10th, 2026 - 08:26:00 PM"
+	/declare version			string		outer	7.6.7
+	/declare LastUpdated		string		outer	"Last Updated: June 3rd, 2026 - 09:01:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -4649,8 +4649,8 @@ Sub NavToLoc(int Y,int X,int Z)
 			/call PCnGMCheck
 			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/if (${Navigation.Active}) /nav stop
-				/if (${Debugging}) /echo CALL DoSingleMob NavToLoc
-				/call DoSingleMob
+				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc
+				/call DoSinglePull
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
 				/if (${CheckBots}) /call GroupManaChk
@@ -4663,7 +4663,7 @@ Sub NavToLoc(int Y,int X,int Z)
 			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II
-				/call DoSingleMob
+				/call DoSinglePull
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
 			}
@@ -4673,7 +4673,6 @@ Sub NavToLoc(int Y,int X,int Z)
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
-		/doevents
 	}
 	|-------------------------------------------------------------------------------
 	/delay 2s
@@ -4686,10 +4685,11 @@ Sub NavToLoc(int Y,int X,int Z)
 | SUB: NavToLoc2 -- [Combat and Agro Aware movement]
 | --------------------------------------------------------------------------------------------
 Sub NavToLoc2(int Y,int X,int Z)
+
 	/if (${Debugging}) /echo Entering Sub NavToLoc2 for ${Y} ${X} ${Z} at Line: ${Macro.CurLine}
 	/varset GroupWaitTimer 0
 	/message \at-- NavToLoc2 \ay[\amCombat & Agro aware movement\ay] \atto \ay[\am${Y} ${X} ${Z}\ay]\at.
-	/while (${Math.Distance[${Me.Y}, ${Me.X}, ${Me.Z}: ${Y}, ${X}, ${Z}]} > 20) {
+	/while (${Math.Distance[${Me.Y}, ${Me.X}, ${Me.Z}: ${Y}, ${X}, ${Z}]} > 20) {	
 		/if (${Navigation.Active}) {
 			/if (${Debugging}) /echo WaitNav Moving ELSE
 			/if (${CheckBots}) /call GroupDeathChk
@@ -4699,18 +4699,17 @@ Sub NavToLoc2(int Y,int X,int Z)
 			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/popcustom 13 5 ---> GOT AGGRO ON ROUTE <---
 				/if (${Navigation.Active}) /nav stop
-				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc						
+				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc	
 				/target id ${NearestSpawn[npc radius 35 targetable].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 				/if (${Spawn[id ${Target.ID}].Distance} < 30) {
 					|------  CALL GROUP TO ME To FIGHT
 					/call Group2Me
-					|------  CALL GROUP TO ME To FIGHT					
+					|------  CALL GROUP TO ME To FIGHT									
 					/if (${Target.ID}) /face
 					/squelch /attack on
 					/call DoClearTargets
 					/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
-					/call CheckMissionSuccess
 					/doevents
 					/if (${UseClickDamage}) /call Clickies_Damage
 				}
@@ -4721,36 +4720,34 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${CheckBots}) /call GroupEndChk
 				/call PCnGMCheck
 			}
-			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
+			/if (${Me.Combat} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /squelch /target clear
 			/delay 10
 		} else {
 			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/popcustom 13 5 ---> GOT AGGRO ON ROUTE <---
 				/if (${Navigation.Active}) /nav stop
-				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II				
+				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II
 				/target id ${NearestSpawn[npc radius 35 targetable].ID}
 				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 				/if (${Spawn[id ${Target.ID}].Distance} < 30) {
 					|------  CALL GROUP TO ME To FIGHT
 					/call Group2Me
-					|------  CALL GROUP TO ME To FIGHT					
+					|------  CALL GROUP TO ME To FIGHT				
 					/if (${Target.ID}) /face
 					/squelch /attack on
 					/call DoClearTargets
 					/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
-					/call CheckMissionSuccess
 					/doevents
 					/if (${UseClickDamage}) /call Clickies_Damage
 				}
 			} else {
 				/if (${CheckBots}) /call GroupDeathChk
 			}
-			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
-			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget}) /squelch /e3bcgza /nav loc ${Y} ${X} ${Z}
+			/if (${Me.Combat} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /squelch /target clear
+			/if (!${Me.Moving} && !${Me.Combat} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /e3bcgza /nav loc ${Y} ${X} ${Z}
 			/delay 5 ${Me.Moving}
 			/delay 5 ${Navigation.Active}
 		}
-		/doevents
 	}
 	/delay 2s
 	/if (${Navigation.Active}) /nav stop
@@ -4792,7 +4789,7 @@ Sub WaitNav(NavTargetID)
 				/if (${CheckBots}) /call GroupEndChk
 				/call PCnGMCheck
 			}
-			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
+			/if (${Me.Combat} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /squelch /target clear
 			/if (!${courseCorrection}) {
 				|------  ALL GO TO TARGET - staggered
 				/nav id ${NavTargetID}
@@ -4833,7 +4830,7 @@ Sub WaitNav(NavTargetID)
 				/if (${CheckBots}) /call GroupManaChk
 				/if (${CheckBots}) /call GroupEndChk
 			}
-			/if (${Me.Combat} && !${Me.XTarget}) /squelch /target clear
+			/if (${Me.Combat} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /squelch /target clear
 			/squelch /nav id ${NavTargetID}
 		}
 		/doevents
