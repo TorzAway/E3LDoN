@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: June 3rd, 2026 - 09:01:00 PM
+Last Updated: June 10th, 2026 - 07:35:00 PM
 
-v7.6.7
+v7.6.8
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -287,7 +287,7 @@ Cleaned up old code and INI call references for unused variables and procedures.
 
 #event NavMeshReload "#*#Could not locate destination on navmesh#*#"
 
-#event TurboLootDone "#*# tells the group, '[DONE LOOTING]'#*#"
+#event TurboLootDone "#*# tells the group, '[DONE LOOTING#*#]'#*#"
 
 #define /message "/echo \ay[\atE3LDoN\ay]\aw "
 
@@ -312,8 +312,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.6.7
-	/declare LastUpdated		string		outer	"Last Updated: June 3rd, 2026 - 09:01:00 PM"
+	/declare version			string		outer	7.6.8
+	/declare LastUpdated		string		outer	"Last Updated: June 10th, 2026 - 07:35:00 PM"
 	
 	/message ==================================================================
  	/call Declares
