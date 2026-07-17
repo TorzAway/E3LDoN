@@ -1,8 +1,8 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: July 14th, 2026 - 11:14:00 AM
+Last Updated: July 17th, 2026 - 04:05:00 PM
 
-v7.7.0
+v7.7.1
 
 Based off of LDON.mac v5.0 by Cannonballdex
 June 10, 2021
@@ -269,6 +269,8 @@ Cleaned up old code and INI call references for unused variables and procedures.
 /squelch /log on
 #chat group
 
+#include Turbo.inc
+
 #event Magical_Presence "strange magical presence"
 #event Sealed_Off "sealed off to you"
 											   
@@ -312,8 +314,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.7.0
-	/declare LastUpdated		string		outer	"Last Updated: July 14th, 2026 - 11:14:00 AM"
+	/declare version			string		outer	7.7.1
+	/declare LastUpdated		string		outer	"Last Updated: July 17th, 2026 - 04:05:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -828,6 +830,8 @@ Sub CheckThings
 			|--------------------------------------------------
 			/if (${Lua.Script[turbo].Status.Equal[Running]}) {
 				/message \ao--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) DISABLING TURBOLOOT LUA.
+				/call TurboMain off
+				/delay 5
 				/lua stop turbo
 			}						
 			|--------------------------------------------------			
@@ -839,6 +843,8 @@ Sub CheckThings
 			|--------------------------------------------------
 			/if (${Lua.Script[turbo].Status.Equal[Running]}) {
 				/message \ao--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) DISABLING TURBOLOOT LUA.
+				/call TurboMain off
+				/delay 5
 				/lua stop turbo
 			}						
 			|--------------------------------------------------			
