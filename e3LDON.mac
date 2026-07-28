@@ -823,6 +823,7 @@ Sub CheckThings
 		/message \ay--- \atENABLING\ax \am${MacroName}\ax LOOTING, WE WILL LOOT CORPSE(S).
 		/message ==================================================================		
 		/if (${LootMethod.Equal[DCONLY]}) {
+			/e3varset ShouldLoot false
 			/squelch /lootoff
 			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot\ax
 			/message \ay    [\atDiamond Coin\ay] and \arHIGH VALUE ITEMS \am(\ao>=\at${MinItemValue}\am)\ay.\ax
@@ -837,6 +838,7 @@ Sub CheckThings
 			|--------------------------------------------------			
 		}  
 		/if (${LootMethod.Equal[E3]}) {
+			/e3varset ShouldLoot true
 			/squelch /looton
 			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot according to \am${LootMethod}\ax settings.
 			/message \ay    [ If configured in your \am${LootMethod}\ax config files. \ag("Loot Settings.ini")\ax ]
@@ -850,6 +852,7 @@ Sub CheckThings
 			|--------------------------------------------------			
 		}
 		/if (${LootMethod.Equal[TURBOLOOT]}) {
+			/e3varset ShouldLoot false
 			/squelch /lootoff
 			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot according to \am${LootMethod}\ax settings.
 			/message \ay    [ If configured in your \am${LootMethod}\ax config files. \ag(turboloot.ini)\ax ]
@@ -867,6 +870,7 @@ Sub CheckThings
 		/message ==================================================================
 		/delay 3s
 	} else {
+		/e3varset ShouldLoot false
 		/squelch /lootoff
 		/message ==================================================================
 		/message \ar--- DISABLING \am${MacroName}\ar LOOTING, YOU WILL NOT LOOT CORPSE(S)!
