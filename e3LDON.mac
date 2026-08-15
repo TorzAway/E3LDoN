@@ -1,6 +1,85 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: August 12th, 2026 - 10:45:00 AM
+Last Updated: August 15th, 2026 - 10:25:00 AM
+
+v7.7.6
+- LOOT FIX (round 2) - ports the e3Hunter v1.6.1 work. "Combat is over, nothing
+  left to kill, corpse still on target." A corpse left on ${Target} (and/or
+  sitting in the xtarget window) kept the macro from ever reaching / finishing
+  the loot pass.
+    * New Sub ClearCorpseTarget: the single, verified way to drop a corpse off
+      target. It only fires when there is no REAL hater left (${XTHaters}) so
+      it can never drop a live mob mid-fight, it retries the /target clear
+      until the client actually honours it, and it zeroes ${myTargetID} if it
+      pointed at that corpse. All the scattered one-line
+      "/if (${Target.Type.Equal[corpse]}) /target clear" snippets now route
+      through it.
+    * It is now called at EVERY end-of-combat boundary, immediately before the
+      loot gate: :mainloop, both engine loops (swarm + single, normal and
+      friendly cool-off branches), DoSingleMob (:findMob and the post-fight
+      pass), TargetShortest_LDON's "no more mobs to pull" branch,
+      SinglePullMove, SwarmPullStepMove, NavToLoc2, FinishAdventure and
+      CheckForCorpses itself.
+    * Sub DoClearTargets could spin forever when the only thing left in the
+      xtarget window was a CORPSE: its entry gate and its :gotoloopkeepfighting
+      loop-back both tested the RAW ${Me.XTarget} count, which includes corpse
+      slots. With nothing alive to fight it never returned, so the loot pass
+      that lives after every one of its call sites never ran. Both gates now
+      use ${XTHaters} (corpse- and friendly-filtered).
+    * Sub TargetShortest_LDON's "no more mobs" branch also used the raw
+      ${Me.XTarget} count, so a corpse in the window made it skip the "wait for
+      respawn" handling. It now uses ${XTHaters}, drops the corpse and takes a
+      final loot pass before sitting down.
+    * Sub CheckForCorpses now unconditionally drops a corpse target on entry
+      before it probes, and re-acquires the corpse it was working on if
+      DoClearTargets stripped it while handling an add.
+
+v7.7.5
+- LOOT FIX - ports the e3Hunter v1.5.8 - v1.6.0 work. Corpses were being
+  skipped, especially after a backoff. Causes:
+    1) STARVATION: DoBackoff arms a cool-off timer and the engine loops'
+       cool-off branch ended in /continue. Each re-targeted friendly ran the
+       full backoff again and RE-ARMED the timer, so the loop bounced through
+       that branch forever and never reached the loot block below it. The
+       cool-off branch now always runs the loot pass when a corpse is on the
+       ground, and SafeguardTarget runs the FULL backoff only the first time
+       it sees a given friendly (quiet target-drop after that). Cool-off is
+       now 3s.
+    2) Loot gates tested !${Me.XTarget}, which counts EVERY populated xtarget
+       slot -- Group Member / Group Pet / My Pet Target / Raid Assist included.
+       A group member or pet in combat therefore blocked looting outright.
+       New Sub UpdateHaterCount / ${XTHaters} counts only real hostiles.
+    3) Loot gates also tested !${Bool[${Spawn[npc radius NN].Aggressive}]},
+       which checks only the FIRST npc the search returns -- and the "npc"
+       search includes player pets, so a group pet mid-fight read as
+       "aggressive npc nearby". New Sub CheckHostilesNear / ${HostilesNear}
+       skips friendlies.
+    4) Sub Stuck and the TurboLoot pass leave "/hidecorpse all" set, and a
+       HIDDEN corpse is not in the spawn list -- CheckForCorpses probed, found
+       "no corpses" and walked away. It now issues /hidecorpse none first.
+    5) DoSingleMob had no post-fight loot pass of its own, and the engine loops
+       skipped corpses instead of clearing aggro first. Both fixed.
+- Added a debug line (Debugging on) printing corpse count, XTHaters,
+  HostilesNear and LootMethod at each loot check.
+
+v7.7.4
+- FRIENDLY FIRE FIX: after a mob died the macro could roll onto a group member
+  or a group member's pet and attack it. Root causes:
+    1) ${Me.XTarget} with no index returns a COUNT, not a spawn ID. It was used
+       as an ID in DoSingleMob (/varset myTargetID ${Me.XTarget},
+       /e3bcg /target id ${Me.XTarget}) and WaitNav (/varset NavTargetID
+       ${Me.XTarget}). With 1-3 xtargets that targets spawn ID 1/2/3 -- very
+       often a group member or their pet. All now resolve a real enemy ID via
+       the new Sub GetHaterID / ${SafeXTID}.
+    2) The XTarget scan in DoClearTargets accepted ANY populated xtarget slot;
+       the XTarget window also holds Group Member / Group Pet / My Pet Target /
+       Raid Assist slots, which are NOT enemies.
+    3) /attack on in DoSingleMob, NavToLoc2 and DoClearTargets was issued with
+       no validation that the current target was actually a hostile NPC.
+- New Sub IsFriendly, Sub SafeguardTarget, Sub DoBackoff and Sub GetHaterID.
+  Every /attack on path is now gated on SafeguardTarget; if a friendly ends up
+  engaged we /backoff (self + /e3bcg), /attack off, /pet back off, stop nav and
+  stick, blacklist the ID and clear target.
 
 v7.7.3
 
@@ -314,8 +393,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.7.3
-	/declare LastUpdated		string		outer	"Last Updated: August 12th, 2026 - 10:45:00 AM"
+	/declare version			string		outer	7.7.6
+	/declare LastUpdated		string		outer	"Last Updated: August 15th, 2026 - 10:25:00 AM"
 	
 	/message ==================================================================
  	/call Declares
@@ -407,6 +486,8 @@ Sub Main
 	:mainloop
 	|---------
 	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
+	|-- Never carry a corpse on target into a new adventure cycle.
+	/call ClearCorpseTarget
 	|---------
 	/if (${Zone.ID} == ${TempleofMarr} || ${Zone.ID} == ${PlaneofKnowledge}) /call GoPoKMagus
 	/if (${Debugging}) /echo Sub Main - MainLoop Entry
@@ -441,11 +522,45 @@ Sub Main
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------
 			/while (!${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Left[2].NotEqual[${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Right[2]}]} || ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
+				|-- Friendly-fire watchdog: runs every pass of the engine loop.
+				/call SafeguardTarget
+				/call UpdateHaterCount
+				/if (${FriendlyBackoffTimer}) {
+					/if (${Debugging}) /echo Friendly backoff cool-off active (${FriendlyBackoffTimer})
+					|-- ALWAYS run the loot pass here. This branch used to just
+					|-- /continue, so while repeat backoffs kept re-arming the
+					|-- timer the loop never reached the loot block below and
+					|-- corpses were abandoned. CheckForCorpses handles any live
+					|-- aggro internally.
+					|-- Drop any corpse still on target first, or the loot pass
+					|-- below can't do its job.
+					/call ClearCorpseTarget
+					/if (${LootCorpse} && ${Bool[${Spawn[Corpse radius 100]}]}) /call CheckForCorpses
+					/delay 5
+					/doevents
+					/continue
+				}
+				|-- Combat is over for this pass: never carry a corpse on target
+				|-- into the pull / loot logic below.
+				/call ClearCorpseTarget
 				/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
+				/call ClearCorpseTarget
 				/if (${Target.ID} && !${Me.XTarget} && !${Me.Casting.ID}) /squelch /target clear
 				|-----------------------------------------------
 				| Before we Swarm pull ...   Check if we should loot Corpses.
-				/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
+				|-- If a corpse is on the ground we ALWAYS deal with it: resolve
+				|-- any aggro first (DoClearTargets loops until it is actually
+				|-- clear) and then loot, instead of skipping the loot pass and
+				|-- walking off to the next pull.
+				/call UpdateHaterCount
+				/call CheckHostilesNear 35
+				/if (${LootCorpse} && ${Bool[${Spawn[Corpse radius 100]}]}) {
+					/if (${XTHaters} || ${HostilesNear}) /call DoClearTargets
+					|-- DoClearTargets can hand us back a corpse on target.
+					/call ClearCorpseTarget
+					/call CheckForCorpses
+					/call ClearCorpseTarget
+				}
 				|-----------------------------------------------
 				|----------------------------
 				| -- Call check mission zone.
@@ -470,11 +585,45 @@ Sub Main
 			|-- WHILE !(killcount=totalkillcount||No time left)
 			|-----------------------------------			
 			/while (!${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Left[2].NotEqual[${Window[AdventureRequestWnd].Child[AdvRqst_ProgressTextLabel].Text.Right[2]}]} || ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
+				|-- Friendly-fire watchdog: runs every pass of the engine loop.
+				/call SafeguardTarget
+				/call UpdateHaterCount
+				/if (${FriendlyBackoffTimer}) {
+					/if (${Debugging}) /echo Friendly backoff cool-off active (${FriendlyBackoffTimer})
+					|-- ALWAYS run the loot pass here. This branch used to just
+					|-- /continue, so while repeat backoffs kept re-arming the
+					|-- timer the loop never reached the loot block below and
+					|-- corpses were abandoned. CheckForCorpses handles any live
+					|-- aggro internally.
+					|-- Drop any corpse still on target first, or the loot pass
+					|-- below can't do its job.
+					/call ClearCorpseTarget
+					/if (${LootCorpse} && ${Bool[${Spawn[Corpse radius 100]}]}) /call CheckForCorpses
+					/delay 5
+					/doevents
+					/continue
+				}
+				|-- Combat is over for this pass: never carry a corpse on target
+				|-- into the pull / loot logic below.
+				/call ClearCorpseTarget
 				/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) /call DoClearTargets
+				/call ClearCorpseTarget
 				/if (${Target.ID} && !${Me.XTarget} && !${Me.Casting.ID}) /squelch /target clear
 				|-----------------------------------------------
 				| Before we Single pull ...   Check if we should loot Corpses.
-				/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
+				|-- If a corpse is on the ground we ALWAYS deal with it: resolve
+				|-- any aggro first (DoClearTargets loops until it is actually
+				|-- clear) and then loot, instead of skipping the loot pass and
+				|-- walking off to the next pull.
+				/call UpdateHaterCount
+				/call CheckHostilesNear 35
+				/if (${LootCorpse} && ${Bool[${Spawn[Corpse radius 100]}]}) {
+					/if (${XTHaters} || ${HostilesNear}) /call DoClearTargets
+					|-- DoClearTargets can hand us back a corpse on target.
+					/call ClearCorpseTarget
+					/call CheckForCorpses
+					/call ClearCorpseTarget
+				}
 				|-----------------------------------------------
 				|----------------------------
 				| -- Call check mission zone.
@@ -543,6 +692,17 @@ Sub Declares
 	/declare myTargetIDLoc 		string 	outer 0
 	/declare reportTarget 		timer 	outer 5s
 	/declare startZone 			int 	outer ${Zone.ID}
+
+	|------------------------------------------------------------
+	|-- FRIENDLY-FIRE SAFETY
+	|------------------------------------------------------------
+	/declare FriendlyAbort			bool	outer	FALSE
+	/declare XTHaters				int		outer	0
+	/declare HostilesNear			bool	outer	FALSE
+	/declare LastFriendlyID			int		outer	0
+	/declare SafeXTID				int		outer	0
+	/declare FriendlyBackoffTimer	timer	outer	0
+	|------------------------------------------------------------
 	
 	|** SPECIFIC of E3LDON.mac/SwarmPull & Theme type declares **|
 	|----------------------------------------------------------
@@ -2456,7 +2616,11 @@ Sub SinglePullMove(string SinglePull_Loc)
 		}
 		|-----------------------------------------------
 		| Before we go to next step ...   ECheck if we should loot Corpses.
-		/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
+		|-- Combat is over here: never leave a corpse on target across the loot gate.
+		/call ClearCorpseTarget
+		/call UpdateHaterCount
+		/call CheckHostilesNear 35
+		/if (${LootCorpse} && !${XTHaters} && !${HostilesNear}) /call CheckForCorpses
 		| Before we go to next step ...   EXIT the loop if we have mission success !
 		|-----------------------------------------------		
 	|/echo Completed all SinglePullMove steps.
@@ -2580,7 +2744,11 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 		}
 		|-----------------------------------------------
 		| Before we go to next step ...   ECheck if we should loot Corpses.
-		/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
+		|-- Combat is over here: never leave a corpse on target across the loot gate.
+		/call ClearCorpseTarget
+		/call UpdateHaterCount
+		/call CheckHostilesNear 35
+		/if (${LootCorpse} && !${XTHaters} && !${HostilesNear}) /call CheckForCorpses
 		| Before we go to next step ...   EXIT the loop if we have mission success !
 		|-----------------------------------------------
 		
@@ -3043,19 +3211,35 @@ Sub DoClearTargets
 	|--------------------------------------------------
 	|-- MAIN DOCLEARTARGETS LOGIC
 	|--------------------------------------------------
-	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]} || (${Target.ID} && ${Target.Type.Equal[npc]} && ${Target.Aggressive})) {
+	|-- NOTE: the gate below (and the loop-back at the bottom) used to test the
+	|-- RAW ${Me.XTarget} count. That count includes CORPSE slots, so once the
+	|-- last mob died and its corpse stayed in the window this sub kept looping
+	|-- with nothing alive to fight -- it never returned, and the loot pass that
+	|-- lives after every call site never ran. ${XTHaters} filters out corpses
+	|-- (and friendlies), which is exactly what "am I still in a fight?" means.
+	/call UpdateHaterCount
+	/if (${XTHaters} || ${Bool[${Spawn[npc radius 35].Aggressive}]} || (${Target.ID} && ${Target.Type.Equal[npc]} && ${Target.Aggressive})) {
 		
 		:gotoloopkeepfighting
 		|------------------------
 		/if (${Me.Sitting} || ${Me.Feigning}) /stand
 		|------------------------
+
+		|------------------------------------------------------------------
+		|-- SAFETY GATE: if we have rolled onto a PC / merc / pet / group
+		|-- member at any point in this fight loop, /backoff and bail out.
+		|------------------------------------------------------------------
+		/call SafeguardTarget
+		/if (${FriendlyAbort}) {
+			/varset CurrentTarget 0
+			/return
+		}
+		|------------------------------------------------------------------
 		
 		|---------------------------------
-		| Cler Target if Target is Corpse.
+		| Clear Target if Target is Corpse.
 		|---------------------------------
-		/if (${Target.Type.Find[corpse]}) {
-			/squelch /target clear
-		}
+		/call ClearCorpseTarget
 		|---------------------------------
 		
 		|--------------------------------------------------------------------------------------------------
@@ -3090,6 +3274,13 @@ Sub DoClearTargets
 			/delay 5
 			/target id ${NearestSpawn[npc radius 35 targetable].ID}
 			/delay 5
+			|-- The "npc" search can still hand back a player's pet on some
+			|-- builds -- validate before we commit to it.
+			/call SafeguardTarget
+			/if (${FriendlyAbort}) {
+				/varset CurrentTarget 0
+				/return
+			}
 			|------------
 			/if (${CurrentTarget}!=${NearestSpawn[npc radius 35 targetable].ID}) {
 				/if (${Target.ID}!=0) /message \ayTargetting aggressive mob \aoID: \am[\at${NearestSpawn[npc radius 35 targetable].ID}\am] \aoName: \am[\at${NearestSpawn[npc radius 35 targetable].CleanName}\am]\ay and attacking !\ax
@@ -3178,7 +3369,17 @@ Sub DoClearTargets
 				|------------------
 				/if	(${Me.XTarget}) {
 					/for i 1 to ${Me.XTargetSlots}
-						/if (${Me.XTarget[${i}].ID}) {	
+						|-- Skip empty slots, corpses, and -- critically -- slots
+						|-- that are not real aggro (Group Member / Group Pet /
+						|-- My Pet Target / Raid Assist slots all live here too).
+						/if (!${Me.XTarget[${i}].ID}) /continue
+						/if (${Me.XTarget[${i}].ID}==${LastFriendlyID}) /continue
+						/if (${Spawn[id ${Me.XTarget[${i}].ID}].Type.Equal[Corpse]}) /continue
+						/if (!${Me.XTarget[${i}].TargetType.Find[Hater]} && !${Spawn[id ${Me.XTarget[${i}].ID}].Type.Equal[NPC]}) /continue
+						/call IsFriendly ${Me.XTarget[${i}].ID}
+						/if (${Macro.Return}) /continue
+
+						/if (${Me.XTarget[${i}].ID}) {
 							|-----
 							/if (${Me.XTarget} && (${Me.XTarget[${i}].Distance}>20) && ${Navigation.PathExists[id ${Me.XTarget[${i}].ID}]}) {
 								/squelch /nav id ${Me.XTarget[${i}].ID}
@@ -3190,9 +3391,14 @@ Sub DoClearTargets
 								/squelch /e3bcgz /moveto id ${Me.XTarget[${i}].ID}
 							}
 							|-----
-							/delay 5			
+							/delay 5
 							/target id ${Me.XTarget[${i}].ID}
-							/delay 5		
+							/delay 5
+							/call SafeguardTarget
+							/if (${FriendlyAbort}) {
+								/varset CurrentTarget 0
+								/return
+							}
 							|------------
 							/if (${CurrentTarget}!=${Me.XTarget[${i}].ID}) {
 								/if (${Target.ID}!=0) /message \arFound a \am[\atXTarget\am]\ar fleeing mob! \ayTargetting \aoID: \am[\at${Me.XTarget[${i}].ID}\am] \ayName\ao: \am[\at${Me.XTarget[${i}].CleanName}\am]\ay and attacking !\ax
@@ -3297,7 +3503,11 @@ Sub DoClearTargets
 		|-------------------------- DO BURNS -----------------------------------------
 		
 		|--------------------------------------------------
-		/if	(${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]} || (${Target.ID} && ${Target.Type.Equal[npc]} && ${Target.Aggressive})) /goto :gotoloopkeepfighting
+		|-- ${XTHaters}, not ${Me.XTarget}: a corpse in the xtarget window is
+		|-- not a reason to keep fighting, and looping on one used to hang the
+		|-- macro here forever with loot on the ground.
+		/call UpdateHaterCount
+		/if	(${XTHaters} || ${Bool[${Spawn[npc radius 35].Aggressive}]} || (${Target.ID} && ${Target.Type.Equal[npc]} && ${Target.Aggressive})) /goto :gotoloopkeepfighting
 		|--------------------------------------------------
 	}
 	|--------------------------------------------------
@@ -3322,6 +3532,10 @@ Sub DoClearTargets
 	
 	|-----------------------------------
 	/if (!${Me.XTarget} || (!${Target.ID} && !${Bool[${Spawn[npc radius 50].Aggressive}]})) /squelch /target clear
+	|-- NOTE: deliberately NOT calling ClearCorpseTarget on the way out.
+	|-- CheckForCorpses calls this sub while it is holding the corpse it is
+	|-- about to loot on target; clearing here would pull the rug out from
+	|-- under the loot subs. Every other caller calls ClearCorpseTarget itself.
 	|-----------------------------------
 	/if (${Debugging}) /echo Sub DoClearTargets Exit
 /return
@@ -3402,7 +3616,11 @@ Sub FinishAdventure
 	
 	|-----------------------------------------------
 	| Before we leave ...   Check if we should loot Corpses.
-	/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
+	|-- Combat is over here: never leave a corpse on target across the loot gate.
+	/call ClearCorpseTarget
+	/call UpdateHaterCount
+	/call CheckHostilesNear 35
+	/if (${LootCorpse} && !${XTHaters} && !${HostilesNear}) /call CheckForCorpses
 	|-----------------------------------------------	
 	
 	| -- *** --
@@ -3455,7 +3673,9 @@ Sub DoSingleMob(string Enemy)
 		/message \arAttacking \ay[\apAnything I can get my grubby paws on\ay]\ar.
 		/varset reportTarget ${reportTarget.OriginalValue}
 		|--------------------
-		/if (${myTargetID} && !${Target.Type.Equal[Corpse]} && !${Target.Type.Equal[Pet]} && !${Target.Type.Equal[PC]}) {
+		|-- Validate before swinging: never open on a PC, merc, pet or group member.
+		/call SafeguardTarget
+		/if (${myTargetID} && !${FriendlyAbort} && !${Target.Type.Equal[Corpse]} && !${Target.Type.Equal[Pet]} && !${Target.Type.Equal[PC]}) {
 			/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
 			|--------------------
 			/if (${Spawn[id ${Target.ID}].Distance} < 30) {
@@ -3477,9 +3697,11 @@ Sub DoSingleMob(string Enemy)
 			|--------------------
 			/if (${AssistMe}) {
 				/if (${Debugging}) /e3bcg (Line: ${Macro.CurLine}) killthis
+				|-- ${Me.XTarget} is a COUNT, not an ID -- resolve a real enemy.
+				/call GetHaterID
 				/squelch /e3bcg /nav id ${Me.ID}
-				/squelch /e3bcg /target id ${Me.XTarget}
-				/timed 10 /squelch /e3bcgz /assistme
+				/if (${SafeXTID}) /squelch /e3bcg /target id ${SafeXTID}
+				/if (${SafeXTID}) /timed 10 /squelch /e3bcgz /assistme
 				|/timed 15 /squelch /e3bcgz /pet attack
 				|/timed 20 /squelch /e3bcgz /pet swarm
 			}	
@@ -3491,10 +3713,9 @@ Sub DoSingleMob(string Enemy)
 	
 	:findMob
 	/if (${Debugging}) /echo FindMob DoSingleMob
-	/if (${Target.Type.Equal[corpse]}) {
-		/if (${Target.ID} == ${myTargetID}) /varset myTargetID 0
-		/squelch /target clear
-	}
+	|-- Never start a target search with a corpse on target (ClearCorpseTarget
+	|-- also zeroes myTargetID when it pointed at that corpse).
+	/call ClearCorpseTarget
 	/if (${Window[RespawnWnd].Open}) /call GroupDeathChk
 	/if (!${Me.XTarget} && ${CheckBots}) {
 		/call GroupDeathChk
@@ -3502,7 +3723,8 @@ Sub DoSingleMob(string Enemy)
 		/call GroupEndChk
 	}
 	/if (${Debugging}) /echo \aymyTargetID has an ID: ${Spawn[id ${myTargetID}].ID} - is a corpse: ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} - I have an XTarget: !${Me.XTarget}
-	/if (!${Spawn[id ${myTargetID}].ID} || ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} && !${Me.XTarget} && !${Me.Casting.ID}) {
+	/call UpdateHaterCount
+	/if (!${Spawn[id ${myTargetID}].ID} || ${Spawn[id ${myTargetID}].Type.Equal[Corpse]} && !${XTHaters} && !${Me.Casting.ID}) {
 		/message \ayLooking for a target!
 		/varset myTargetID 0
 		|-------------------
@@ -3514,10 +3736,14 @@ Sub DoSingleMob(string Enemy)
 	} else {
 		/if (${Debugging}) /echo \ayI have an XTarget so I'm going to set that as my target.
 		|---------------------------------------
-		/if (${Me.XTarget}) {
-			/varset myTargetID ${Me.XTarget}
+		|-- Only a REAL hater counts here; a group member / group pet sitting
+		|-- in the xtarget window must not stall the pull loop.
+		/if (${XTHaters}) {
+			|-- ${Me.XTarget} is a COUNT, not an ID -- resolve a real enemy ID.
+			/call GetHaterID
+			/varset myTargetID ${SafeXTID}
 			/if (${Debugging}) /echo CALL DoClearTargets
-			/if (${Me.XTarget} && ${Spawn[id ${Target.ID}].Distance} < 30) /call DoClearTargets
+			/if (${SafeXTID} && ${Spawn[id ${Target.ID}].Distance} < 30) /call DoClearTargets
 			/if (${Debugging}) /echo END CALL DoClearTargets			
 		}
 		|---------------------------------------
@@ -3542,10 +3768,31 @@ Sub DoSingleMob(string Enemy)
 		/delay 5
 		/goto :navto
 	} else /if (!${Target.ID} || ((${Target.ID}!=${myTargetID}) && (${Target.ID}!=${Me.ID}) && (${myTargetID}!=0) && !${Me.XTarget})) {
-		/target id ${myTargetID}
-		/if (${Navigation.Active}) /nav stop
+		|-- Never target a friendly ID we may have picked up along the way.
+		/call IsFriendly ${myTargetID}
+		/if (${Macro.Return}) {
+			/call DoBackoff ${myTargetID}
+		} else {
+			/target id ${myTargetID}
+			/if (${Navigation.Active}) /nav stop
+		}
 	}
 	/delay 5
+	/call SafeguardTarget
+
+	|----------------------------------------------------------------
+	|-- Post-fight loot pass: DoSingleMob used to rely purely on the
+	|-- engine loop for looting, so a corpse could be left behind when
+	|-- the loop dived straight back into another pull.
+	|----------------------------------------------------------------
+	|-- Fight's done -- make sure a corpse isn't still sitting on target, or
+	|-- the loot pass below has nothing to work with.
+	/call ClearCorpseTarget
+	/call UpdateHaterCount
+	/call CheckHostilesNear 35
+	/if (${LootCorpse} && !${XTHaters} && !${HostilesNear} && ${Bool[${Spawn[Corpse radius 100]}]}) /call CheckForCorpses
+	|----------------------------------------------------------------
+
 	|-----------------------------------------------
 	/if (${Debugging}) /echo DoSingleMob Sub Exit
 /return
@@ -3557,6 +3804,8 @@ Sub DoSingleMob(string Enemy)
 Sub TargetShortest_LDON
 
 	/if (${Debugging}) /echo Sub TargetShortest_LDON Entry
+	|-- Never start a mob scan with a corpse on target.
+	/call ClearCorpseTarget
 	/if (${UseClickBuffs}) /call Clickies_Buffs
 	/declare MobsInRadius 	int 	local 	${SpawnCount[npc noalert 1 targetable radius ${CampRadius} zradius ${ZRadius} alert 10]}
 	
@@ -3614,8 +3863,24 @@ Sub TargetShortest_LDON
 		/varset notkillable 0
 	} else {
 		/varset myTargetID 0
+		|-- live check for the wait, then refresh the real-hater count
 		/delay 5s ${Me.XTarget} == 0
-		/if (!${Me.XTarget}) {
+		/call UpdateHaterCount
+		/if (!${XTHaters}) {
+			|----------------------------------------------------------------
+			|-- COMBAT IS OVER AND THERE IS NOTHING LEFT TO KILL.
+			|-- This is the exact spot the macro used to park itself with the
+			|-- last mob's corpse still on target -- which then blocked the
+			|-- loot pass. Drop it, then loot before we sit for respawns.
+			|----------------------------------------------------------------
+			/call ClearCorpseTarget
+			/call CheckHostilesNear 35
+			/if (${LootCorpse} && !${HostilesNear} && ${Bool[${Spawn[Corpse radius 100]}]}) {
+				/call CheckForCorpses
+				/call ClearCorpseTarget
+				/call UpdateHaterCount
+			}
+			|----------------------------------------------------------------
 			/if (!${Announce}) {
 				/message No more mobs to pull, lets Wait for Respawn!
 				/varset Announce TRUE
@@ -3623,7 +3888,7 @@ Sub TargetShortest_LDON
 			/varset notkillable 0
 			/if (${Me.Standing} && !${Navigation.Active}) /sit
 		}
-		/if (${Me.XTarget}) /return
+		/if (${XTHaters}) /return
 	}
 	/delay 1
 	
@@ -4354,6 +4619,296 @@ Sub CloseAdventureStatsWnd
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
+| SUB: IsFriendly(int chkID)
+| --------------------------------------------------------------------------------------------
+| Returns TRUE (via ${Macro.Return}) if the given spawn ID is something we must
+| NEVER attack: ourself, our own pet, any PC, any mercenary, anything owned by a
+| PC/merc (someone's pet or charmed pet), or any group/raid member or their pet.
+| --------------------------------------------------------------------------------------------
+Sub IsFriendly(int chkID)
+	/declare fIdx int local 0
+
+	/if (!${chkID}) /return FALSE
+	/if (!${Spawn[id ${chkID}].ID}) /return FALSE
+
+	|-- Ourself / our own pet
+	/if (${chkID}==${Me.ID}) /return TRUE
+	/if (${Me.Pet.ID} && ${chkID}==${Me.Pet.ID}) /return TRUE
+
+	|-- Players and mercenaries
+	/if (${Spawn[id ${chkID}].Type.Equal[PC]}) /return TRUE
+	/if (${Spawn[id ${chkID}].Type.Equal[Mercenary]}) /return TRUE
+
+	|-- Anything owned by a player or merc (pets, charmed pets, swarm pets)
+	/if (${Spawn[id ${chkID}].Master.ID}) {
+		/if (${Spawn[id ${chkID}].Master.Type.Equal[PC]}) /return TRUE
+		/if (${Spawn[id ${chkID}].Master.Type.Equal[Mercenary]}) /return TRUE
+	}
+
+	|-- Group members and their pets (explicit, in case .Master is unavailable)
+	/if (${Group.Members}) {
+		/for fIdx 0 to 5
+			/if (${Group.Member[${fIdx}].ID} && ${chkID}==${Group.Member[${fIdx}].ID}) /return TRUE
+			/if (${Group.Member[${fIdx}].Pet.ID} && ${chkID}==${Group.Member[${fIdx}].Pet.ID}) /return TRUE
+		/next fIdx
+	}
+
+	|-- Raid members and their pets
+	/if (${Raid.Members}) {
+		/for fIdx 1 to ${Raid.Members}
+			/if (${Raid.Member[${fIdx}].Spawn.ID} && ${chkID}==${Raid.Member[${fIdx}].Spawn.ID}) /return TRUE
+			/if (${Raid.Member[${fIdx}].Spawn.Pet.ID} && ${chkID}==${Raid.Member[${fIdx}].Spawn.Pet.ID}) /return TRUE
+		/next fIdx
+	}
+
+/return FALSE
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: DoBackoff(int badID)
+| --------------------------------------------------------------------------------------------
+| Hard stop: we somehow ended up engaged on a friendly. Kill the swing, call the
+| pet off, stop the assist, blacklist the ID and clear target -- on us AND the bots.
+| --------------------------------------------------------------------------------------------
+Sub DoBackoff(int badID)
+
+	/message \ar*** \ayFRIENDLY TARGET DETECTED \am[\at${Spawn[id ${badID}].CleanName}\am] \ao(\atID ${badID}\ao) \ar- BACKING OFF! ***\ax
+	/popcustom 13 5 FRIENDLY TARGET (${Spawn[id ${badID}].CleanName}) - BACKING OFF!
+	/if (${UseBeep}) /beep
+
+	|-- Stop MY attack first
+	/attack off
+	/squelch /stick off
+	/if (${Navigation.Active}) /squelch /nav stop
+	/if (${Me.Pet.ID}) /pet back off
+
+	|-- Stop the rest of the group / bots
+	/squelch /e3bcg /backoff
+	/squelch /e3bcg /attack off
+	/squelch /e3bcg /pet back off
+	/backoff
+
+	|-- Blacklist so we don't immediately re-acquire it
+	/varset LastFriendlyID ${badID}
+	/varset FriendlyBackoffTimer 30
+	/if (${myTargetID}==${badID}) /varset myTargetID 0
+
+	/squelch /target clear
+	/delay 1s
+	/varset FriendlyAbort TRUE
+
+/return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: SafeguardTarget
+| --------------------------------------------------------------------------------------------
+| Validate whatever is on target RIGHT NOW. Sets ${FriendlyAbort} TRUE and backs
+| off if the current target is a friendly. Call this before ANY /attack on.
+| --------------------------------------------------------------------------------------------
+Sub SafeguardTarget
+	/varset FriendlyAbort FALSE
+	/if (!${Target.ID}) /return
+	/if (${Target.Type.Equal[Corpse]}) /return
+
+	|-- Already backed off from this one: just drop it quietly instead of
+	|-- running the whole backoff sequence again. Repeat full backoffs kept
+	|-- re-arming the cool-off timer, which starved the loot pass.
+	/if (${Target.ID}==${LastFriendlyID}) {
+		/if (${Me.Combat}) /attack off
+		/squelch /target clear
+		/varset FriendlyAbort TRUE
+		/return
+	}
+
+	/call IsFriendly ${Target.ID}
+	/if (${Macro.Return}) {
+		/call DoBackoff ${Target.ID}
+		/return
+	}
+
+	|-- Belt and braces: a non-aggressive PET on target while we are swinging is
+	|-- the classic "mob died, rolled onto a group member's pet" case.
+	/if (${Target.Type.Equal[Pet]} && !${Target.Aggressive}) {
+		/call DoBackoff ${Target.ID}
+		/return
+	}
+/return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: ClearCorpseTarget
+| --------------------------------------------------------------------------------------------
+| Drops a CORPSE off ${Target} once the fight is actually over.
+|
+| Why this exists: when the last mob dies the client very often leaves its
+| corpse on target. A corpse sitting on target -- and/or in the xtarget window
+| -- is what kept the macro from ever getting to / finishing the
+| CheckForCorpses pass:
+|   * SafeguardTarget returns immediately on a corpse (see above), so none of
+|     the normal "bad target" machinery ever cleaned it up.
+|   * DoClearTargets counted that corpse as "still fighting" and looped.
+|   * The pull loop kept trying to work a target that can never die.
+|
+| SAFETY: this NEVER clears a live mob. It bails out unless the current target
+| really is a corpse, and it refuses to touch anything while a REAL hater is
+| still on the xtarget window (${XTHaters}) -- so it cannot strip your target
+| mid-fight or during an add.
+|
+| Returns TRUE if it actually cleared something.
+| --------------------------------------------------------------------------------------------
+Sub ClearCorpseTarget
+	/declare cTries		int local 0
+	/declare cDeadID	int local 0
+
+	|-- Nothing on target: nothing to do.
+	/if (!${Target.ID}) /return FALSE
+
+	|-- Only ever act on a corpse. (.Equal is a clean TRUE/FALSE -- .Find can
+	|-- come back NULL, which is nasty to negate inside an /if.)
+	/if (!${Target.Type.Equal[Corpse]}) /return FALSE
+
+	|-- Still something REAL to fight? Leave the client alone -- combat is not
+	|-- over yet and CheckForCorpses handles live aggro itself.
+	/call UpdateHaterCount
+	/if (${XTHaters}) /return FALSE
+
+	/varset cDeadID ${Target.ID}
+	/if (${Debugging}) /echo Sub ClearCorpseTarget: dropping corpse ${cDeadID} (${Target.CleanName}) off target.
+
+	|-- Don't yank the target out from under a spell that is in flight.
+	/if (${Me.Casting.ID}) /delay 2s !${Me.Casting.ID}
+
+	|-- /target clear gets swallowed now and then (zoning, loot window opening,
+	|-- mid-cast). Verify it actually took instead of assuming.
+	/for cTries 1 to 5
+		/squelch /target clear
+		/delay 5 !${Target.ID}
+		/if (!${Target.ID}) /break
+		/if (!${Target.Type.Equal[Corpse]}) /break
+	/next cTries
+
+	|-- Stop the pull logic from chasing a target that can never die.
+	/if (${cDeadID} && ${myTargetID}==${cDeadID}) /varset myTargetID 0
+
+	|-- Corpses can also linger in the xtarget window; refresh the hater count
+	|-- so the caller's "is combat over?" test sees the truth.
+	/call UpdateHaterCount
+
+	/if (${Target.ID} && ${Target.Type.Equal[Corpse]}) {
+		/if (${Debugging}) /echo Sub ClearCorpseTarget: corpse ${cDeadID} would NOT clear off target.
+		/return FALSE
+	}
+
+/return TRUE
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: CheckHostilesNear(int hRadius)
+| --------------------------------------------------------------------------------------------
+| Sets ${HostilesNear} TRUE only if a REAL hostile npc is aggressive nearby.
+|
+| ${Bool[${Spawn[npc radius NN].Aggressive}]} tests only the FIRST npc the
+| search returns, and on most builds the "npc" search includes player pets --
+| so a group member's pet that is busy fighting reads as "aggressive npc
+| nearby" and blocks every loot gate. That is why corpses were being skipped.
+| --------------------------------------------------------------------------------------------
+Sub CheckHostilesNear(int hRadius)
+	/declare nIdx  int local 0
+	/declare nMax  int local 0
+	/declare nID   int local 0
+
+	/varset HostilesNear FALSE
+	/if (!${hRadius}) /varset hRadius 35
+
+	/varset nMax ${SpawnCount[npc radius ${hRadius}]}
+	/if (!${nMax}) /return FALSE
+	/if (${nMax}>15) /varset nMax 15
+
+	/for nIdx 1 to ${nMax}
+		/varset nID ${NearestSpawn[${nIdx},npc radius ${hRadius}].ID}
+		/if (!${nID}) /continue
+		/if (${Spawn[id ${nID}].Type.Equal[Corpse]}) /continue
+		/if (!${Spawn[id ${nID}].Aggressive}) /continue
+		/call IsFriendly ${nID}
+		/if (${Macro.Return}) /continue
+		/varset HostilesNear TRUE
+		/return TRUE
+	/next nIdx
+
+/return FALSE
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: UpdateHaterCount
+| --------------------------------------------------------------------------------------------
+| Sets ${XTHaters} to the number of REAL enemies on the extended target window.
+|
+| ${Me.XTarget} counts EVERY populated xtarget slot -- including Group Member,
+| Group Pet, My Pet Target and Raid Assist slots. Those slots stay populated
+| while a group member or their pet is in combat, so gating looting on
+| !${Me.XTarget} means a friendly sitting in the window blocks looting forever.
+| Use ${XTHaters} for "am I still in a fight?" decisions around looting.
+| --------------------------------------------------------------------------------------------
+Sub UpdateHaterCount
+	/declare hIdx int local 0
+
+	/varset XTHaters 0
+	/if (!${Me.XTarget}) /return 0
+
+	/for hIdx 1 to ${Me.XTargetSlots}
+		/if (!${Me.XTarget[${hIdx}].ID}) /continue
+		/if (${Spawn[id ${Me.XTarget[${hIdx}].ID}].Type.Equal[Corpse]}) /continue
+		/if (!${Me.XTarget[${hIdx}].TargetType.Find[Hater]} && !${Spawn[id ${Me.XTarget[${hIdx}].ID}].Type.Equal[NPC]}) /continue
+		/call IsFriendly ${Me.XTarget[${hIdx}].ID}
+		/if (${Macro.Return}) /continue
+		/varcalc XTHaters ${XTHaters}+1
+	/next hIdx
+
+/return ${XTHaters}
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: GetHaterID
+| --------------------------------------------------------------------------------------------
+| Returns the spawn ID of the first REAL enemy on the extended target window and
+| stores it in ${SafeXTID}.
+|
+| NOTE: ${Me.XTarget} with no index returns a COUNT, not an ID. Using it as an ID
+| (/target id ${Me.XTarget}) targets whatever spawn happens to own that low ID --
+| very often a group member or a group member's pet. Always use this sub instead.
+| --------------------------------------------------------------------------------------------
+Sub GetHaterID
+	/declare xIdx 		int local 0
+	/declare xFallback	int local 0
+
+	/varset SafeXTID 0
+	/if (!${Me.XTarget}) /return 0
+
+	/for xIdx 1 to ${Me.XTargetSlots}
+		/if (!${Me.XTarget[${xIdx}].ID}) /continue
+		/if (${Me.XTarget[${xIdx}].ID}==${LastFriendlyID}) /continue
+		/if (${Spawn[id ${Me.XTarget[${xIdx}].ID}].Type.Equal[Corpse]}) /continue
+
+		|-- Never accept a friendly, no matter which slot type it sits in
+		/call IsFriendly ${Me.XTarget[${xIdx}].ID}
+		/if (${Macro.Return}) /continue
+
+		|-- Prefer true aggro slots ("Auto Hater"); anything else (Group Member,
+		|-- Group Pet, My Pet Target, Raid Assist, ...) is only a fallback.
+		/if (${Me.XTarget[${xIdx}].TargetType.Find[Hater]}) {
+			/varset SafeXTID ${Me.XTarget[${xIdx}].ID}
+			/return ${SafeXTID}
+		}
+		/if (!${xFallback} && ${Spawn[id ${Me.XTarget[${xIdx}].ID}].Type.Equal[NPC]}) /varset xFallback ${Me.XTarget[${xIdx}].ID}
+	/next xIdx
+
+	/varset SafeXTID ${xFallback}
+/return ${SafeXTID}
+| --------------------------------------------------------------------------------------------
+
+
+| --------------------------------------------------------------------------------------------
 | SUB: PCnGMCheck
 | --------------------------------------------------------------------------------------------
 Sub PCnGMCheck
@@ -4733,15 +5288,21 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL DoSinglePull NavToLoc	
 				/target id ${NearestSpawn[npc radius 35 targetable].ID}
-				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-				/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+				|-- Validate: the "npc" search can hand back a player's pet.
+				/call SafeguardTarget
+				/if (${Spawn[id ${Target.ID}].Distance} > 30 && !${FriendlyAbort}) /squelch /nav id ${Target.ID}
+				/if (${Spawn[id ${Target.ID}].Distance} < 30 && !${FriendlyAbort}) {
 					|------  CALL GROUP TO ME To FIGHT
 					/call Group2Me
 					|------  CALL GROUP TO ME To FIGHT									
 					/if (${Target.ID}) /face
 					/squelch /attack on
 					/call DoClearTargets
-					/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
+					|-- Combat is over here: never leave a corpse on target across the loot gate.
+					/call ClearCorpseTarget
+					/call UpdateHaterCount
+					/call CheckHostilesNear 35
+					/if (${LootCorpse} && !${XTHaters} && !${HostilesNear}) /call CheckForCorpses
 					/doevents
 					/if (${UseClickDamage}) /call Clickies_Damage
 				}
@@ -4760,15 +5321,21 @@ Sub NavToLoc2(int Y,int X,int Z)
 				/if (${Navigation.Active}) /nav stop
 				/if (${Debugging}) /echo CALL FARM STUFF NavToLoc II
 				/target id ${NearestSpawn[npc radius 35 targetable].ID}
-				/if (${Spawn[id ${Target.ID}].Distance} > 30) /squelch /nav id ${Target.ID}
-				/if (${Spawn[id ${Target.ID}].Distance} < 30) {
+				|-- Validate: the "npc" search can hand back a player's pet.
+				/call SafeguardTarget
+				/if (${Spawn[id ${Target.ID}].Distance} > 30 && !${FriendlyAbort}) /squelch /nav id ${Target.ID}
+				/if (${Spawn[id ${Target.ID}].Distance} < 30 && !${FriendlyAbort}) {
 					|------  CALL GROUP TO ME To FIGHT
 					/call Group2Me
 					|------  CALL GROUP TO ME To FIGHT				
 					/if (${Target.ID}) /face
 					/squelch /attack on
 					/call DoClearTargets
-					/if (${LootCorpse} && !${Me.XTarget} && !${Bool[${Spawn[npc radius 35].Aggressive}]}) /call CheckForCorpses
+					|-- Combat is over here: never leave a corpse on target across the loot gate.
+					/call ClearCorpseTarget
+					/call UpdateHaterCount
+					/call CheckHostilesNear 35
+					/if (${LootCorpse} && !${XTHaters} && !${HostilesNear}) /call CheckForCorpses
 					/doevents
 					/if (${UseClickDamage}) /call Clickies_Damage
 				}
@@ -4842,7 +5409,9 @@ Sub WaitNav(NavTargetID)
 			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 35].Aggressive}]}) {
 				/if (${Navigation.Active}) /nav stop
 				/target id ${NearestSpawn[npc radius 35 targetable].ID}
-				/varset NavTargetID ${Target.ID}
+				/call SafeguardTarget
+				/if (${FriendlyAbort}) /varset NavTargetID 0
+				/if (!${FriendlyAbort}) /varset NavTargetID ${Target.ID}
 				/if (${Debugging}) /echo CALL DoSingleMob WaitNav II
 				/call DoSingleMob
 			} else {
@@ -4854,7 +5423,9 @@ Sub WaitNav(NavTargetID)
 					/varset BackUpTimer 0
 					/varset NavTargetID 0
 					/if (${Me.XTarget}) {
-						/varset NavTargetID ${Me.XTarget}
+						|-- ${Me.XTarget} is a COUNT, not an ID.
+						/call GetHaterID
+						/varset NavTargetID ${SafeXTID}
 					}
 				}
 				/if (${Debugging}) /echo WaitNav Moving ELSE
@@ -5002,15 +5573,31 @@ Sub ReclaimAltDC
 | --------------------------------------------------------------------------------------------
   Sub CheckForCorpses
   /if (${Debugging}) /echo Sub CheckForCorpses Entry
+  /call UpdateHaterCount
+  /call CheckHostilesNear 50
 
-  /if (${Target.ID} && (!${Me.XTarget} || !${Bool[${Spawn[npc radius 35].Aggressive}]})) /squelch /target clear
-  
+  |-- ALWAYS start from a clean target. A corpse left over from the fight that
+  |-- just ended is the single most common thing sitting here, and working the
+  |-- loot list from a stale corpse target is what made this sub look like it
+  |-- "never kicked off". ClearCorpseTarget is a no-op unless the target really
+  |-- is a corpse and there is no live hater left.
+  /call ClearCorpseTarget
+  /if (${Target.ID} && (!${XTHaters} || !${HostilesNear})) /squelch /target clear
+
   /call PCnGMCheck
+
+  |-- Sub Stuck and the TurboLoot pass both leave "/hidecorpse all" set, and a
+  |-- hidden corpse is NOT in the spawn list -- the probe below then reports
+  |-- "no corpses" and we walk away from loot. Always unhide before probing.
+  /hidecorpse none
+  /delay 5
+
   /message \ay- Checking for missed corpse(s).
-  
+
   /delay 1s ${Spawn[corpse radius 100].ID}
-	
-  |--------------------------------------	
+
+  |--------------------------------------
+ /if (${Debugging}) /echo LOOT CHECK: corpses=${SpawnCount[corpse radius 100]} XTHaters=${XTHaters} HostilesNear=${HostilesNear} LootMethod=${LootMethod}
  /if (${Bool[${Spawn[Corpse radius 100].ID}]}) {
 	/message \at+++ \ayLooks like we have \am(\ag${SpawnCount[corpse radius 100]}\am)\ay corpse(s) to loot.\ax
 	/squelch /target ${Spawn[corpse radius 100]}
@@ -5021,6 +5608,8 @@ Sub ReclaimAltDC
   |--------------------------------------
   
 :CheckAgain
+  /call UpdateHaterCount
+  /call CheckHostilesNear 50
   |------------------
   /if (${MouseLock}) /mouseto ${MouseLocValX}, ${MouseLocValY}
   |------------------
@@ -5048,17 +5637,25 @@ Sub ReclaimAltDC
 		|-------------------------
 		/call CheckCasting
 		/delay 5 !${Me.Moving}
-		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets			
+		/if (${XTHaters} || ${HostilesNear}) /call DoClearTargets
+		|-- DoClearTargets drops a corpse off target while it deals with the
+		|-- add, so re-acquire the corpse we came here for before handing off
+		|-- to the loot subs (they all key off ${Target}).
+		/if (!${Target.ID} || !${Target.Type.Equal[Corpse]}) {
+			/squelch /target radius 100 corpse
+			/delay 5 ${Target.ID}
+			/if (${Target.ID} && ${Target.Type.Equal[Corpse]}) /face fast nolook
+		}
 		|--------------------------------------------------------------------------------
-		/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[TURBOLOOT]}) /call LootMob_Turboloot
-		/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
-		/if (!${Me.XTarget} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
+		/if (!${XTHaters} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[TURBOLOOT]}) /call LootMob_Turboloot
+		/if (!${XTHaters} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[DCONLY]}) /call LootMob_DC_Only
+		/if (!${XTHaters} && !${Me.Casting.ID} && !${Me.Moving} && ${LootMethod.Equal[E3]}) /call LootMob_E3
 		/delay 5
 		|--------------------------------------------------------------------------------
 	}
     /squelch /target clear
 	|-------------------------
-	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets	
+	/if (${XTHaters} || ${HostilesNear}) /call DoClearTargets	
 	
 	|-------------------------------------------
 	/if (${Bool[${Spawn[Corpse radius 100]}]}) {
@@ -5077,11 +5674,13 @@ Sub ReclaimAltDC
 | --------------------------------------------------------------------------------------------
   Sub LootMob_Turboloot
 	/if (${Debugging}) /echo Sub LootMob_Turboloot Entry		
+	/call UpdateHaterCount
+	/call CheckHostilesNear 50
 
 	|---------------------------------------
 	| -- Let TURBOLOOT Looting System handle this !
 	|---------------------------------------
-	/if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}) {
+	/if (!${XTHaters} && !${HostilesNear}) {
 		/message \at+++ \ayHaving \am[\ag${TurboLooter}\am]\ay loot via \am[\aoTurboLoot\am]\ay.		
 		/message \at+ \aoHiding corpse(s) from myself.
 		/hidecorpse all
@@ -5090,8 +5689,10 @@ Sub ReclaimAltDC
 		/varset TurboLootPause TRUE
 		/delay 5
 		|---------------------------
-		/while (${TurboLootPause}) {			
-			/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets			
+		/while (${TurboLootPause}) {
+			/call UpdateHaterCount
+			/call CheckHostilesNear 50			
+			/if (${XTHaters} || ${HostilesNear}) /call DoClearTargets			
 			/doevents
 			/delay 1s
 		}
@@ -5104,7 +5705,7 @@ Sub ReclaimAltDC
 	| -- Let TURBOLOOT Looting System handle this !
 	|---------------------------------------
 	|--------------------------------------------
-	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
+	/if (${XTHaters} || ${HostilesNear}) /call DoClearTargets
 	|--------------------------------------------
 	/doevents
 	|-------------------------------------------------------------------------------------
@@ -5118,6 +5719,8 @@ Sub ReclaimAltDC
 | --------------------------------------------------------------------------------------------
   Sub LootMob_E3
 	/if (${Debugging}) /echo Sub LootMob_E3 Entry
+	/call UpdateHaterCount
+	/call CheckHostilesNear 50
 
 	/if (${Target.ID} && ${Target.Type.Equal[Corpse]}) /face fast nolook
 	/keypress forward
@@ -5131,7 +5734,7 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
-	 /if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}) {
+	 /if (!${XTHaters} && !${HostilesNear}) {
 		/message \at+++ \ayLooting - \ag Corpse\ao: \ar[\am${Target.CleanName}\ar] \agID\ao: \ar[\am${Target.ID}\ar].
 		/loot
 	} else {
@@ -5145,11 +5748,11 @@ Sub ReclaimAltDC
 	| -- Let E3 Looting System handle this !
 	|---------------------------------------
 	|--------------------------------------------
-	/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
+	/if (${XTHaters} || ${HostilesNear}) /call DoClearTargets
 	|--------------------------------------------
 	/doevents
 	|-------------------------------------------------------------------------------------
-	/if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}  && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
+	/if (!${XTHaters} && !${HostilesNear}  && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
 	|-------------------------------------------------------------------------------------
 
 	/if (${Debugging}) /echo Sub LootMob_E3 Exit
@@ -5161,6 +5764,8 @@ Sub ReclaimAltDC
 | --------------------------------------------------------------------------------------------
   Sub LootMob_DC_Only
     /if (${Debugging}) /echo Sub LootMob_DC_Only Entry
+    /call UpdateHaterCount
+    /call CheckHostilesNear 50
 	
 	/declare x  		 			int inner	1
 	/declare LootSlot    			int inner	0
@@ -5177,7 +5782,7 @@ Sub ReclaimAltDC
 	|---------------------------------------
 	| -- HANDLE CONDITIONALY !
 	|---------------------------------------
-	 /if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}) {
+	 /if (!${XTHaters} && !${HostilesNear}) {
 		/message \at+++ \ayLooting - \ag Corpse\ao: \ar[\am${Target.CleanName}\ar] \agID\ao: \ar[\am${Target.ID}\ar].
 		/loot
 	} else {
@@ -5237,7 +5842,7 @@ Sub ReclaimAltDC
 			|--------------------------------------------------------
 		/doevents
 		|--------------------------------------------
-		/if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
+		/if (${XTHaters} || ${HostilesNear}) /call DoClearTargets
 		|--------------------------------------------
 		/next LootSlot
 		|---------------------------------------
@@ -5247,11 +5852,11 @@ Sub ReclaimAltDC
     /notify LootWnd DoneButton leftmouseup
     /delay 1s !${Window[LootWnd].Open}
     |--------------------------------------------
-    /if (${Me.XTarget} || ${Bool[${Spawn[npc radius 50].Aggressive}]}) /call DoClearTargets
+    /if (${XTHaters} || ${HostilesNear}) /call DoClearTargets
     |--------------------------------------------
     /doevents
     |-------------------------------------------------------------------------------------
-    /if (!${Me.XTarget} && !${Bool[${Spawn[npc radius 50].Aggressive}]}  && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
+    /if (!${XTHaters} && !${HostilesNear}  && !${Me.Casting.ID} && !${Me.Moving}) /call CheckIfBagsFull
     |-------------------------------------------------------------------------------------
 
   /if (${Debugging}) /echo Sub LootMob_DC_Only Exit
