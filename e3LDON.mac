@@ -1,6 +1,38 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: August 15th, 2026 - 10:25:00 AM
+Last Updated: August 15th, 2026 - 11:35:00 PM
+
+v7.7.7
+- OVER-RUN FIX (closest target on arrival) - the group kept walking PAST a pull
+  step. While navving to a step we often pick up -- or get handed -- an
+  aggressive mob that is still way out ahead of us: a mob that belongs to the
+  NEXT step, or an add that aggroed at range. On arrival DoClearTargets saw
+  "I have an aggressive npc on target", and its Target Distance Stick Check
+  (target further than 20) navved the WHOLE GROUP out to it. We blew straight
+  past the step we just spent 30 seconds walking to, and pulled the next camp
+  early.
+    * New Sub TargetNearestAggro(int aRadius): called the moment we arrive at a
+      step, BEFORE DoClearTargets. It stops any lingering nav, waits out a
+      spell in flight, then walks the npc list nearest-first and takes the
+      first REAL aggro mob inside the radius. Combat therefore always opens on
+      the mob that is actually HERE, not on something down the path.
+    * It skips corpses, non-aggressive spawns, un-targetable spawns, the
+      blacklisted ${LastFriendlyID}, and anything Sub IsFriendly flags (PCs,
+      mercs, group/raid members and every flavour of pet). The result is run
+      through SafeguardTarget and verified to have actually taken before we
+      commit, so it obeys the same friendly-fire rules as the rest of combat.
+    * If NOTHING valid is in range it clears target outright. A far-off mob
+      left sitting on ${Target} at a step is exactly what caused the over-run,
+      so DoClearTargets is handed a clean slate instead.
+    * On success it sets ${myTargetID} and issues /ClearTarget usemytarget so
+      the bots assist on the same closest mob.
+    * Wired into BOTH pull paths: SinglePullMove and SwarmPullStepMove, in each
+      case immediately after the step's ini write and before /call
+      DoClearTargets.
+    * New outers: ${NearestAggroID} (ID picked on arrival, 0 = none) and
+      ${ArrivalAggroRadius} (default 35, matching the existing 35-radius aggro
+      gates). Lower ArrivalAggroRadius to 25 if the group still drifts past a
+      step, raise it to 40 to engage sooner.
 
 v7.7.6
 - LOOT FIX (round 2) - ports the e3Hunter v1.6.1 work. "Combat is over, nothing
@@ -393,8 +425,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.7.6
-	/declare LastUpdated		string		outer	"Last Updated: August 15th, 2026 - 10:25:00 AM"
+	/declare version			string		outer	7.7.7
+	/declare LastUpdated		string		outer	"Last Updated: August 15th, 2026 - 11:35:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -702,6 +734,17 @@ Sub Declares
 	/declare LastFriendlyID			int		outer	0
 	/declare SafeXTID				int		outer	0
 	/declare FriendlyBackoffTimer	timer	outer	0
+	|------------------------------------------------------------
+
+	|------------------------------------------------------------
+	|-- ARRIVAL TARGETING (see Sub TargetNearestAggro)
+	|-- NearestAggroID     : ID of the closest REAL aggro mob found on arrival.
+	|-- ArrivalAggroRadius : how far out we accept a mob as "belonging to this
+	|--                     step". Lower it (25) if the group still over-runs
+	|--                     the step, raise it (40) to engage sooner.
+	|------------------------------------------------------------
+	/declare NearestAggroID			int		outer	0
+	/declare ArrivalAggroRadius		int		outer	35
 	|------------------------------------------------------------
 	
 	|** SPECIFIC of E3LDON.mac/SwarmPull & Theme type declares **|
@@ -2607,6 +2650,18 @@ Sub SinglePullMove(string SinglePull_Loc)
 			|----------------------------------------------------------		
 
 			|---------------------------------------------------------------
+			|-- WE ARE AT THE STEP NOW.
+			|-- Whatever we may have picked up on the way in (a mob further
+			|-- down the path, an add that aggroed at range) must NOT be what
+			|-- we open on -- DoClearTargets would nav the whole group out to
+			|-- it and we would over-run this step. Re-acquire the CLOSEST
+			|-- real aggro mob first, then run the normal combat cycle.
+			|---------------------------------------------------------------
+			/call TargetNearestAggro ${ArrivalAggroRadius}
+			/delay 3
+			|---------------------------------------------------------------
+
+			|---------------------------------------------------------------
 			| Use the DoClearTargets for SinglePull system instead, of COMBAT
 			|---------------------------------------------------------------
 			/call DoClearTargets
@@ -2733,6 +2788,18 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 			/call IniChange "Theme" "LastSwarmed_Dungeon" ${Zone.ShortName}
 			/call IniChange "Theme" "LastSwarmed_Step" ${x}
 			|-------------------------------------------------------------------------------------------------------
+
+			|---------------------------------------------------------------
+			|-- WE ARE AT THE STEP NOW.
+			|-- Whatever we may have picked up on the way in (a mob further
+			|-- down the path, an add that aggroed at range) must NOT be what
+			|-- we open on -- DoClearTargets would nav the whole group out to
+			|-- it and we would over-run this step. Re-acquire the CLOSEST
+			|-- real aggro mob first, then run the normal combat cycle.
+			|---------------------------------------------------------------
+			/call TargetNearestAggro ${ArrivalAggroRadius}
+			/delay 3
+			|---------------------------------------------------------------
 
 			|---------------------------------------------------------------
 			| Use the DoClearTargets for SPawnPull system instead, of COMBAT
@@ -4674,7 +4741,7 @@ Sub DoBackoff(int badID)
 
 	/message \ar*** \ayFRIENDLY TARGET DETECTED \am[\at${Spawn[id ${badID}].CleanName}\am] \ao(\atID ${badID}\ao) \ar- BACKING OFF! ***\ax
 	/popcustom 13 5 FRIENDLY TARGET (${Spawn[id ${badID}].CleanName}) - BACKING OFF!
-	/if (${UseBeep}) /beep
+	|--/if (${UseBeep}) /beep
 
 	|-- Stop MY attack first
 	/attack off
@@ -4837,6 +4904,119 @@ Sub CheckHostilesNear(int hRadius)
 	/next nIdx
 
 /return FALSE
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: TargetNearestAggro(int aRadius)
+| --------------------------------------------------------------------------------------------
+| Call this the moment we ARRIVE at a pull step, before DoClearTargets.
+|
+| WHY: while we are navving to a step we very often pick up (or get handed) an
+| aggressive mob that is still way out ahead of us -- a mob that belongs to the
+| NEXT step, not this one. DoClearTargets then sees "I have an aggressive npc
+| target" and happily navs the whole group to it, so we blow straight past the
+| step we just spent the last 30 seconds walking to.
+|
+| This sub fixes the starting condition instead of the symptom: on arrival we
+| throw away whatever is on target and re-acquire the CLOSEST real aggro mob
+| inside ${aRadius}. Combat then starts on the mob that is actually here.
+|
+| SAFETY: skips corpses, non-aggressive spawns, un-targetable spawns, the
+| blacklisted ${LastFriendlyID}, and anything IsFriendly flags (PCs, mercs,
+| group/raid members and every flavour of pet). Runs SafeguardTarget on the
+| result before committing, exactly like the rest of the combat code.
+|
+| Sets and returns ${NearestAggroID} (0 = nothing valid in range, and in that
+| case we leave the client with NO target so DoClearTargets starts clean).
+| --------------------------------------------------------------------------------------------
+Sub TargetNearestAggro(int aRadius)
+	/declare aIdx	int local 0
+	/declare aMax	int local 0
+	/declare aID	int local 0
+
+	/varset NearestAggroID 0
+	/if (!${aRadius}) /varset aRadius ${ArrivalAggroRadius}
+	/if (!${aRadius}) /varset aRadius 35
+
+	|-- We are AT the step: make sure no leftover nav is still dragging us on.
+	/if (${Navigation.Active}) /squelch /nav stop
+	/delay 2
+
+	|-- Don't rip the target out from under a spell that is in flight.
+	/if (${Me.Casting.ID}) /delay 2s !${Me.Casting.ID}
+
+	|----------------------------------------------------------------------
+	|-- Walk the npc list nearest-first and take the first REAL aggro mob.
+	|----------------------------------------------------------------------
+	/varset aMax ${SpawnCount[npc radius ${aRadius}]}
+	/if (${aMax}>25) /varset aMax 25
+
+	/for aIdx 1 to ${aMax}
+		/varset aID ${NearestSpawn[${aIdx},npc radius ${aRadius}].ID}
+		/if (!${aID}) /continue
+		/if (${aID}==${LastFriendlyID}) /continue
+		/if (${Spawn[id ${aID}].Type.Equal[Corpse]}) /continue
+		/if (!${Spawn[id ${aID}].Targetable}) /continue
+		/if (!${Spawn[id ${aID}].Aggressive}) /continue
+		/call IsFriendly ${aID}
+		/if (${Macro.Return}) /continue
+		/varset NearestAggroID ${aID}
+		/break
+	/next aIdx
+	|----------------------------------------------------------------------
+
+	|----------------------------------------------------------------------
+	|-- Nothing valid within range: drop whatever we are holding. A far-off
+	|-- mob left on target here is EXACTLY what makes us over-run the step.
+	|----------------------------------------------------------------------
+	/if (!${NearestAggroID}) {
+		/if (${Target.ID} && !${Target.Type.Equal[Corpse]}) {
+			/message \aoArrived at step: \am[\at${Target.CleanName}\am]\ao is not at this location \ao(\at${Target.Distance}\ao), dropping target.\ax
+			/squelch /target clear
+			/delay 3
+		}
+		/if (${myTargetID}) /varset myTargetID 0
+		/return 0
+	}
+	|----------------------------------------------------------------------
+
+	|-- Already sat on the right mob: nothing to do.
+	/if (${Target.ID}==${NearestAggroID}) {
+		/varset myTargetID ${NearestAggroID}
+		/return ${NearestAggroID}
+	}
+
+	|----------------------------------------------------------------------
+	|-- Swap onto the closest mob.
+	|----------------------------------------------------------------------
+	/if (${Target.ID}) {
+		/squelch /target clear
+		/delay 3
+	}
+	/squelch /target id ${NearestAggroID}
+	/delay 1s ${Target.ID}==${NearestAggroID}
+
+	/call SafeguardTarget
+	/if (${FriendlyAbort}) {
+		/varset NearestAggroID 0
+		/varset myTargetID 0
+		/return 0
+	}
+
+	|-- Verify the target actually took before we tell the bots to assist.
+	/if (${Target.ID}!=${NearestAggroID}) {
+		/if (${Debugging}) /echo Sub TargetNearestAggro: could not target ${NearestAggroID}.
+		/varset NearestAggroID 0
+		/return 0
+	}
+
+	/varset myTargetID ${NearestAggroID}
+	/message \agArrived at step: engaging \aoCLOSEST\ag mob \aoID: \am[\at${Target.ID}\am] \aoName: \am[\at${Target.CleanName}\am] \aoDist: \am[\at${Target.Distance}\am]\ax
+	/squelch /ClearTarget usemytarget
+	/delay 3
+	|----------------------------------------------------------------------
+
+/return ${NearestAggroID}
 | --------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
