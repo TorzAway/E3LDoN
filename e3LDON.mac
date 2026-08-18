@@ -4875,7 +4875,7 @@ Sub ClearCorpseTarget
 | --------------------------------------------------------------------------------------------
 | Sets ${HostilesNear} TRUE only if a REAL hostile npc is aggressive nearby.
 |
-| ${Bool[${Spawn[npc radius NN].Aggressive}]} tests only the FIRST npc the
+| (${Bool[${Spawn[npc radius NN].Aggressive}]} tests only the FIRST npc the
 | search returns, and on most builds the "npc" search includes player pets --
 | so a group member's pet that is busy fighting reads as "aggressive npc
 | nearby" and blocks every loot gate. That is why corpses were being skipped.
@@ -6223,11 +6223,12 @@ Sub CheckCasting
 	/if (${Debugging}) /echo Sub CheckCasting Entry
 
 	|-------------------------
-	:CheckCastingNow
 	/if (${Me.Casting.ID}) {
+		/message \ayCurrently casting \am(\at${Me.Casting.Name}\am)\ay.
+		:CheckCastingNow	
 		/message \ag-- Waiting to stop casting.
 		/delay 1s !${Me.Casting.ID}
-		/goto :CheckCastingNow
+		/if (${Me.Casting.ID}) /goto :CheckCastingNow
 		/message \ag-- I am done casting.
 		/delay 1s
 		/if (${Target.ID} && (!${Me.XTarget} || !${Bool[${Spawn[npc radius 35].Aggressive}]})) /squelch /target clear
