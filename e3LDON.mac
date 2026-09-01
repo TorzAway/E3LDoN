@@ -5769,7 +5769,11 @@ Sub ReclaimAltDC
   |-- Sub Stuck and the TurboLoot pass both leave "/hidecorpse all" set, and a
   |-- hidden corpse is NOT in the spawn list -- the probe below then reports
   |-- "no corpses" and we walk away from loot. Always unhide before probing.
-  /hidecorpse none
+  |--/hidecorpse none
+  |------------------
+  /if (${LootMethod.Equal[E3]}) /hidecorpse looted
+  /if (!${LootMethod.Equal[E3]}) /hidecorpse none
+  |------------------
   /delay 5
 
   /message \ay- Checking for missed corpse(s).
