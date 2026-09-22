@@ -1,6 +1,10 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: September 19th, 2026 - 05:09:00 PM
+Last Updated: September 22nd, 2026 - 07:02:00 PM
+
+v7.7.9
+- Fix to properly disable Turboloot e3variables if not looting or not looting via turboloot.
+- Display % remaining cap wins for THEME CHECK mission getting.
 
 v7.7.8
 - Fix for AFKGM / AFKPC checks.
@@ -429,8 +433,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.7.8
-	/declare LastUpdated		string		outer	"Last Updated: September 19th, 2026 - 05:09:00 PM"
+	/declare version			string		outer	7.7.9
+	/declare LastUpdated		string		outer	"Last Updated: September 22nd, 2026 - 07:02:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -1026,11 +1030,12 @@ Sub CheckThings
 	|-------------------------	
 	| Looting Selection Setup
 	|-------------------------		
-	/if (${LootCorpse}) {		
+	/if (${LootCorpse}) {
 		/message ==================================================================
 		/message \ay--- \atENABLING\ax \am${MacroName}\ax LOOTING, WE WILL LOOT CORPSE(S).
 		/message ==================================================================		
 		/if (${LootMethod.Equal[DCONLY]}) {
+			/e3varset GrpMainLooter NOBODY
 			/e3varset ShouldLoot false
 			/squelch /lootoff
 			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot\ax
@@ -1046,6 +1051,7 @@ Sub CheckThings
 			|--------------------------------------------------			
 		}  
 		/if (${LootMethod.Equal[E3]}) {
+			/e3varset GrpMainLooter NOBODY
 			/e3varset ShouldLoot true
 			/squelch /looton
 			/message \ay--- \agLOOTING METHOD:\ax (\am${LootMethod}\ax) we will only loot according to \am${LootMethod}\ax settings.
@@ -1078,6 +1084,7 @@ Sub CheckThings
 		/message ==================================================================
 		/delay 3s
 	} else {
+		/e3varset GrpMainLooter NOBODY
 		/e3varset ShouldLoot false
 		/squelch /lootoff
 		/message ==================================================================
@@ -1498,10 +1505,14 @@ Sub SelectAdventureZone_TC
 	
 	/declare x 								int local
 	/declare y 								int local
-	/declare MostWinsNeeded 	int local 0
-	/declare TempCampWins 		int local 0
-	/declare TempCampWinsToGo	int local 0
-
+	/declare MostWinsNeeded 				int local 0
+	/declare TempCampWins 					int local 0
+	/declare TempCampWinsToGo				int local 0
+	
+	/declare PercentComplete				int local
+	/declare TotalCampWinsCompleted			int local
+	/declare TotalCampWinsValue				int local 367
+	
 	|------------------------------------------------------
 	| Camp 1 *** Guk_Wins_Max			int		outer 	70
 	| Camp 2 *** Miragul_Wins_Max		int 	outer 	68
@@ -1521,11 +1532,11 @@ Sub SelectAdventureZone_TC
 	|-----------------------------------------------------------------------------------------------------------------------------------------------
 	
 	|-------------------------
-	/declare Guk_Wins 			int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[1,3]}
-	/declare Miragul_Wins		int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[2,3]}
-	/declare Mistmoore_Wins		int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[3,3]}
-	/declare Ruj_Wins	 		int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[4,3]}
-	/declare Tak_Wins	 		int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[5,3]}
+	/declare Guk_Wins 				int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[1,3]}
+	/declare Miragul_Wins			int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[2,3]}
+	/declare Mistmoore_Wins			int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[3,3]}
+	/declare Ruj_Wins	 			int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[4,3]}
+	/declare Tak_Wins	 			int	local ${Window[AdventureStatsWnd].Child[AdvStats_ThemeList].List[5,3]}	
 	|-------------------------
 	
 	|------------------------------------------------------
@@ -1544,6 +1555,9 @@ Sub SelectAdventureZone_TC
 	/declare Mistmoore_WinsToGo	int	local ${Math.Calc[${Mistmoore_Wins_Max} - ${Mistmoore_Wins}]}
 	/declare Ruj_WinsToGo 	 	int	local ${Math.Calc[${Ruj_Wins_Max} - ${Ruj_Wins}]}
 	/declare Tak_WinsToGo 	 	int	local ${Math.Calc[${Tak_Wins_Max} - ${Tak_Wins}]}
+	
+	/varcalc TotalCampWinsCompleted ${Guk_Wins} + ${Miragul_Wins} + ${Mistmoore_Wins} + ${Ruj_Wins} + ${Tak_Wins}
+	/varcalc PercentComplete (${TotalCampWinsCompleted}/${TotalCampWinsValue})*100
 	|-------------------------	
 
 	|------------------------------------------------
@@ -1651,6 +1665,10 @@ Sub SelectAdventureZone_TC
 		|/echo MostWinsNeeded-X is index # (${MostWinsNeeded}) --		
     /next x
 	|-----
+	
+	/message \ayTotal Wins Needed\ao: \am(\ao${TotalCampWinsValue}\am) \ar|-| \ayCurrent Wins\ao: (\ag${TotalCampWinsCompleted}\am) \ar|-| \ayPercent Complete\ao: (\at${PercentComplete}%\am)
+	/message ==================================================================
+	
 	|--------------------------------------------------------		
 	/if (${MostWinsNeeded}>0) {
 		/message \ag The next \amLDON\ag \ay[\atTHEME CHECK\ay]\ag set to \ayCamp:\am(\ag${NextCamp_Num}\am) \ayTheme:\am(\ag${NextCamp_Theme}\am) \ayZone: \am(\ag${NextCamp_Bark}\am)
@@ -1678,7 +1696,7 @@ Sub SelectAdventureZone_TC
 		/call IniChange "General" "ThemeCheck" FALSE
 		/delay 20
 		/end
-	}
+	}	
 	|--------------------------------------------------------
 	
 	/if (${Debugging}) /echo Sub SelectAdventureZone_TC Exit
@@ -2221,8 +2239,8 @@ Sub GotoTask
 			|---------------------------------------------
 			/message \aoHeaded to a \at[\agquicksand pit\at]
 			/delay 1s
-			/squelch /e3bcgza /nav loc -945.89 121.15 -61.98
-			/call NavToLoc2 -945.89 121.15 -61.98
+			/squelch /e3bcgza /nav loc -952.03 117.87 -51.92
+			/call NavToLoc2 -952.03 117.87 -51.92
 			/delay 5
 			/while (${Navigation.Active}) {
 				/call SetLoc
