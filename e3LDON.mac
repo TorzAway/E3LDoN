@@ -1,6 +1,11 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: September 22nd, 2026 - 07:02:00 PM
+Last Updated: November 4th, 2026 - 08:44:00 PM
+
+
+v7.8.0
+- Added dynamic zoning to PoK or Marrs based on if we have Master Lazarus Charm / Origin AA ready to use.
+  If Neither is avaialble it will default to Marr's CAlling AA use.
 
 v7.7.9
 - Fix to properly disable Turboloot e3variables if not looting or not looting via turboloot.
@@ -433,8 +438,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.7.9
-	/declare LastUpdated		string		outer	"Last Updated: September 22nd, 2026 - 07:02:00 PM"
+	/declare version			string		outer	7.8.0
+	/declare LastUpdated		string		outer	"Last Updated: November 4th, 2026 - 08:44:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -467,7 +472,14 @@ Sub Main
 		/message \ayLooks like we do \arNOT\ax currently have a task assigned to us.
 		/if (!${Select[${Zone.ID},202,386,22,30,34,35,68]} && ${NextCamp_Bark.Equal[NONE]}) {
 			/message \ayLooks like we are \am[\atnot in a valid starting zone\am]\ay for LDoN zone routing.\ax
-			/call GoToMarrs
+			|------------------------------------------------------
+			|--- Check if we have Origin or Master Laz Charm ready.	
+			/if ((${FindItem[=Master Lazarus Charm].ID} && ${Me.ItemReady[=Master Lazarus Charm]}) || (${Me.AltAbility[331]} && ${Me.AltAbilityReady[331]})) {
+				/call GoToPoK	
+			} else {
+				/call GoToMarrs
+			}
+			|------------------------------------------------------
 			/call GoPoKMagus
 		}
 	}
@@ -1162,36 +1174,40 @@ Sub GoToMarrs
 		/delay 20s
 		/if (${Zone.ID} != ${TempleofMarr}) /goto :SelfPortOutToMarrs
 	}
-	|---------------------
-
-	/if (${Zone.ID} == ${TempleofMarr}) {
 	|----------------------------
-	/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone}) {		
-		|--------------------------
-		|--- Group - Start in Marrs
-		|---------------------------
-		/for y 1 to ${Group.Members} 
-		/message \ayChecking status of: \at(\ag${Group.Member[${y}].Name}\at)\ay.
-		/if (${Group.Member[${y}].OtherZone}) {
-			/message \ar(${Group.Member[${y}].Name}) is NOT in ZONE !
-			/squelch /e3bct ${Group.Member[${y}].Name} /nav stop
-			/if (${Group.Member[${y}].Class.ShortName.Equal[BRD]}) /squelch /e3bct ${Group.Member[${y}].Name} /playmelody stop
-			/squelch /e3bct ${Group.Member[${y}].Name} /keypress x
-			/delay 5
-			/squelch /e3bct ${Group.Member[${y}].Name} /stand
-			/delay 5
-			/squelch /e3bct ${Group.Member[${y}].Name} /alt act 511
-			/delay 5
-			/next y
-		} else {
-			/message \at(\ag${Group.Member[${y}].Name}\at)\ay is here.
-			/delay 5
-			/next y
+
+	|----------------------------
+	/if (${Zone.ID} == ${TempleofMarr}) {
+		|----------------------------
+		/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone}) {		
+			|--------------------------
+			|--- Group - Start in Marrs
+			|---------------------------
+			/for y 1 to ${Group.Members} 
+			/message \ayChecking status of: \at(\ag${Group.Member[${y}].Name}\at)\ay.
+			/if (${Group.Member[${y}].OtherZone}) {
+				/message \ar(${Group.Member[${y}].Name}) is NOT in ZONE !
+				/squelch /e3bct ${Group.Member[${y}].Name} /nav stop
+				/if (${Group.Member[${y}].Class.ShortName.Equal[BRD]}) /squelch /e3bct ${Group.Member[${y}].Name} /playmelody stop
+				/squelch /e3bct ${Group.Member[${y}].Name} /keypress x
+				/delay 5
+				/squelch /e3bct ${Group.Member[${y}].Name} /stand
+				/delay 5
+				/squelch /e3bct ${Group.Member[${y}].Name} /alt act 511
+				/delay 5
+				/next y
+			} else {
+				/message \at(\ag${Group.Member[${y}].Name}\at)\ay is here.
+				/delay 5
+				/next y
+			}
+			|---------------------------
+			/delay 20s
 		}
-		|---------------------------
-		/delay 20s
+		|----------------------------
 	}
-	
+	|----------------------------
+		
 	|----------------------------
 	/message \agAll group members are in \am[\atTemple of Marr\am]\g.
 	|----------------------------
@@ -1202,6 +1218,97 @@ Sub GoToMarrs
 	/if (${Zone.ID} == ${TempleofMarr}) /message \ayI am currently in \am[\atTemple of Marr\am]\ay.\ax
 	
 	/if (${Debugging}) /echo Sub GoToMarrs Exit
+/return
+| --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------
+| SUB: GoToPoK
+| --------------------------------------------------------------------------------------------
+Sub GoToPoK
+	/if (${Debugging}) /echo Sub GoToMarrs Entry
+	/declare y int local 1
+	
+	/message \arOoops..   your not in a valid starting zone for macro, Porting to Plane of Knowledge !
+	/message \ayI am headed to \am[\atPlane of Knowledge\am]\ay.\ax
+		
+	|----------------------------------------------------------
+	/if (${FindItem[=Master Lazarus Charm].ID} && ${Me.ItemReady[=Master Lazarus Charm]}) {
+		|---------------------
+		|--- Group - Plane of Knowledge - "Master Lazarus Charm"
+		|---------------------
+		/delay 10
+		/squelch /e3bcgza /nav stop
+		/if (${GrpHasBRDClass}) /squelch /e3bct ${GrpBRDName} /playmelody stop
+		/squelch /e3bcgza /keypress x
+		/delay 6
+		/squelch /e3bcgza /stand
+		/message \ayI am headed to \am[\atPlane of Knowledge\am]\ay using \am[\atMaster Lazarus Charm\am]\ay.\ax
+		/delay 5
+		/squelch /useitem "Master Lazarus Charm"
+		/delay 20s
+	}
+	|----------------------------------------------------------
+	
+	|----------------------------------------------------------
+	/if (${Me.AltAbility[331]} && ${Me.AltAbilityReady[331]}) {
+		|---------------------
+		|--- Group - Plane of Knowledge - "ORIGIN AA"
+		|---------------------
+		/delay 10
+		/squelch /e3bcgza /nav stop
+		/if (${GrpHasBRDClass}) /squelch /e3bct ${GrpBRDName} /playmelody stop
+		/squelch /e3bcgza /keypress x
+		/delay 6
+		/squelch /e3bcgza /stand		
+		/message \ayI am headed to \am[\atPlane of Knowledge\am]\ay using \am[\atOrigin AA\am]\ay.\ax				
+		/delay 5
+		/squelch /e3bcgza /alt act 331
+		/delay 20s
+	}
+	|----------------------------------------------------------
+	
+	|----------------------------------------------------------	
+	/if (${Zone.ID} == ${PlaneofKnowledge}) {
+		|----------------------------
+		/while (${Group.Member[1].OtherZone} || ${Group.Member[2].OtherZone} || ${Group.Member[3].OtherZone} || ${Group.Member[4].OtherZone} || ${Group.Member[5].OtherZone}) {		
+			|--------------------------
+			|--- Group - Start in Marrs
+			|---------------------------
+			/for y 1 to ${Group.Members} 
+			/message \ayChecking status of: \at(\ag${Group.Member[${y}].Name}\at)\ay.
+			|---------------------------
+			/if (${Group.Member[${y}].OtherZone}) {
+				/message \ar(${Group.Member[${y}].Name}) is NOT in ZONE !
+				/squelch /e3bct ${Group.Member[${y}].Name} /nav stop
+				/if (${Group.Member[${y}].Class.ShortName.Equal[BRD]}) /squelch /e3bct ${Group.Member[${y}].Name} /playmelody stop
+				/squelch /e3bct ${Group.Member[${y}].Name} /keypress x
+				/delay 5
+				/squelch /e3bct ${Group.Member[${y}].Name} /stand
+				/delay 5
+				/squelch /e3bct ${Group.Member[${y}].Name} /alt act 331
+				/delay 5
+				/next y
+			} else {
+				/message \at(\ag${Group.Member[${y}].Name}\at)\ay is here.
+				/delay 5
+				/next y
+			}
+			|---------------------------
+			/delay 20s
+		}
+		|---------------------------		
+	}
+	|----------------------------------------------------------
+	|----------------------------
+	/message \agAll group members are in \am[\atPlane of Knowledge\am]\g.
+	|----------------------------
+	/call GroupWait
+	/delay 2s
+	|----------------------------
+	
+	/if (${Zone.ID} == ${PlaneofKnowledge}) /message \ayI am currently in \am[\atPlane of Knowledge\am]\ay.\ax
+
+	/if (${Debugging}) /echo Sub GoToPoK Exit
 /return
 | --------------------------------------------------------------------------------------------
 
@@ -1557,7 +1664,8 @@ Sub SelectAdventureZone_TC
 	/declare Tak_WinsToGo 	 	int	local ${Math.Calc[${Tak_Wins_Max} - ${Tak_Wins}]}
 	
 	/varcalc TotalCampWinsCompleted ${Guk_Wins} + ${Miragul_Wins} + ${Mistmoore_Wins} + ${Ruj_Wins} + ${Tak_Wins}
-	/varcalc PercentComplete (${TotalCampWinsCompleted}/${TotalCampWinsValue})*100
+	/varcalc PercentComplete ${Math.Calc[(${TotalCampWinsCompleted}/${TotalCampWinsValue})*100]}
+	
 	|-------------------------	
 
 	|------------------------------------------------
@@ -1665,7 +1773,7 @@ Sub SelectAdventureZone_TC
 		|/echo MostWinsNeeded-X is index # (${MostWinsNeeded}) --		
     /next x
 	|-----
-	
+	/popcustom 14 3 LDoN Percentage Complete: (${PercentComplete}%)
 	/message \ayTotal Wins Needed\ao: \am(\ao${TotalCampWinsValue}\am) \ar|-| \ayCurrent Wins\ao: (\ag${TotalCampWinsCompleted}\am) \ar|-| \ayPercent Complete\ao: (\at${PercentComplete}%\am)
 	/message ==================================================================
 	
@@ -2038,9 +2146,9 @@ Sub GotoTask
 		|----------------------
 		/if (${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && !${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && ${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length} || ${Window[AdventureRequestWnd].Child[AdvRqst_NPCText].Text.Find[unearthed grave]} && ${Window[AdventureRequestWnd].Child[AdvRqst_EnterTimeLeftLabel].Text.Length} && !${Window[AdventureRequestWnd].Child[AdvRqst_CompleteTimeLeftLabel].Text.Length}) {
 			/message \aoHeaded to an \at[\agunearthed grave\at]
-			/if (${runcounter}==0) /squelch /e3bcgz /nav loc -111.31 3861.35 -39.73
+			/if (${runcounter}==0) /squelch /e3bcgz /nav loc -106.92 3874.19 -36.49
 			/delay 1s
-			/call NavToLoc2 -111.31 3861.35 -39.73
+			/call NavToLoc2 -106.92 3874.19 -36.49
 			/delay 5
 			/while (${Navigation.Active}) {
 				/call SetLoc
@@ -3714,7 +3822,16 @@ Sub FinishAdventure
 	|-----------------------------------------------	
 	
 	| -- *** --
-	/call GoToMarrs
+	
+	|------------------------------------------------------
+	|--- Check if we have Origin or Master Laz Charm ready.	
+	/if ((${FindItem[=Master Lazarus Charm].ID} && ${Me.ItemReady[=Master Lazarus Charm]}) || (${Me.AltAbility[331]} && ${Me.AltAbilityReady[331]})) {
+		/call GoToPoK	
+	} else {
+		/call GoToMarrs
+	}
+	|------------------------------------------------------
+	
 	/call GetAdventureStatus
 	/call GotoTask
 	| -- *** --
