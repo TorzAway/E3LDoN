@@ -1,9 +1,9 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: November 4th, 2026 - 08:44:00 PM
+Last Updated: November 4th, 2026 - 09:43:00 PM
 
 
-v7.8.0
+v7.8.1
 - Added dynamic zoning to PoK or Marrs based on if we have Master Lazarus Charm / Origin AA ready to use.
   If Neither is avaialble it will default to Marr's CAlling AA use.
 
@@ -438,8 +438,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.8.0
-	/declare LastUpdated		string		outer	"Last Updated: November 4th, 2026 - 08:44:00 PM"
+	/declare version			string		outer	7.8.1
+	/declare LastUpdated		string		outer	"Last Updated: November 4th, 2026 - 09:43:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -1232,7 +1232,7 @@ Sub GoToPoK
 	/message \ayI am headed to \am[\atPlane of Knowledge\am]\ay.\ax
 		
 	|----------------------------------------------------------
-	/if (${FindItem[=Master Lazarus Charm].ID} && ${Me.ItemReady[=Master Lazarus Charm]}) {
+	/if (${Zone.ID}!=${PlaneofKnowledge}) && ${FindItem[=Master Lazarus Charm].ID} && ${Me.ItemReady[=Master Lazarus Charm]}) {
 		|---------------------
 		|--- Group - Plane of Knowledge - "Master Lazarus Charm"
 		|---------------------
@@ -1250,7 +1250,7 @@ Sub GoToPoK
 	|----------------------------------------------------------
 	
 	|----------------------------------------------------------
-	/if (${Me.AltAbility[331]} && ${Me.AltAbilityReady[331]}) {
+	/if (${Zone.ID}!=${PlaneofKnowledge}) && ${Me.AltAbility[331]} && ${Me.AltAbilityReady[331]}) {
 		|---------------------
 		|--- Group - Plane of Knowledge - "ORIGIN AA"
 		|---------------------
