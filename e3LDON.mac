@@ -1,7 +1,9 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-Last Updated: November 4th, 2026 - 09:43:00 PM
+"Last Updated: November 6th, 2026 - 12:37:00 PM"
 
+v7.8.2
+- Added TurnOnEvolution function.
 
 v7.8.1
 - Added dynamic zoning to PoK or Marrs based on if we have Master Lazarus Charm / Origin AA ready to use.
@@ -438,8 +440,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.8.1
-	/declare LastUpdated		string		outer	"Last Updated: November 4th, 2026 - 09:43:00 PM"
+	/declare version			string		outer	7.8.2
+	/declare LastUpdated		string		outer	"Last Updated: November 6th, 2026 - 12:37:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -826,6 +828,7 @@ Sub Declares
 	/call CheckIni ${IniFileName} General CheckBots bool TRUE
 	/call CheckIni ${IniFileName} General CheckDriverPet bool FALSE
 	/call CheckINI ${IniFileName} General DoBurns bool FALSE
+	/call CheckINI ${IniFileName} General DoEvolve bool FALSE
 	/call CheckINI ${IniFileName} General DoInvis bool TRUE
 	/call CheckINI ${IniFileName} General DoPBAOE bool FALSE
 	|------------------------------------------------------------------------------
@@ -981,7 +984,11 @@ Sub Declares
 | --------------------------------------------------------------------------------------------
 Sub CheckThings
 	/if (${Debugging}) /echo Sub CheckThings Entry
-
+	
+	|--------------------
+	/if (${DoEvolve}) /call TurnOnEvolution
+	|---------------------	
+	
 	/message \ayChecking running status of \am[\atxfix.lua\am]\ao:\ax
 
 	|--------
@@ -1123,6 +1130,25 @@ Sub CheckThings
 	
 /return
 | --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------------
+| SUB: TurnOnEvolution
+| --------------------------------------------------------------------------------------------------
+Sub TurnOnEvolution
+/if (${Debugging}) /echo Sub TurnOnEvolution Entry
+	
+	|-----------------------------------
+	|- Activate Item Evolution if needed
+	|-----------------------------------
+		/message ==================================================================
+		/message \ag+\ax \aoACTIVATING \atItem Evolution \ag !!!\ax
+		/message ==================================================================	
+		/e3bcgza /notify InventoryWindow IWEI_AllOnButton leftmouseup
+	|-----------------------------------
+
+/if (${Debugging}) /echo Sub TurnOnEvolution Exit
+/return
+| --------------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
 | SUB: CheckInADungeon
@@ -2950,6 +2976,10 @@ Sub SwarmPullStepMove(string SpawnPull_Step)
 		| Before we go to next step ...   EXIT the loop if we have mission success !
 		|-----------------------------------------------
 		
+		|--------------------
+		/if (${DoEvolve}) /call TurnOnEvolution
+		|---------------------		
+		
     /next x
 	/message Completed all SpawnPull steps.
 	|----------------------------------------------------------------------------------------------
@@ -2988,6 +3018,7 @@ Sub Go2LastSwarmLoc
 	/if (!${Zone.ShortName.Equal[${LastSwarmed_Dungeon}]}) {
 		/call ForeceSpawnStepReset
 	}
+		
 	|-----------------------------------------------------------------------
 	|/echo \arGo2LastSwarmLoc: \ay/call SwarmPullStepMove ${LastSwarmed_Step}
 	|-----------------------------------------------------------------------
@@ -2998,6 +3029,27 @@ Sub Go2LastSwarmLoc
 	/if (${Debugging}) /echo Sub Go2LastSwarmLoc Exit
 /return
 | --------------------------------------------------------------------------------------------
+
+| --------------------------------------------------------------------------------------------------
+| SUB: TurnOnEvolution
+| --------------------------------------------------------------------------------------------------
+Sub TurnOnEvolution
+/if (${Debugging}) /echo Sub TurnOnEvolution Entry
+	
+	|-----------------------------------
+	|- Activate Item Evolution if needed
+	|-----------------------------------
+	/if (${DoEvolve}) {
+		/message ==================================================================
+		/message \ag+\ax \aoACTIVATING \atItem Evolution \ag !!!\ax
+		/message ==================================================================	
+		/e3bcgza /notify InventoryWindow IWEI_AllOnButton leftmouseup
+	}
+	|-----------------------------------
+
+/if (${Debugging}) /echo Sub TurnOnEvolution Exit
+/return
+| --------------------------------------------------------------------------------------------------
 
 | --------------------------------------------------------------------------------------------
 | SUB: DoSwarmPull		Note: Define The Array Variables and kick off Go2LastSwarmLoc
