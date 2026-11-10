@@ -1,6 +1,10 @@
 |****************************************************************************************************************
 E3LDON.mac - by Kroaking
-"Last Updated: November 6th, 2026 - 12:37:00 PM"
+"Last Updated: November 9th, 2026 - 07:11:00 PM"
+
+v7.8.3
+- Added an additional Location Step for AilesOfBlood Mistmoore dungeon
+  Users were reaching last step without reaching mob count goal.
 
 v7.8.2
 - Added TurnOnEvolution function.
@@ -440,8 +444,8 @@ Sub Main
 	/declare notkillable		int 		outer	0
 	/declare Announce			bool		outer	FALSE
 	/declare startTask 			int 		outer	${Zone.ID}
-	/declare version			string		outer	7.8.2
-	/declare LastUpdated		string		outer	"Last Updated: November 6th, 2026 - 12:37:00 PM"
+	/declare version			string		outer	7.8.3
+	/declare LastUpdated		string		outer	"Last Updated: November 9th, 2026 - 07:11:00 PM"
 	
 	/message ==================================================================
  	/call Declares
@@ -3313,18 +3317,19 @@ Sub DoSwarmPull
 	|------------------------------------------------------
 	/message \ayCreating dynamic dungeon array.
 	/if (!${Defined[LocalStepArray_${Zone.ShortName}_7]}) {
-		/message \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_7[1,7]\am]\ax
-		/declare LocalStepArray_${Zone.ShortName}_7[1,7]	string	outer
+		/message \ayCreating \am[\atLocalStepArray_${Zone.ShortName}_7[1,8]\am]\ax
+		/declare LocalStepArray_${Zone.ShortName}_7[1,8]	string	outer
 		/delay 10
 	}
 	|------------------------------------------------------
-	/varset LocalStepArray_${Zone.ShortName}_7[1,1] -276.36 -149.95 5.45
-	/varset LocalStepArray_${Zone.ShortName}_7[1,2] -140.05 97.44 -0.52
-	/varset LocalStepArray_${Zone.ShortName}_7[1,3] 129.87 -46.06 0.68
-	/varset LocalStepArray_${Zone.ShortName}_7[1,4] 229.47 114.54 4.67	
-	/varset LocalStepArray_${Zone.ShortName}_7[1,5] 428.26 -18.14 7.72
-	/varset LocalStepArray_${Zone.ShortName}_7[1,6] 83.96 318.89 -10.62
-	/varset LocalStepArray_${Zone.ShortName}_7[1,7] -309.26 299.73 -3.40
+	/varset LocalStepArray_${Zone.ShortName}_7[1,1] -134.22 -229.94 4.66	
+	/varset LocalStepArray_${Zone.ShortName}_7[1,2] -276.36 -149.95 5.45	
+	/varset LocalStepArray_${Zone.ShortName}_7[1,3] -140.05 97.44 -0.52
+	/varset LocalStepArray_${Zone.ShortName}_7[1,4] 129.87 -46.06 0.68
+	/varset LocalStepArray_${Zone.ShortName}_7[1,5] 229.47 114.54 4.67	
+	/varset LocalStepArray_${Zone.ShortName}_7[1,6] 428.26 -18.14 7.72
+	/varset LocalStepArray_${Zone.ShortName}_7[1,7] 83.96 318.89 -10.62
+	/varset LocalStepArray_${Zone.ShortName}_7[1,8] -309.26 299.73 -3.40
 	|------------------------------------------------------
 	/message \ayStep \am[\ag1\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,1]}\am]\ay
 	/message \ayStep \am[\ag2\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,2]}\am]\ay
@@ -3333,6 +3338,7 @@ Sub DoSwarmPull
 	/message \ayStep \am[\ag5\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,5]}\am]\ay
 	/message \ayStep \am[\ag6\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,6]}\am]\ay
 	/message \ayStep \am[\ag7\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,7]}\am]\ay
+	/message \ayStep \am[\ag8\am]\ay set to \am[\ag${LocalStepArray_${Zone.ShortName}_7[1,8]}\am]\ay
 	/message ==================================================================
 	|----------------------------------------------------
 	/message \agGet ready, the fun is starting soon !
